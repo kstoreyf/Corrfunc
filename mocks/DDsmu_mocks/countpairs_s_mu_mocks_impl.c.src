@@ -26,6 +26,7 @@
 #include "set_cosmo_dist.h"
 #include "cpu_features.h"
 #include "progressbar.h"
+#include "proj_functions_DOUBLE.h"
 
 #if defined(_OPENMP)
 #include <omp.h>
@@ -191,7 +192,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                  const int numthreads,
                                  const int autocorr,
                                  const char *sbinfile,
-                                 const double max_mu,
+                                 const DOUBLE max_mu,
                                  const int nmu_bins,
                                  const int cosmology,
                                  results_countpairs_mocks_s_mu *results,
@@ -280,9 +281,9 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     /***********************
      *initializing the  bins
      ************************/
-    double *supp;
+    DOUBLE *supp;
     int nsbin;
-    double smin,smax;
+    DOUBLE smin,smax;
     setup_bins(sbinfile,&smin,&smax,&nsbin,&supp);
     if( ! (smin > 0.0 && smax > 0.0 && smin < smax && nsbin > 0)) {
         fprintf(stderr,"Error: Could not setup with S bins correctly. (smin = %lf, smax = %lf, with nbins = %d). Expected non-zero smin/smax with smax > smin and nbins >=1 \n",
@@ -326,11 +327,11 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         if(autocorr == 0) {
             get_max_DOUBLE(ND2, czD2, &czmax);
         }
-        const double zmax = czmax * inv_speed_of_light + 0.01;
+        const DOUBLE zmax = czmax * inv_speed_of_light + 0.01;
 
         const int workspace_size = 10000;
-        double *interp_redshift  = my_calloc(sizeof(*interp_redshift), workspace_size);//the interpolation is done in 'z' and not in 'cz'
-        double *interp_comoving_dist = my_calloc(sizeof(*interp_comoving_dist),workspace_size);
+        DOUBLE *interp_redshift  = my_calloc(sizeof(*interp_redshift), workspace_size);//the interpolation is done in 'z' and not in 'cz'
+        DOUBLE *interp_comoving_dist = my_calloc(sizeof(*interp_comoving_dist),workspace_size);
         int Nzdc = set_cosmo_dist(zmax, workspace_size, interp_redshift, interp_comoving_dist, cosmology);
         if(Nzdc < 0) {
             free(interp_redshift);free(interp_comoving_dist);
@@ -429,7 +430,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     }
 
     /* If there too few cells (BOOST_CELL_THRESH is ~10), and the number of cells can be increased, then boost bin refine factor by ~1*/
-    const double avg_np = ((double)ND1)/(nmesh_x*nmesh_y*nmesh_z);
+    const DOUBLE avg_np = ((DOUBLE)ND1)/(nmesh_x*nmesh_y*nmesh_z);
     const int8_t max_nmesh = fmax(nmesh_x, fmax(nmesh_y, nmesh_z));
     if((max_nmesh <= BOOST_CELL_THRESH || avg_np >= BOOST_NUMPART_THRESH)
         && max_nmesh < options->max_cells_per_dim) {
@@ -515,6 +516,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     }
     /*---Gridlink-variables----------------*/
     const int totnbins = (nmu_bins+1)*(nsbin+1);
+    const int nprojbins = nsbin-1;
 #if defined(_OPENMP)
     uint64_t **all_npairs = (uint64_t **) matrix_calloc(sizeof(uint64_t), numthreads, totnbins);
     DOUBLE **all_savg = NULL;
@@ -525,10 +527,14 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(need_weightavg) {
       all_weightavg = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,totnbins);
     }
+    DOUBLE **all_projpairs = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,nprojbins);
+    DOUBLE **all_projpairs_tensor = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,nprojbins*nprojbins);
+
 
 #else //USE_OMP
     uint64_t npairs[totnbins];
-    DOUBLE savg[totnbins], weightavg[totnbins];
+    DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
+    DOUBLE projpairs_tensor[nprojbins*nprojbins];
 
     for(int i=0; i <totnbins;i++) {
         npairs[i] = 0;
@@ -537,6 +543,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         }
         if(need_weightavg) {
             weightavg[i] = ZERO;
+        }
+    }
+    for(int i=0;i<nprojbins;i++) {
+        projpairs[i] = ZERO;
+        for(int j=0;j<nprojbins;j++) {
+            projpairs_tensor[i*nprojbins+j] = ZERO;
         }
     }
 #endif //USE_OMP
@@ -558,7 +570,9 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     {
         const int tid = omp_get_thread_num();
         uint64_t npairs[totnbins];
-        DOUBLE savg[totnbins], weightavg[totnbins];
+        DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
+        DOUBLE projpairs_tensor[nprojbins*nprojbins];
+
         for(int i=0;i<totnbins;i++) {
             npairs[i] = 0;
             if(options->need_avg_sep) {
@@ -566,6 +580,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             }
             if(need_weightavg) {
                 weightavg[i] = ZERO;
+            }
+        }
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+            for(int j=0;j<nprojbins;j++) {
+                projpairs_tensor[i*nprojbins+j] = ZERO;
             }
         }
 
@@ -615,7 +635,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              options->fast_divide_and_NR_steps,
                                                                              smax, smin, nsbin,
                                                                              nmu_bins, supp_sqr, mu_max,
-                                                                             this_savg, npairs,
+                                                                             this_savg, npairs, projpairs,
+                                                                             projpairs_tensor,
                                                                              this_weightavg, extra->weight_method);
                     /* This actually causes a race condition under OpenMP - but mostly
                        I care that an error occurred - rather than the exact value of
@@ -643,7 +664,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              options->fast_divide_and_NR_steps,
                                                                              smax, smin, nsbin,
                                                                              nmu_bins, supp_sqr, mu_max,
-                                                                             this_savg, npairs,
+                                                                             this_savg, npairs, projpairs,
+                                                                             projpairs_tensor,
                                                                              this_weightavg, extra->weight_method);
                     /* This actually causes a race condition under OpenMP - but mostly
                        I care that an error occurred - rather than the exact value of
@@ -660,6 +682,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             }
             if(need_weightavg) {
                 all_weightavg[tid][i] = weightavg[i];
+            }
+        }
+        for (int i=0;i<nprojbins;i++) {
+            all_projpairs[tid][i] = projpairs[i];
+            for(int j=0;j<nprojbins;j++) {
+                all_projpairs_tensor[tid][i*nprojbins+j] = projpairs_tensor[i*nprojbins+j];
             }
         }
     }//close the omp parallel region
@@ -681,6 +709,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         if(need_weightavg) {
             matrix_free((void **) all_weightavg, numthreads);
         }
+        matrix_free((void **) all_projpairs, numthreads);
+        matrix_free((void **) all_projpairs_tensor, numthreads);
 #endif
         return EXIT_FAILURE;
     }
@@ -693,7 +723,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
 
 #if defined(_OPENMP)
     uint64_t npairs[totnbins];
-    DOUBLE savg[totnbins], weightavg[totnbins];
+    DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
+    DOUBLE projpairs_tensor[nprojbins*nprojbins];
     for(int i=0;i<totnbins;i++) {
         npairs[i] = 0;
         if(options->need_avg_sep) {
@@ -701,6 +732,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         }
         if(need_weightavg) {
             weightavg[i] = ZERO;
+        }
+    }
+    for(int i=0;i<nprojbins;i++) {
+        projpairs[i] = ZERO;
+        for(int j=0;j<nprojbins;j++) {
+            projpairs_tensor[i*nprojbins+j] = ZERO;
         }
     }
 
@@ -714,6 +751,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 weightavg[j] += all_weightavg[i][j];
             }
         }
+        for(int j=0;j<nprojbins;j++) {
+            projpairs[j] += all_projpairs[i][j];
+            for(int k=0;k<nprojbins;k++) {
+                projpairs_tensor[j*nprojbins+k] += all_projpairs_tensor[i][j*nprojbins+k];
+            }
+        }
     }
     matrix_free((void **) all_npairs, numthreads);
     if(options->need_avg_sep) {
@@ -722,10 +765,13 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(need_weightavg) {
         matrix_free((void **) all_weightavg, numthreads);
     }
+    matrix_free((void **) all_projpairs, numthreads);
+    matrix_free((void **) all_projpairs_tensor, numthreads);
+
 #endif //USE_OMP
 
-    //The code does not double count for autocorrelations
-    //which means the npairs and savg values need to be doubled;
+    //The code does not DOUBLE count for autocorrelations
+    //which means the npairs and savg values need to be DOUBLEd;
     if(autocorr == 1) {
         const uint64_t int_fac = 2;
         const DOUBLE dbl_fac = (DOUBLE) 2.0;
@@ -738,6 +784,14 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 weightavg[i] *= dbl_fac;
             }
         }
+        //TODO: do i also want to DOUBLE this? think so
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] *= dbl_fac;
+            for(int j=0;j<nprojbins;j++) {
+                projpairs_tensor[i*nprojbins+j] *= dbl_fac;
+            }
+        }
+
     }
 
     for(int i=0;i<totnbins;i++) {
@@ -750,16 +804,21 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             }
         }
     }
+    // don't need proj_pairs here, not averaging
+
+
 
     results->nsbin   = nsbin;
     results->nmu_bins = nmu_bins;
-    results->mu_max = max_mu;//NOTE max_mu which is double and not mu_max (which might be float)
+    results->mu_max = max_mu;//NOTE max_mu which is DOUBLE and not mu_max (which might be float)
     results->mu_min = ZERO;
     results->npairs = my_malloc(sizeof(*(results->npairs)), totnbins);
+    results->projpairs = my_malloc(sizeof(*(results->npairs)), nprojbins);
+    results->projpairs_tensor = my_malloc(sizeof(*(results->npairs)), nprojbins*nprojbins);
     results->supp   = my_malloc(sizeof(*(results->supp))  , nsbin);
     results->savg  = my_malloc(sizeof(*(results->savg)) , totnbins);
-    results->weightavg  = my_calloc(sizeof(double)  , totnbins);
-    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || results->weightavg == NULL) {
+    results->weightavg  = my_calloc(sizeof(DOUBLE)  , totnbins);
+    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || results->weightavg == NULL || results->projpairs == NULL) {
         free_results_mocks_s_mu(results);
         free(supp);
         return EXIT_FAILURE;
@@ -785,6 +844,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 results->weightavg[index] = weightavg[index];
             }
         }
+    }
+    for(int i=0;i<nprojbins;i++) {
+        results->projpairs[i] = projpairs[i];
+        for(int j=0;j<nprojbins;j++) {
+                results->projpairs_tensor[i*nprojbins+j] = projpairs_tensor[i*nprojbins+j];
+            }
     }
     free(supp);
 

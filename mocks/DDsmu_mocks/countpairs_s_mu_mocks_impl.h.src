@@ -9,6 +9,7 @@
 
 #pragma once
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,7 +29,8 @@ extern "C" {
                                                     const DOUBLE smax, const DOUBLE smin, const int nsbin,
                                                     const int nmu_bins, const DOUBLE *supp_sqr,
                                                     const DOUBLE mu_max,
-                                                    DOUBLE *src_savg, uint64_t *src_npairs,
+                                                    DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
+                                                    DOUBLE *src_projpairs_tensor,
                                                     DOUBLE *src_weightavg, const weight_method_t weight_method);
 
     extern countpairs_mocks_func_ptr_DOUBLE countpairs_s_mu_mocks_driver_DOUBLE(const struct config_options *options) __attribute__((warn_unused_result));
@@ -38,7 +40,7 @@ extern "C" {
                                             const int numthreads,
                                             const int autocorr,
                                             const char *sbinfile,
-                                            const double mu_max,
+                                            const DOUBLE mu_max,
                                             const int nmu_bins,
                                             const int cosmology,
                                             results_countpairs_mocks_s_mu *results,

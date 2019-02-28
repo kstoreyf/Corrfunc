@@ -12,12 +12,15 @@ zz*
 .DS_Store
 *.pyc
 *_float.[ch]
+*_double.[ch]
 DD
 wtheta
+DDsmu
 build*
 paper/*
 dist*
 *egg*
+*_mocks
 *.pro
 logbins
 vpf
