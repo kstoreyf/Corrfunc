@@ -228,15 +228,16 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
 #ifndef DOUBLE_PREC
                     //Taken from Intel's site: https://software.intel.com/en-us/articles/wiener-filtering-using-intel-advanced-vector-extensions
                     // (which has bugs in it, just FYI). Plus, https://techblog.lankes.org/2014/06/16/avx-isnt-always-faster-then-see/
-                    __m256 rc  = _mm256_rcp_ps(m_sqr_norm_l_norm_s);
+                    __m256d rc  = _mm256_rcp_ps(m_sqr_norm_l_norm_s);
 #else
                     //we have to do this for DOUBLEs now.
                     //if the vrcpps instruction is not generated, there will
                     //be a ~70 cycle performance hit from switching between
                     //AVX and SSE modes.
-                    __m128 float_tmp1 =  _mm256_cvtpd_ps(m_sqr_norm_l_norm_s);
+                    // TODO: I ADDED THIS CASTING TO GET IT TO COMPILE AND IT'S HELLA HACKY
+                    __m128 float_tmp1 =  _mm256_cvtpd_ps((__m256d) m_sqr_norm_l_norm_s);
                     __m128 float_inv_tmp1 = _mm_rcp_ps(float_tmp1);
-                    AVX_FLOATS rc = _mm256_cvtps_pd(float_inv_tmp1);
+                    AVX_FLOATS rc = (AVX_FLOATS) _mm256_cvtps_pd(float_inv_tmp1);
 #endif//DOUBLE_PREC
 
                   //We have the DOUBLE->float->approx. reciprocal->DOUBLE process done.
@@ -869,7 +870,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
     /*----------------- FALLBACK CODE --------------------*/
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    printf("%d\n", nsbin);
     const int64_t nprojbins = nsbin-1;
     uint64_t npairs[totnbins];
     DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
