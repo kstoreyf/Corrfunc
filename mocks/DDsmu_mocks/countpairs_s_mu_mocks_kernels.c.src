@@ -1016,16 +1016,13 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 //                weight_func = get_weight_func_by_method_DOUBLE(weight_method);
 //            }
 
-            //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
-            //proj_func = tophat_DOUBLE;
-
             //number of edges vs bins
             int nsbins = nsbin-1;
             proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
 
             DOUBLE u[nprojbins];
-            //u = proj_func(projdata);
-            tophat_DOUBLE(&projdata, u);
+            //tophat_DOUBLE(&projdata, u);
+            piecewise_DOUBLE(&projdata, u);
 
             //#magic - TODO, find better solution (was getting e-310s)
             DOUBLE tiny = 1.0e-16;
