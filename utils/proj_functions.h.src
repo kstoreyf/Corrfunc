@@ -14,7 +14,7 @@
 #pragma once
 
 #include "defs.h"
-
+#include "utils.h"
 
 #include <stdint.h>
 
@@ -129,6 +129,7 @@ static inline void compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, 
 
 static inline void evaluate_xi(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
                                                 int nsbins, DOUBLE *sbins, DOUBLE *xi){
+
 
     // will need to generalize, projbins won't always be rela   ted to sbins
     DOUBLE supp_sqr[nsbins];

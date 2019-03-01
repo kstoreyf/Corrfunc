@@ -2461,12 +2461,13 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
-    double xi[nsbins];
+    double xi[nsvals];
     for(int i=0;i<nsvals;i++){
         xi[i] = 0;
     }
     //ACTUAL FUNCTION
     evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi);
+
 
     NPY_END_THREADS;
 
@@ -2482,7 +2483,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         PyList_Append(xiret, xiitem);
         Py_XDECREF(xiitem);
     }
-    //don't think i need to free results bc didn't allocate memory (unless nprojbins gets real big...)
+    //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
     return Py_BuildValue("O", xiret);
 
 

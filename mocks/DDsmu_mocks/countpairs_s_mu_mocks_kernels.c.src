@@ -869,7 +869,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
     /*----------------- FALLBACK CODE --------------------*/
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    printf("%d\n", nsbin);
     const int64_t nprojbins = nsbin-1;
     uint64_t npairs[totnbins];
     DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
