@@ -31,7 +31,8 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
                                                               const DOUBLE smax, const DOUBLE smin, const int nsbin,const int nmu_bins,
                                                               const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                               DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
-                                                              DOUBLE *src_projpairs_tensor, DOUBLE *src_weightavg, const weight_method_t weight_method)
+                                                              DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
+                                                              DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -43,6 +44,7 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
+    //TODO: deal with proj_method etc in avx
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     //TODO: make nprojbins parameter
@@ -470,7 +472,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                                                               const DOUBLE smax, const DOUBLE smin, const int nsbin,
                                                               const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                               DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
-                                                              DOUBLE *src_projpairs_tensor,
+                                                              DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
                                                               DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
     if(N0 == 0 || N1 == 0) {
@@ -483,6 +485,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
     (void) fast_divide; //unused
+    //TODO: deal with proj_method etc in sse
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     const int64_t nprojbins = nsbin-1;
@@ -848,9 +851,10 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                                                         const DOUBLE smax, const DOUBLE smin, const int nsbin,
                                                         const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                         DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
-                                                        DOUBLE *src_projpairs_tensor,
+                                                        DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
                                                         DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
+
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
@@ -861,6 +865,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
+    const int32_t need_proj = src_projpairs != NULL;
 
     (void) fast_divide;//unused parameter but required to keep the same function signature amongst the kernels
 
@@ -883,13 +888,15 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             weightavg[i]=ZERO;
         }
     }
-    for(int i=0;i<nprojbins;i++) {
-        projpairs[i] = ZERO;
-        for(int j=0;j<nprojbins;j++) {
-            projpairs_tensor[i*nprojbins+j] = ZERO;
+
+    if(need_proj){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+            for(int j=0;j<nprojbins;j++) {
+                projpairs_tensor[i*nprojbins+j] = ZERO;
+            }
         }
     }
-
 
     // A copy whose pointers we can advance
     weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0},
@@ -906,7 +913,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
     const DOUBLE dmu = mu_max/(DOUBLE) nmu_bins;
     const DOUBLE inv_dmu = 1.0/dmu;
-
     int64_t nleft=N1, n_off = 0;
     for(int64_t i=0;i<N0;i++) {
         const DOUBLE xpos = *x0++;
@@ -986,7 +992,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
                 pairweight = weight_func(&pair);
             }
-
             for(int kbin=nsbin-1;kbin>=1;kbin--) {
                 if(sqr_s >= supp_sqr[kbin-1]) {
                     const int ibin = kbin*(nmu_bins+1) + mubin;
@@ -997,48 +1002,46 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                     if(need_weightavg){
                         weightavg[ibin] += pairweight;
                     }
-                    // TODO: generalize
-                    //projpairs[ibin] += pairweight;
                     break;
                 }
 
             }//finding kbin
 
-//            weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0},
-//                                 local_w1 = {.weights={NULL}, .num_weights=0};
-//            pair_struct_DOUBLE pair = {.num_weights=0};
-//            weight_func_t_DOUBLE weight_func = NULL;
-//            if(need_weightavg){
-//                // Same particle list, new copy of num_weights pointers into that list
-//                local_w0 = *weights0;
-//                local_w1 = *weights1;
-//                pair.num_weights = local_w0.num_weights;
-//                weight_func = get_weight_func_by_method_DOUBLE(weight_method);
-//            }
+            //TODO: pass proj struct instead of constructing here, like weights
+            proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
 
+            proj_func_t_DOUBLE proj_func = NULL;
+            if(need_proj){
             //number of edges vs bins
-            int nsbins = nsbin-1;
-            proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
+                int nsbins = nsbin-1;
+                projdata.nprojbins = nprojbins;
+                projdata.nsbins = nsbins;
+                projdata.sqr_s = sqr_s;
+                projdata.supp_sqr = supp_sqr;
+                //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
 
-            DOUBLE u[nprojbins];
-            //tophat_DOUBLE(&projdata, u);
-            piecewise_DOUBLE(&projdata, u);
+                proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
-            //#magic - TODO, find better solution (was getting e-310s)
-            DOUBLE tiny = 1.0e-16;
-            //outer product to get tensor value
-            for(int p1=0;p1<nprojbins;p1++){
-                projpairs[p1] += u[p1];
-                for(int p2=0;p2<nprojbins;p2++){
-                    DOUBLE uval = u[p1]*u[p2];
-                    // if value is basically zero, don't bother adding (and breaks ZERO)
-                    if (uval>tiny || uval<-tiny){
-                        projpairs_tensor[p1*nprojbins+p2] += uval;
+                DOUBLE u[nprojbins];
+                //tophat_DOUBLE(&projdata, u);
+                //piecewise_DOUBLE(&projdata, u);
+                proj_func(&projdata, u);
+
+                //#magic - TODO, find better solution (was getting e-310s)
+                DOUBLE tiny = 1.0e-16;
+                //outer product to get tensor value
+                for(int p1=0;p1<nprojbins;p1++){
+                    projpairs[p1] += u[p1];
+                    for(int p2=0;p2<nprojbins;p2++){
+                        DOUBLE uval = u[p1]*u[p2];
+                        // if value is basically zero, don't bother adding (and breaks ZERO)
+                        if (uval>tiny || uval<-tiny){
+                            projpairs_tensor[p1*nprojbins+p2] += uval;
+                        }
                     }
                 }
             }
-//            printf("pt[0] %f\n", projpairs_tensor[0]);
-//            printf("pt[last] %f\n", projpairs_tensor[nprojbins*nprojbins-1]);
+
 
         }//j loop over second set of particles
     }//i loop over first set of particles
@@ -1052,10 +1055,12 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             src_weightavg[i] += weightavg[i];
         }
     }
-    for(int i=0;i<nprojbins;i++) {
-        src_projpairs[i] += projpairs[i];
-        for(int j=0;j<nprojbins;j++) {
-            src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
+    if(need_proj) {
+        for(int i=0;i<nprojbins;i++) {
+            src_projpairs[i] += projpairs[i];
+            for(int j=0;j<nprojbins;j++) {
+                src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
+            }
         }
     }
 

@@ -1408,7 +1408,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     int cosmology=1;
     int nmu_bins=10;
     double mu_max=1.0;
-    char *binfile, *weighting_method_str = NULL;
+    char *binfile, *weighting_method_str = NULL, *proj_method_str = NULL;
 
     static char *kwlist[] = {
         "autocorr",
@@ -1436,10 +1436,11 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         "c_api_timer",
         "isa",/* instruction set to use of type enum isa; valid values are AVX, SSE, FALLBACK (enum) */
         "weight_type",
+        "proj_type",
         NULL
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiidisO!O!O!|O!O!O!O!O!bbbbbbbhbis", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiidisO!O!O!|O!O!O!O!O!bbbbbbbhbiss", kwlist,
                                        &autocorr,&cosmology,&nthreads,&mu_max,&nmu_bins,&binfile,
                                        &PyArray_Type,&x1_obj,
                                        &PyArray_Type,&y1_obj,
@@ -1457,7 +1458,8 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
                                        &(options.max_cells_per_dim),
                                        &(options.c_api_timer),
                                        &(options.instruction_set),
-                                       &weighting_method_str)
+                                       &weighting_method_str,
+                                       &proj_method_str)
 
          ) {
 
@@ -1572,6 +1574,27 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         }
     }
 
+    /* Validate the user's choice of projection function */
+    proj_method_t proj_method;
+    int pstatus = get_proj_method_by_name(proj_method_str, &proj_method);
+    if(pstatus != EXIT_SUCCESS){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: unknown proj_type %s!", __FUNCTION__, proj_method_str);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+
+    //TODO: when clean up avx so can input no projection, change to line below
+    //if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
+    if (options.instruction_set!=FALLBACK){
+
+        printf("Applying projection requires fallback method, switching instruction set\n");
+        options.instruction_set = FALLBACK;
+    }
+    add_extra_options(&extra, proj_method);
+    //TODO: perform more validation about inputs to given projection function
+    //TODO: make sure isa is correct (can't do avx or sse right now)
+
     /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
     PyObject *x1_array = NULL, *y1_array = NULL, *z1_array = NULL, *weights1_array = NULL;
@@ -1667,7 +1690,6 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     if(status != EXIT_SUCCESS) {
         Py_RETURN_NONE;
     }
-
 
 #if 0
     /* Output pairs*/
@@ -2394,6 +2416,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *sbins_obj=NULL;
 
     int nprojbins, nsvals, nsbins;
+    char *proj_method_str = NULL;
 
     static char *kwlist[] = {
         "nprojbins",
@@ -2402,16 +2425,18 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         "svals",
         "nsbins",
         "sbins",
+        "proj_type",
         NULL
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!iO!", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!iO!s", kwlist,
                                        &nprojbins,
                                        &PyArray_Type,&amps_obj,
                                        &nsvals,
                                        &PyArray_Type,&svals_obj,
                                        &nsbins,
-                                       &PyArray_Type,&sbins_obj
+                                       &PyArray_Type,&sbins_obj,
+                                       &proj_method_str
                                        )
 
         ) {
@@ -2430,6 +2455,15 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         }
         countpairs_mocks_error_out(module,msg);
 
+        Py_RETURN_NONE;
+    }
+
+    proj_method_t proj_method;
+    int pstatus = get_proj_method_by_name(proj_method_str, &proj_method);
+    if(pstatus != EXIT_SUCCESS){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: unknown proj_type %s!", __FUNCTION__, proj_method_str);
+        countpairs_mocks_error_out(module, msg);
         Py_RETURN_NONE;
     }
 
@@ -2466,7 +2500,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         xi[i] = 0;
     }
     //ACTUAL FUNCTION
-    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi);
+    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method);
 
 
     NPY_END_THREADS;

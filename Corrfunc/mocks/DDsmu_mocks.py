@@ -21,7 +21,8 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
                 fast_divide_and_NR_steps=0,
                 xbin_refine_factor=2, ybin_refine_factor=2,
                 zbin_refine_factor=1, max_cells_per_dim=100,
-                c_api_timer=False, isa='fastest', weight_type=None):
+                c_api_timer=False, isa='fastest', weight_type=None,
+                proj_type=None):
     """
     Calculate the 2-D pair-counts corresponding to the projected correlation
     function, :math:`\\xi(s, \mu)`. The pairs are counted in bins of
@@ -279,10 +280,13 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
 
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
-    for k in ['weights1', 'weights2', 'weight_type', 'RA2', 'DEC2', 'CZ2']:
+    for k in ['weights1', 'weights2', 'weight_type', 'proj_type', 'RA2', 'DEC2', 'CZ2']:
         v = locals()[k]
         if v is not None:
             kwargs[k] = v
+
+    print("kwargs")
+    print (kwargs)
 
     integer_isa = translate_isa_string_to_enum(isa)
     sbinfile, delete_after_use = return_file_with_rbins(binfile)

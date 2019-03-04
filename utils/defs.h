@@ -316,7 +316,8 @@ static inline struct config_options get_config_options(void)
 }
 
 
-#define EXTRA_OPTIONS_HEADER_SIZE     (1024)
+#define EXTRA_OPTIONS_HEADER_SIZE     (1024) //TODO change now includes proj??
+//#define EXTRA_OPTIONS_HEADER_SIZE     (2048) //TODO change now includes proj??
 
 #define MAX_NUM_WEIGHTS 10
 
@@ -331,6 +332,14 @@ typedef enum {
   PAIR_PRODUCT=0,
   NUM_WEIGHT_TYPE 
 } weight_method_t; // type of weighting to apply
+
+typedef enum {
+  NONEPROJ=-42, /* default */
+  TOPHAT=0,
+  PIECEWISE=1,
+  NUM_PROJ_TYPE
+} proj_method_t; // type of projection to apply
+
 
 /* Gives the number of weight arrays required by the given weighting method
  */
@@ -361,6 +370,28 @@ static inline int get_weight_method_by_name(const char *name, weight_method_t *m
         
     return EXIT_FAILURE;
 }
+
+/* Maps a name to projection method
+   `method` will be set on return.
+ */
+static inline int get_proj_method_by_name(const char *name, proj_method_t *method){
+    if(name == NULL || strcmp(name, "") == 0){
+        *method = NONEPROJ;
+        return EXIT_SUCCESS;
+    }
+    // These should not be strncmp because we want the implicit length comparison of strcmp.
+    // It is still safe because one of the args is a string literal.
+    if(strcmp(name, "tophat") == 0 || strcmp(name, "t") == 0){
+        *method = TOPHAT;
+        return EXIT_SUCCESS;
+    }
+    if(strcmp(name, "piecewise") == 0 || strcmp(name, "p") == 0){
+        *method = PIECEWISE;
+        return EXIT_SUCCESS;
+    }
+
+    return EXIT_FAILURE;
+}
     
 struct extra_options
 {
@@ -368,7 +399,12 @@ struct extra_options
     weight_struct weights0;
     weight_struct weights1;
     weight_method_t weight_method; // the function that will get called to give the weight of a particle pair
-    uint8_t reserved[EXTRA_OPTIONS_HEADER_SIZE - 2*sizeof(weight_struct) - sizeof(weight_method_t)];
+
+    //proj_struct projdata;
+    proj_method_t proj_method;
+
+    uint8_t reserved[EXTRA_OPTIONS_HEADER_SIZE - 2*sizeof(weight_struct) - sizeof(weight_method_t) - sizeof(proj_method_t)];
+
 };
 
 // weight_method determines the number of various weighting arrays that we allocate
@@ -377,15 +413,26 @@ static inline struct extra_options get_extra_options(const weight_method_t weigh
     struct extra_options extra;
     ENSURE_STRUCT_SIZE(struct extra_options, EXTRA_OPTIONS_HEADER_SIZE);//compile-time check for making sure struct is correct size
     memset(&extra, 0, EXTRA_OPTIONS_HEADER_SIZE);
-    
+
     extra.weight_method = weight_method;
-    
+
     weight_struct *w0 = &(extra.weights0);
     weight_struct *w1 = &(extra.weights1);
     w0->num_weights = get_num_weights_by_method(extra.weight_method);
     w1->num_weights = w0->num_weights;
 
     return extra;
+}
+
+// eventually this could be within get_extra_options, but don't want to break other calls (rppi, theta)
+static inline void add_extra_options(struct extra_options *extra, const proj_method_t proj_method)
+{
+    //TODO: do i need??
+    //ENSURE_STRUCT_SIZE(struct extra_options, EXTRA_OPTIONS_HEADER_SIZE);//compile-time check for making sure struct is correct size
+    //memset(&extra, 0, EXTRA_OPTIONS_HEADER_SIZE);
+
+    extra->proj_method = proj_method;
+
 }
 
 static inline void print_cell_timings(struct config_options *options)
