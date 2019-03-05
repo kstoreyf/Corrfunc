@@ -21,13 +21,14 @@
 #include <gsl/gsl_matrix_DOUBLE.h>
 #include <gsl/gsl_linalg.h>
 
-// Info about a particle pair that we will pass to the weight function
+// Info about a particle pair that we will pass to the projection function
 typedef struct
 {
     int64_t nprojbins;
     int64_t nsbins;
     DOUBLE sqr_s;
-    DOUBLE *supp_sqr; //proper way to have array in struct?
+    DOUBLE *supp_sqr;
+    DOUBLE *supp;
 
 } proj_struct_DOUBLE;
 
@@ -56,8 +57,10 @@ static inline void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 static inline void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
     // Assumes nsbins = nprojbins
+
     for(int p=0;p<proj->nsbins;p++){
 
+        printf("supp? %f %f\n", proj->supp[p], proj->supp_sqr[p]);
         // peaks are bin averages, for now - need to take square roots
         double peak = 0.5*(sqrt(proj->supp_sqr[p]) + sqrt(proj->supp_sqr[p+1]));
         // assumes bins in ascending order
@@ -170,6 +173,8 @@ static inline void evaluate_xi(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *
     //plus 1 because one more edge than number of bins
     for (int i=0; i<nsbins+1; i++){
         supp_sqr[i] = pow(sbins[i], 2);
+
+
     }
 
     proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
@@ -185,6 +190,9 @@ static inline void evaluate_xi(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *
         projdata.nsbins = nsbins;
         projdata.sqr_s = sqr_s;
         projdata.supp_sqr = supp_sqr;
+        //TODO: get to work!?!
+        projdata.supp = sbins;
+
         //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
 
         proj_func(&projdata, u);

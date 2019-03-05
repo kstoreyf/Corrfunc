@@ -32,7 +32,8 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
                                                               const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                               DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                               DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
-                                                              DOUBLE *src_weightavg, const weight_method_t weight_method)
+                                                              DOUBLE *src_weightavg, const weight_method_t weight_method,
+                                                              int nprojbins)
 {
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -48,7 +49,7 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     //TODO: make nprojbins parameter
-    const int64_t nprojbins = nsbin-1;
+    //const int64_t nprojbins = nsbin-1;
     const DOUBLE sqr_mumax = mu_max*mu_max;
     const DOUBLE sqr_smax  = smax*smax;
     const DOUBLE sqr_smin  = smin*smin;
@@ -473,7 +474,8 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                                                               const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                               DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                               DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
-                                                              DOUBLE *src_weightavg, const weight_method_t weight_method)
+                                                              DOUBLE *src_weightavg, const weight_method_t weight_method,
+                                                              int nprojbins)
 {
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -488,7 +490,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
     //TODO: deal with proj_method etc in sse
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    const int64_t nprojbins = nsbin-1;
+    //const int64_t nprojbins = nsbin-1;
     const DOUBLE sqr_mumax = mu_max*mu_max;
     const DOUBLE sqr_smax  = smax*smax;
     const DOUBLE sqr_smin  = smin*smin;
@@ -852,7 +854,8 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                                                         const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                         DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                         DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
-                                                        DOUBLE *src_weightavg, const weight_method_t weight_method)
+                                                        DOUBLE *src_weightavg, const weight_method_t weight_method,
+                                                        int nprojbins)
 {
 
     if(N0 == 0 || N1 == 0) {
@@ -875,7 +878,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
     /*----------------- FALLBACK CODE --------------------*/
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    const int64_t nprojbins = nsbin-1;
+    //const int64_t nprojbins = nsbin-1;
     uint64_t npairs[totnbins];
     DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
     DOUBLE projpairs_tensor[nprojbins*nprojbins];

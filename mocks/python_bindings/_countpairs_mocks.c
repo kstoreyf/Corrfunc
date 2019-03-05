@@ -1407,6 +1407,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     int nthreads=4;
     int cosmology=1;
     int nmu_bins=10;
+    int nprojbins=0;
     double mu_max=1.0;
     char *binfile, *weighting_method_str = NULL, *proj_method_str = NULL;
 
@@ -1437,10 +1438,11 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         "isa",/* instruction set to use of type enum isa; valid values are AVX, SSE, FALLBACK (enum) */
         "weight_type",
         "proj_type",
-        NULL
+        "nprojbins",
+        NULL,
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiidisO!O!O!|O!O!O!O!O!bbbbbbbhbiss", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiidisO!O!O!|O!O!O!O!O!bbbbbbbhbissi", kwlist,
                                        &autocorr,&cosmology,&nthreads,&mu_max,&nmu_bins,&binfile,
                                        &PyArray_Type,&x1_obj,
                                        &PyArray_Type,&y1_obj,
@@ -1459,7 +1461,8 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
                                        &(options.c_api_timer),
                                        &(options.instruction_set),
                                        &weighting_method_str,
-                                       &proj_method_str)
+                                       &proj_method_str,
+                                       &nprojbins)
 
          ) {
 
@@ -1591,7 +1594,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         printf("Applying projection requires fallback method, switching instruction set\n");
         options.instruction_set = FALLBACK;
     }
-    add_extra_options(&extra, proj_method);
+    add_extra_options(&extra, proj_method, nprojbins);
     //TODO: perform more validation about inputs to given projection function
     //TODO: make sure isa is correct (can't do avx or sse right now)
 
@@ -1725,8 +1728,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     }
 
     //TODO: generalize
-
-    const int nprojbins = results.nsbin-1;
+    //const int nprojbins = results.nsbin-1;
 
     for(int i=0;i<nprojbins;i++) {
         PyObject *projitem = NULL;

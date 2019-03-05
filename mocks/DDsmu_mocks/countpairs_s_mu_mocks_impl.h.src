@@ -31,7 +31,8 @@ extern "C" {
                                                     const DOUBLE mu_max,
                                                     DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                     DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
-                                                    DOUBLE *src_weightavg, const weight_method_t weight_method);
+                                                    DOUBLE *src_weightavg, const weight_method_t weight_method,
+                                                    int nprojbins);
 
     extern countpairs_mocks_func_ptr_DOUBLE countpairs_s_mu_mocks_driver_DOUBLE(const struct config_options *options) __attribute__((warn_unused_result));
 

@@ -402,8 +402,10 @@ struct extra_options
 
     //proj_struct projdata;
     proj_method_t proj_method;
+    int nprojbins;
 
-    uint8_t reserved[EXTRA_OPTIONS_HEADER_SIZE - 2*sizeof(weight_struct) - sizeof(weight_method_t) - sizeof(proj_method_t)];
+    uint8_t reserved[EXTRA_OPTIONS_HEADER_SIZE - 2*sizeof(weight_struct) - sizeof(weight_method_t)
+                                                                    - sizeof(proj_method_t) - sizeof(int)];
 
 };
 
@@ -425,13 +427,14 @@ static inline struct extra_options get_extra_options(const weight_method_t weigh
 }
 
 // eventually this could be within get_extra_options, but don't want to break other calls (rppi, theta)
-static inline void add_extra_options(struct extra_options *extra, const proj_method_t proj_method)
+static inline void add_extra_options(struct extra_options *extra, const proj_method_t proj_method, int nprojbins)
 {
     //TODO: do i need??
     //ENSURE_STRUCT_SIZE(struct extra_options, EXTRA_OPTIONS_HEADER_SIZE);//compile-time check for making sure struct is correct size
     //memset(&extra, 0, EXTRA_OPTIONS_HEADER_SIZE);
 
     extra->proj_method = proj_method;
+    extra->nprojbins = nprojbins;
 
 }
 

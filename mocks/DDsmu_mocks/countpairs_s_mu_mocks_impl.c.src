@@ -518,7 +518,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     }
     /*---Gridlink-variables----------------*/
     const int totnbins = (nmu_bins+1)*(nsbin+1);
-    const int nprojbins = nsbin-1;
+    const int nprojbins = extra->nprojbins;
 #if defined(_OPENMP)
     uint64_t **all_npairs = (uint64_t **) matrix_calloc(sizeof(uint64_t), numthreads, totnbins);
     DOUBLE **all_savg = NULL;
@@ -649,7 +649,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              nmu_bins, supp_sqr, mu_max,
                                                                              this_savg, npairs, this_projpairs,
                                                                              this_projpairs_tensor, extra->proj_method,
-                                                                             this_weightavg, extra->weight_method);
+                                                                             this_weightavg, extra->weight_method,
+                                                                             extra->nprojbins);
                     /* This actually causes a race condition under OpenMP - but mostly
                        I care that an error occurred - rather than the exact value of
                        the error status */
@@ -680,7 +681,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              nmu_bins, supp_sqr, mu_max,
                                                                              this_savg, npairs, this_projpairs,
                                                                              this_projpairs_tensor, extra->proj_method,
-                                                                             this_weightavg, extra->weight_method);
+                                                                             this_weightavg, extra->weight_method,
+                                                                             extra->nprojbins);
                     /* This actually causes a race condition under OpenMP - but mostly
                        I care that an error occurred - rather than the exact value of
                        the error status */
