@@ -77,16 +77,18 @@ static inline void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
 static inline void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
+    double s = sqrt(proj->sqr_s);
+    
     double gamma=2.7, s0=15.0;
+    double powlaw = pow(s/s0, -1*gamma);
+    u[0] = powlaw;
+
     double amp=0.004, width=10, mean=107;
-    for(int p=0;p<proj->nprojbins;p++){
-
-        double s = sqrt(proj->sqr_s);
-        double powlaw = pow(s/s0, -1*gamma);
-
-        double bump = amp * exp(-1*pow(s-mean,2)/(2*pow(width,2)));
-        u[p] = powlaw + bump;
-    }
+    double bump = amp * exp(-1*pow(s-mean,2)/(2*pow(width,2)));
+    u[1] = bump;
+   
+    double dwidth = amp*pow(s-mean,2)/pow(width,3) * exp(-1*pow(s-mean,2)/(2*pow(width,2))); 
+    u[2] = dwidth;
 }
 
 
