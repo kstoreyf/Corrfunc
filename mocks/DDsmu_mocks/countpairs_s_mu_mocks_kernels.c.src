@@ -857,6 +857,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                                                         DOUBLE *src_weightavg, const weight_method_t weight_method,
                                                         int nprojbins)
 {
+    //printf("kernel\n");
 
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -1035,6 +1036,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //outer product to get tensor value
                 for(int p1=0;p1<nprojbins;p1++){
                     projpairs[p1] += u[p1];
+                    //printf("u %f\n",u[p1]);
                     for(int p2=0;p2<nprojbins;p2++){
                         DOUBLE uval = u[p1]*u[p2];
                         // if value is basically zero, don't bother adding (and breaks ZERO)

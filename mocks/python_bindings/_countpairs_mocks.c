@@ -1596,7 +1596,6 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     }
     add_extra_options(&extra, proj_method, nprojbins);
     //TODO: perform more validation about inputs to given projection function
-    //TODO: make sure isa is correct (can't do avx or sse right now)
 
     /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
@@ -1668,6 +1667,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
+    printf("powa %d nprojbins %d\n", (int)proj_method, nprojbins);
     results_countpairs_mocks_s_mu results;
     double c_api_time = 0.0;
     int status = countpairs_mocks_s_mu(ND1,phiD1,thetaD1,czD1,
@@ -1685,6 +1685,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         c_api_time = options.c_api_time;
     }
     NPY_END_THREADS;
+    printf("here\n");
 
     /* Clean up. */
     Py_DECREF(x1_array);Py_DECREF(y1_array);Py_DECREF(z1_array);Py_XDECREF(weights1_array);//x1 should absolutely not be NULL

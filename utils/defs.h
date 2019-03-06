@@ -337,6 +337,7 @@ typedef enum {
   NONEPROJ=-42, /* default */
   TOPHAT=0,
   PIECEWISE=1,
+  POWERLAW=2,
   NUM_PROJ_TYPE
 } proj_method_t; // type of projection to apply
 
@@ -387,6 +388,10 @@ static inline int get_proj_method_by_name(const char *name, proj_method_t *metho
     }
     if(strcmp(name, "piecewise") == 0 || strcmp(name, "p") == 0){
         *method = PIECEWISE;
+        return EXIT_SUCCESS;
+    }
+    if(strcmp(name, "powerlaw") == 0 || strcmp(name, "pow") == 0){
+        *method = POWERLAW;
         return EXIT_SUCCESS;
     }
 
