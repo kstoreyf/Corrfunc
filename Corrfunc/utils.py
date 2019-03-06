@@ -976,29 +976,25 @@ def sys_pipes():
 
 def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
 
-        try:
-            from Corrfunc._countpairs_mocks import convert_3d_proj_counts_to_amplitude as \
-                amp_extn
-        except ImportError:
-            msg = "Could not import the C extension for computing amplitudes."
-            raise ImportError(msg)
+    try:
+        from Corrfunc._countpairs_mocks import convert_3d_proj_counts_to_amplitude as \
+            amp_extn
+    except ImportError:
+        msg = "Could not import the C extension for computing amplitudes."
+        raise ImportError(msg)
 
-        import numpy as np
-        from Corrfunc.utils import translate_isa_string_to_enum, fix_ra_dec, \
-            return_file_with_rbins, sys_pipes
-        from future.utils import bytes_to_native_str
+    import numpy as np
+    from Corrfunc.utils import sys_pipes
 
-        print('Computing amplitudes (Corrfunc/utils)')
-        with sys_pipes():
-            #TODO: allow passing kwargs
-            print("bins",nprojbins)
-            amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
-        #amps = amps[0]
-        print(amps)
-        return amps
+    print('Computing amplitudes (Corrfunc/utils)')
+    with sys_pipes():
+        # TODO: allow passing kwargs
+        amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
+    print(amps)
+    return np.array(amps)
 
 
-def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins):
+def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type):
     try:
         from Corrfunc._countpairs_mocks import evaluate_xi as \
             eval_extn
@@ -1007,16 +1003,18 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins):
         raise ImportError(msg)
 
     import numpy as np
-    from Corrfunc.utils import translate_isa_string_to_enum, fix_ra_dec, \
-        return_file_with_rbins, sys_pipes
-    from future.utils import bytes_to_native_str
+    from Corrfunc.utils import sys_pipes
+
+    if not proj_type:
+        msg = "Cannot pass a null project type to evaluate_xi"
+        raise ValueError(msg)
 
     print('Evaluating xi (Corrfunc/utils)')
     with sys_pipes():
         # TODO: allow passing kwargs
-        xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins)
+        xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type)
 
-    return xi
+    return np.array(xi)
 
 
 if __name__ == '__main__':
