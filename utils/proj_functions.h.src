@@ -92,6 +92,64 @@ static inline void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 }
 
 
+static inline void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+
+    double s = sqrt(proj->sqr_s);
+
+    FILE *dfile;
+    dfile = fopen("dcosmos.dat", "r");
+
+    //read file into array
+
+    int nres = 500;
+    double sarr[nres];
+    double dOmega_c[nres];
+    double dOmega_b[nres];
+
+    char string[1000];
+    for(i = 0; i < nres; i++){
+        fscanf(dfile,"%lf %lf %lf",&sarr[i],&dOmega_c[i],&dOmega_b[i]);
+        idx[i] = i;
+        fgets(string,1000,dfile);
+    }
+
+    fclose(dfile);
+
+//    int ndcosmos = 1+6; //1 is r
+//    int nres = 500;
+//    double dcosmos[ndcosmos][nres];
+
+//    for (int i = 0; i<ndcosmos; i++) {
+//        for (int j = 0; j<nres; j++) {
+//          fscanf(dfile, "%f", &dcosmos[i][j]);
+//        }
+//
+//        char eol;                         // dummy variable
+//        fscanf(dfile, "%c", &eol);     // read \n character
+//    }
+
+    //inialise and allocate the gsl objects
+    gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation, sarr, dOmega_c, nres);
+    gsl_interp_accel * accelerator =  gslinterp_accel_alloc();
+
+    //get interpolation for x = 1981
+    double dOc = gsl_interp_eval(interpolation, sarr, dOmega_c, s, accelerator);
+
+    //inialise and allocate the gsl objects
+    gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation, sarr, dOmega_b, nres);
+    gsl_interp_accel * accelerator =  gslinterp_accel_alloc();
+
+    //get interpolation for x = 1981
+    double dOb = gsl_interp_eval(interpolation, sarr, dOmega_b, s, accelerator);
+
+    u[0] = dOc;
+    u[1] = dOb;
+
+}
+
+
 
 //////////////////////////////////
 // Utility functions
