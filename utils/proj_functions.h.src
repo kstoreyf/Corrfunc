@@ -20,6 +20,8 @@
 
 #include <gsl/gsl_matrix_DOUBLE.h>
 #include <gsl/gsl_linalg.h>
+#include <gsl/gsl_interp.h>
+
 
 // Info about a particle pair that we will pass to the projection function
 typedef struct
@@ -107,9 +109,8 @@ static inline void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
     double dOmega_b[nres];
 
     char string[1000];
-    for(i = 0; i < nres; i++){
+    for(int i = 0; i < nres; i++){
         fscanf(dfile,"%lf %lf %lf",&sarr[i],&dOmega_c[i],&dOmega_b[i]);
-        idx[i] = i;
         fgets(string,1000,dfile);
     }
 
@@ -131,18 +132,18 @@ static inline void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
     //inialise and allocate the gsl objects
     gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
     gsl_interp_init(interpolation, sarr, dOmega_c, nres);
-    gsl_interp_accel * accelerator =  gslinterp_accel_alloc();
+    gsl_interp_accel * accelerator =  gsl_interp_accel_alloc();
 
     //get interpolation for x = 1981
     double dOc = gsl_interp_eval(interpolation, sarr, dOmega_c, s, accelerator);
 
     //inialise and allocate the gsl objects
-    gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
-    gsl_interp_init(interpolation, sarr, dOmega_b, nres);
-    gsl_interp_accel * accelerator =  gslinterp_accel_alloc();
+    gsl_interp *interpolation1 = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation1, sarr, dOmega_b, nres);
+    gsl_interp_accel * accelerator1 =  gsl_interp_accel_alloc();
 
     //get interpolation for x = 1981
-    double dOb = gsl_interp_eval(interpolation, sarr, dOmega_b, s, accelerator);
+    double dOb = gsl_interp_eval(interpolation1, sarr, dOmega_b, s, accelerator1);
 
     u[0] = dOc;
     u[1] = dOb;
@@ -166,6 +167,8 @@ static inline proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_metho
             return &piecewise_DOUBLE;
         case POWERLAW:
             return &powerlaw_DOUBLE;
+        case DCOSMO:
+            return &dcosmo_DOUBLE;
         default:
         case NONEPROJ:
             return NULL;
