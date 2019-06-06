@@ -105,12 +105,13 @@ static inline void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
     int nres = 500;
     double sarr[nres];
+    double base[nres];
     double dOmega_c[nres];
     double dOmega_b[nres];
 
     char string[1000];
     for(int i = 0; i < nres; i++){
-        fscanf(dfile,"%lf %lf %lf",&sarr[i],&dOmega_c[i],&dOmega_b[i]);
+        fscanf(dfile,"%lf %lf %lf %lf",&sarr[i],&base[i],&dOmega_c[i],&dOmega_b[i]);
         fgets(string,1000,dfile);
     }
 
@@ -129,24 +130,26 @@ static inline void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 //        fscanf(dfile, "%c", &eol);     // read \n character
 //    }
 
-    //inialise and allocate the gsl objects
-    gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
-    gsl_interp_init(interpolation, sarr, dOmega_c, nres);
-    gsl_interp_accel * accelerator =  gsl_interp_accel_alloc();
+    
 
-    //get interpolation for x = 1981
-    double dOc = gsl_interp_eval(interpolation, sarr, dOmega_c, s, accelerator);
+    gsl_interp *interpolation_base = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation_base, sarr, base, nres);
+    gsl_interp_accel * accelerator_base =  gsl_interp_accel_alloc();
+    double baseval = gsl_interp_eval(interpolation_base, sarr, base, s, accelerator_base);
 
-    //inialise and allocate the gsl objects
-    gsl_interp *interpolation1 = gsl_interp_alloc(gsl_interp_linear,nres);
-    gsl_interp_init(interpolation1, sarr, dOmega_b, nres);
-    gsl_interp_accel * accelerator1 =  gsl_interp_accel_alloc();
+    gsl_interp *interpolation_d0c = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation_d0c, sarr, dOmega_c, nres);
+    gsl_interp_accel * accelerator_d0c =  gsl_interp_accel_alloc();
+    double dOc = gsl_interp_eval(interpolation_d0c, sarr, dOmega_c, s, accelerator_d0c);
 
-    //get interpolation for x = 1981
-    double dOb = gsl_interp_eval(interpolation1, sarr, dOmega_b, s, accelerator1);
+    gsl_interp *interpolation_d0b = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation_d0b, sarr, dOmega_b, nres);
+    gsl_interp_accel * accelerator_d0b =  gsl_interp_accel_alloc();
+    double dOb = gsl_interp_eval(interpolation_d0b, sarr, dOmega_b, s, accelerator_d0b);
 
-    u[0] = dOc;
-    u[1] = dOb;
+    u[0] = baseval;
+    u[1] = dOc;
+    u[2] = dOb;
 
 }
 
