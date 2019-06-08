@@ -42,7 +42,6 @@ typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*);
 //////////////////////////////////
 
 static inline void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
-
     int ins = -1;
     for(int p=0;p<proj->nsbins;p++){
         u[p] = 0;

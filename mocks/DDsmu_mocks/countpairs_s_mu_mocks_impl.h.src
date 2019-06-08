@@ -20,6 +20,7 @@ extern "C" {
 
 #include "countpairs_s_mu_mocks.h" //for definition of results_countpairs_mocks
 
+
     extern void interrupt_handler_countpairs_s_mu_mocks_DOUBLE(int signo);
 
     typedef int (*countpairs_mocks_func_ptr_DOUBLE)(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0, DOUBLE *d0, const weight_struct_DOUBLE *weights0,

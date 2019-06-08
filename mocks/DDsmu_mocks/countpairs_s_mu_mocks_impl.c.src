@@ -656,7 +656,6 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                        the error status */
                     abort_status |= status;
                 }
-
                 for(int64_t ngb=0;ngb<first->num_ngb;ngb++){
                     const cellarray_mocks_index_particles_DOUBLE *second = first->ngb_cells[ngb];
                     if(second->nelements == 0) {
