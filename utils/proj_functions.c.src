@@ -19,6 +19,8 @@
 #include "utils.h"
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <gsl/gsl_matrix_DOUBLE.h>
 #include <gsl/gsl_linalg.h>
@@ -96,14 +98,20 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
 
 void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
-
     double s = sqrt(proj->sqr_s);
 
+
     FILE *dfile;
-    dfile = fopen("dcosmos.dat", "r");
+    char *dfn;
+    dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
+    //can i kill this first line below this?
+    dfile = fopen(dfn, "r");
+    if( !(dfile=fopen(dfn,"r")) ){
+      printf("ERROR opening [%s]\n",dfn);
+      exit(0);
+    }
 
     //read file into array
-
     int nres = 500;
     double sarr[nres];
     double base[nres];
@@ -115,23 +123,7 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
         fscanf(dfile,"%lf %lf %lf %lf",&sarr[i],&base[i],&dOmega_c[i],&dOmega_b[i]);
         fgets(string,1000,dfile);
     }
-
     fclose(dfile);
-
-//    int ndcosmos = 1+6; //1 is r
-//    int nres = 500;
-//    double dcosmos[ndcosmos][nres];
-
-//    for (int i = 0; i<ndcosmos; i++) {
-//        for (int j = 0; j<nres; j++) {
-//          fscanf(dfile, "%f", &dcosmos[i][j]);
-//        }
-//
-//        char eol;                         // dummy variable
-//        fscanf(dfile, "%c", &eol);     // read \n character
-//    }
-
-    
 
     gsl_interp *interpolation_base = gsl_interp_alloc(gsl_interp_linear,nres);
     gsl_interp_init(interpolation_base, sarr, base, nres);
@@ -151,7 +143,7 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
     u[0] = baseval;
     u[1] = dOc;
     u[2] = dOb;
-
+    printf("dcosmo\n");
 }
 
 
