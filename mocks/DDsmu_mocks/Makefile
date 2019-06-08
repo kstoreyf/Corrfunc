@@ -12,6 +12,7 @@ LIBRARY := lib$(LIBNAME).a
 LIBSRC  := countpairs_s_mu_mocks.c countpairs_s_mu_mocks_impl_double.c countpairs_s_mu_mocks_impl_float.c \
            $(UTILS_DIR)/gridlink_mocks_impl_float.c $(UTILS_DIR)/gridlink_mocks_impl_double.c \
            $(UTILS_DIR)/utils.c $(UTILS_DIR)/progressbar.c $(UTILS_DIR)/cpu_features.c \
+					 $(UTILS_DIR)/projection.c $(UTILS_DIR)/proj_functions_double.c $(UTILS_DIR)/proj_functions_float.c \
 	   $(UTILS_DIR)/set_cosmo_dist.c $(UTILS_DIR)/cosmology_params.c
 LIBRARY_HEADERS := $(LIBNAME).h
 
@@ -27,7 +28,7 @@ INCL     := countpairs_s_mu_mocks_kernels_float.c countpairs_s_mu_mocks_kernels_
 	    $(UTILS_DIR)/set_cosmo_dist.h $(UTILS_DIR)/cosmology_params.h  $(UTILS_DIR)/progressbar.h $(UTILS_DIR)/cpu_features.h \
 	    $(UTILS_DIR)/utils.h $(UTILS_DIR)/function_precision.h $(UTILS_DIR)/avx_calls.h $(UTILS_DIR)/defs.h \
         $(UTILS_DIR)/weight_functions_double.h $(UTILS_DIR)/weight_functions_float.h $(UTILS_DIR)/weight_functions.h.src \
-        $(UTILS_DIR)/proj_functions_double.h $(UTILS_DIR)/proj_functions_float.h $(UTILS_DIR)/proj_functions.h.src \
+        $(UTILS_DIR)/projection.h $(UTILS_DIR)/proj_functions_double.h $(UTILS_DIR)/proj_functions_float.h $(UTILS_DIR)/proj_functions.h.src \
 		  $(UTILS_DIR)/weight_defs_double.h $(UTILS_DIR)/weight_defs_float.h $(UTILS_DIR)/weight_defs.h.src
 
 TARGETOBJS:=$(TARGETSRC:.c=.o)

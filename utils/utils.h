@@ -65,7 +65,6 @@ extern int test_all_files_present(const int nfiles, ...);
 /* Floating point comparison utilities */
 extern int AlmostEqualRelativeAndAbs_float(float A, float B, const float maxDiff, const float maxRelDiff);
 extern int AlmostEqualRelativeAndAbs_double(double A, double B, const double maxDiff, const double maxRelDiff);
-
 //end function declarations
 
 #ifdef __cplusplus

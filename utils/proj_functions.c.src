@@ -1,0 +1,299 @@
+// # -*- mode: c -*-
+/* File: proj_functions.c.src */
+/*
+  This file is a part of the Corrfunc package
+  Copyright (C) 2015-- Manodeep Sinha (manodeep@gmail.com)
+  License: MIT LICENSE. See LICENSE file under the top-level
+  directory at https://github.com/manodeep/Corrfunc/
+*/
+
+#ifndef DOUBLE_PREC
+#define DOUBLE_PREC
+#endif
+// # -*- mode: c -*-
+#pragma once
+
+#include "proj_functions_DOUBLE.h"
+
+#include "defs.h"
+#include "utils.h"
+
+#include <stdint.h>
+
+#include <gsl/gsl_matrix_DOUBLE.h>
+#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_interp.h>
+
+
+// Info about a particle pair that we will pass to the projection function
+//typedef struct
+//{
+//    int64_t nprojbins;
+//    int64_t nsbins;
+//    DOUBLE sqr_s;
+//    DOUBLE *supp_sqr;
+//    DOUBLE *supp;
+
+//} proj_struct_DOUBLE;
+
+//typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*);
+
+
+//////////////////////////////////
+// Projection functions
+//////////////////////////////////
+
+void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+    int ins = -1;
+    for(int p=0;p<proj->nsbins;p++){
+        u[p] = 0;
+        if (proj->sqr_s >= proj->supp_sqr[p] && proj->sqr_s < proj->supp_sqr[p+1]){
+            ins = p;
+        }
+    }
+    if (ins>=0 && ins<proj->nprojbins){
+        u[ins] = 1.0;
+    }
+}
+
+
+void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+
+    // Assumes nsbins = nprojbins
+
+    for(int p=0;p<proj->nprojbins;p++){
+
+        //printf("supp? %f %f\n", proj->supp[p], proj->supp_sqr[p]);
+        // peaks are bin averages, for now - need to take square roots
+        double peak = 0.5*(sqrt(proj->supp_sqr[p]) + sqrt(proj->supp_sqr[p+1]));
+        // assumes bins in ascending order
+        double binwidth = sqrt(proj->supp_sqr[p+1]) - sqrt(proj->supp_sqr[p]);
+        double val = 1.0 - (1.0/binwidth) * fabs(sqrt(proj->sqr_s) - peak);
+        if (val < 0) {
+            val = 0;
+        }
+        u[p] = val;
+
+    }
+}
+
+
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+
+    double s = sqrt(proj->sqr_s);
+    
+    double gamma=2.7, s0=15.0;
+    double powlaw = pow(s/s0, -1*gamma);
+    u[0] = powlaw;
+
+    double amp=0.004, width=10, mean=107;
+    double bump = amp * exp(-1*pow(s-mean,2)/(2*pow(width,2)));
+    u[1] = bump;
+   
+    double dwidth = amp*pow(s-mean,2)/pow(width,3) * exp(-1*pow(s-mean,2)/(2*pow(width,2))); 
+    u[2] = dwidth;
+}
+
+
+void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+
+    double s = sqrt(proj->sqr_s);
+
+    FILE *dfile;
+    dfile = fopen("dcosmos.dat", "r");
+
+    //read file into array
+
+    int nres = 500;
+    double sarr[nres];
+    double base[nres];
+    double dOmega_c[nres];
+    double dOmega_b[nres];
+
+    char string[1000];
+    for(int i = 0; i < nres; i++){
+        fscanf(dfile,"%lf %lf %lf %lf",&sarr[i],&base[i],&dOmega_c[i],&dOmega_b[i]);
+        fgets(string,1000,dfile);
+    }
+
+    fclose(dfile);
+
+//    int ndcosmos = 1+6; //1 is r
+//    int nres = 500;
+//    double dcosmos[ndcosmos][nres];
+
+//    for (int i = 0; i<ndcosmos; i++) {
+//        for (int j = 0; j<nres; j++) {
+//          fscanf(dfile, "%f", &dcosmos[i][j]);
+//        }
+//
+//        char eol;                         // dummy variable
+//        fscanf(dfile, "%c", &eol);     // read \n character
+//    }
+
+    
+
+    gsl_interp *interpolation_base = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation_base, sarr, base, nres);
+    gsl_interp_accel * accelerator_base =  gsl_interp_accel_alloc();
+    double baseval = gsl_interp_eval(interpolation_base, sarr, base, s, accelerator_base);
+
+    gsl_interp *interpolation_d0c = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation_d0c, sarr, dOmega_c, nres);
+    gsl_interp_accel * accelerator_d0c =  gsl_interp_accel_alloc();
+    double dOc = gsl_interp_eval(interpolation_d0c, sarr, dOmega_c, s, accelerator_d0c);
+
+    gsl_interp *interpolation_d0b = gsl_interp_alloc(gsl_interp_linear,nres);
+    gsl_interp_init(interpolation_d0b, sarr, dOmega_b, nres);
+    gsl_interp_accel * accelerator_d0b =  gsl_interp_accel_alloc();
+    double dOb = gsl_interp_eval(interpolation_d0b, sarr, dOmega_b, s, accelerator_d0b);
+
+    u[0] = baseval;
+    u[1] = dOc;
+    u[2] = dOb;
+
+}
+
+
+
+//////////////////////////////////
+// Utility functions
+//////////////////////////////////
+
+/* Gives a pointer to the projection function for the given projection method
+ * and instruction set.
+ */
+proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
+    switch(method){
+        case TOPHAT:
+            return &tophat_DOUBLE;
+        case PIECEWISE:
+            return &piecewise_DOUBLE;
+        case POWERLAW:
+            return &powerlaw_DOUBLE;
+        case DCOSMO:
+            return &dcosmo_DOUBLE;
+        default:
+        case NONEPROJ:
+            return NULL;
+    }
+}
+
+void compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
+            DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps){
+
+    printf("Computing amps\n");
+    printf("qq:\n");
+    for(int i=0;i<nprojbins;i++){
+        for (int j=0; j<nprojbins; j++){
+            printf(" %f", qq[i*nprojbins+j]);
+        }
+        printf("\n");
+    }
+
+    // Computer numerator of estimator
+    DOUBLE numerator[nprojbins];
+    DOUBLE qqnorm[nprojbins*nprojbins];
+    for (int i=0; i<nprojbins; i++){
+        DOUBLE ddnorm = dd[i]/((DOUBLE)nd1*(DOUBLE)nd2);
+        DOUBLE drnorm = dr[i]/((DOUBLE)nd1*(DOUBLE)nr2);
+        DOUBLE rdnorm = rd[i]/((DOUBLE)nr1*(DOUBLE)nd2);
+        DOUBLE rrnorm = rr[i]/((DOUBLE)nr1*(DOUBLE)nr2);
+        numerator[i] = ddnorm - drnorm - rdnorm + rrnorm;
+        for (int j=0; j<nprojbins; j++){
+            printf("%f", qq[i*nprojbins+j]);
+            qqnorm[i*nprojbins+j] = qq[i*nprojbins+j]/((DOUBLE)nr1*(DOUBLE)nr2);
+        }
+    }
+
+    printf("qqnorm:\n");
+    for(int i=0;i<nprojbins;i++){
+        for (int j=0; j<nprojbins; j++){
+            printf(" %f", qqnorm[i*nprojbins+j]);
+        }
+        printf("\n");
+    }
+
+	int s;
+	// Define all the used matrices
+	gsl_matrix *qq_mat = gsl_matrix_alloc(nprojbins, nprojbins);
+	gsl_matrix *qq_mat_inv = gsl_matrix_alloc(nprojbins, nprojbins);
+	gsl_permutation *perm = gsl_permutation_alloc(nprojbins);
+	// Fill the matrix m
+	for (int i=0; i<nprojbins; i++){
+        for (int j=0; j<nprojbins; j++){
+            gsl_matrix_set(qq_mat, i, j, qqnorm[i*nprojbins+j]);
+        }
+    }
+	// Make LU decomposition of matrix m
+	gsl_linalg_LU_decomp(qq_mat, perm, &s);
+	// Invert the matrix m
+	gsl_linalg_LU_invert(qq_mat, perm, qq_mat_inv);
+
+    printf("qqinv:\n");
+    for(int i=0;i<nprojbins;i++){
+        for (int j=0; j<nprojbins; j++){
+            printf(" %f", gsl_matrix_get(qq_mat_inv, i, j));
+        }
+        printf("\n");
+    }
+
+    // Take inner product of qqinv * numerator, get amplitude vector
+    // TODO: DOUBLE check
+    for (int i=0; i<nprojbins; i++){
+        DOUBLE aval = 0;
+        for (int j=0; j<nprojbins; j++){
+            aval += gsl_matrix_get(qq_mat_inv, i, j) * numerator[j];
+        }
+        amps[i] = aval;
+    }
+}
+
+void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
+                      int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method){
+
+
+    // will need to generalize, projbins won't always be related to sbins
+    DOUBLE supp_sqr[nsbins];
+    //plus 1 because one more edge than number of bins
+    for (int i=0; i<nsbins+1; i++){
+        supp_sqr[i] = pow(sbins[i], 2);
+
+
+    }
+
+    proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
+    proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
+
+    // ns: number of s values at which to evaluate xi
+    for (int i=0; i<nsvals; i++){
+        //get basis function u for given value of s
+        DOUBLE u[nprojbins];
+        DOUBLE sqr_s = pow(svals[i], 2);
+
+        projdata.nprojbins = nprojbins;
+        projdata.nsbins = nsbins;
+        projdata.sqr_s = sqr_s;
+        projdata.supp_sqr = supp_sqr;
+        //TODO: get to work!?!
+        //projdata.supp = sbins;
+
+        //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
+
+        proj_func(&projdata, u);
+
+        //tophat_DOUBLE(&projdata, u);
+        //piecewise_DOUBLE(&projdata, u);
+
+        //multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval)
+        DOUBLE xival = 0;
+        for (int j=0; j<nprojbins; j++){
+            xival += amps[j]*u[j];
+
+        }
+        xi[i] = xival;
+    }
+
+}
+
+

@@ -854,4 +854,5 @@ int AlmostEqualRelativeAndAbs_double(double A, double B,
     return EXIT_FAILURE;
 }
 
+
 /* #undef __USE_XOPEN2K */

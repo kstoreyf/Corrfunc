@@ -27,8 +27,9 @@
 #include "macros.h"
 
 //for projected cf
-#include "proj_functions_double.h"
+//#include "proj_functions_double.h"
 
+#include "projection.h"
 
 struct module_state {
     PyObject *error;
@@ -971,6 +972,15 @@ static int64_t check_dims_and_datatype(PyObject *module, PyArrayObject *x1_obj, 
     return nx1;
 }
 
+static void check_datatype(PyArrayObject *arr_obj, size_t *element_size)
+{
+    const int arr_type = PyArray_TYPE(arr_obj);
+    if(arr_type == NPY_FLOAT) {
+      *element_size = sizeof(float);
+    } else {
+      *element_size = sizeof(double);
+    }
+}
 
 
 static int64_t check_dims_and_datatype_ra_dec(PyObject *module, PyArrayObject *x1_obj, PyArrayObject *y1_obj, size_t *element_size)
@@ -2338,6 +2348,9 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
         Py_RETURN_NONE;
     }
 
+    size_t element_size;
+    const int64_t npb = check_dims_and_datatype(module, dd_obj, dr_obj, rd_obj, rr_obj, &element_size);
+
      /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
     PyObject *dd_array = NULL, *dr_array = NULL, *rd_array = NULL, *rr_array = NULL, *qq_array = NULL;
@@ -2378,7 +2391,7 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     for(int i=0;i<nprojbins;i++){
         amps[i] = 0;
     }
-    compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, qq, amps);
+    compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, qq, amps, element_size);
     printf("Amplitudes::\n");
     for(int i=0;i<nprojbins;i++){
         printf(" %f", amps[i]);
@@ -2471,6 +2484,9 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         Py_RETURN_NONE;
     }
 
+    size_t element_size;
+    check_datatype(amps_obj, &element_size);
+
      /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
     PyObject *amps_array = NULL, *svals_array = NULL, *sbins_array = NULL;
@@ -2504,7 +2520,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         xi[i] = 0;
     }
     //ACTUAL FUNCTION
-    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method);
+    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method, element_size);
 
 
     NPY_END_THREADS;

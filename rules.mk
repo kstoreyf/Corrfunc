@@ -5,6 +5,8 @@ gridlink_impl_double.o:gridlink_impl_double.c gridlink_impl_double.h
 gridlink_impl_float.o:gridlink_impl_float.c gridlink_impl_float.h
 gridlink_mocks_impl_double.o:gridlink_mocks_impl_double.c gridlink_mocks_impl_double.h
 gridlink_mocks_impl_float.o:gridlink_mocks_impl_float.c gridlink_mocks_impl_float.h
+proj_functions_double.o:proj_functions_double.c proj_functions_double.h
+proj_functions_float.o:proj_functions_float.c proj_functions_float.h
 gridlink_impl_double.h:cellarray_double.h
 gridlink_impl_float.h:cellarray_float.h
 cellarray_double.h:weight_functions_double.h
