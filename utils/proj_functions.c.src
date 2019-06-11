@@ -117,13 +117,23 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
     double base[nres];
     double dOmega_c[nres];
     double dOmega_b[nres];
-
+    double pdata[4][nres];
+  
     char string[1000];
     for(int i = 0; i < nres; i++){
         fscanf(dfile,"%lf %lf %lf %lf",&sarr[i],&base[i],&dOmega_c[i],&dOmega_b[i]);
         fgets(string,1000,dfile);
     }
+    //for(int i = 0; i < nres; i++){
+    //    fscanf(dfile,"%lf %lf %lf %lf",&pdata[0][i],&pdata[1][i],&pdata[2][i],&pdata[3][i]);
+    //    fgets(string,1000,dfile);
+    //}
     fclose(dfile);
+
+    //for (int i = 0; i < nres; i++){
+    //  sarr[i] = pdata[0][i];
+    //  base[i] = pdata[
+    //  dOmega_c[i] = pdata[1][i];
 
     gsl_interp *interpolation_base = gsl_interp_alloc(gsl_interp_linear,nres);
     gsl_interp_init(interpolation_base, sarr, base, nres);
@@ -147,6 +157,41 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 }
 
 
+void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+
+    double s = sqrt(proj->sqr_s);
+    //int nbases = proj->nbases;
+    
+    FILE *dfile;
+    char *dfn;
+    dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
+    //can i kill this first line below this?
+    dfile = fopen(dfn, "r");
+    
+    if( !(dfile=fopen(dfn,"r")) ){
+      printf("ERROR opening [%s]\n",dfn);
+      exit(0);
+    }
+  
+    int nres = 500;
+    int nbases = 4;
+    double pdata[nres][nbases];    
+
+    char buf[1000];
+    for(int i = 0; i < nres; i++){
+        fgets(buf,1000,dfile);
+        char *val;  
+        val = strtok(buf, " ");
+        for(int j=0; j<nbases; j++){
+          printf("%d, %d\n", i, j);
+          sscanf(val, "%lf\n", &pdata[i][j]);
+          printf("val %f\n", pdata[i][j]);
+          val = strtok(NULL, " ");
+        }
+    }
+    fclose(dfile);
+    printf("%f, %f\n", pdata[0][0], pdata[0][1]);
+}
 
 //////////////////////////////////
 // Utility functions
@@ -165,6 +210,8 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
             return &powerlaw_DOUBLE;
         case DCOSMO:
             return &dcosmo_DOUBLE;
+        case GENR:
+            return &general_r_DOUBLE;
         default:
         case NONEPROJ:
             return NULL;

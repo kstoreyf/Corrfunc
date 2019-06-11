@@ -45,6 +45,7 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
 
 void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
 
+void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
 
 //////////////////////////////////
 // Utility functions
