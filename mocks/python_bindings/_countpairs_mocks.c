@@ -1598,6 +1598,12 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         countpairs_mocks_error_out(module, msg);
         Py_RETURN_NONE;
     }
+    if (proj_method==GENR && projfn==NULL) {
+        char msg[1024];
+        snprintf(msg, 1024, "Argument Error: For generalr projection type, must provide projection basis filename.");
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE; 
+    }
 
     //TODO: when clean up avx so can input no projection, change to line below
     //if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
@@ -1679,11 +1685,9 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
-    printf("powa %d nprojbins %d\n", (int)proj_method, nprojbins);
-    printf("ex npb %d\n", extra.nprojbins);
+    printf("Projection method: %d, nprojbins: %d\n", (int)proj_method, nprojbins);
     results_countpairs_mocks_s_mu results;
     double c_api_time = 0.0;
-    printf("binfile \n");
     int status = countpairs_mocks_s_mu(ND1,phiD1,thetaD1,czD1,
                                        ND2,phiD2,thetaD2,czD2,
                                        nthreads,

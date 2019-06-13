@@ -884,7 +884,12 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     /*----------------- FALLBACK CODE --------------------*/
     int nprojbins = projdata->nprojbins;
     proj_method_t proj_method = projdata->proj_method;
-
+    //TODO: only do this if need_proj?
+    if(need_proj) {
+      int nsbins = nsbin-1;
+      projdata->nsbins = nsbins;
+      projdata->supp_sqr = supp_sqr;    
+    }
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     //const int64_t nprojbins = nsbin-1;
     uint64_t npairs[totnbins];
@@ -1018,26 +1023,18 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
 
             }//finding kbin
 
-            //TODO: pass proj struct instead of constructing here, like weights
-            //proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
-
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
-            //number of edges vs bins
-                int nsbins = nsbin-1;
-                //projdata.nprojbins = nprojbins;
-                projdata->nsbins = nsbins;
-                //projdata.sqr_s = sqr_s;
-                projdata->supp_sqr = supp_sqr;
+                //number of edges vs bins
+                //assigned these at top
+                //int nsbins = nsbin-1;
+                //projdata->nsbins = nsbins;
+                //projdata->supp_sqr = supp_sqr;
                 projdata->sqr_s = sqr_s;
-                //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
 
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
                 DOUBLE u[nprojbins];
-                //tophat_DOUBLE(&projdata, u);
-                //piecewise_DOUBLE(&projdata, u);
-                //proj_func(&projdata, u);
                 proj_func(projdata, u);
 
                 //#magic - TODO, find better solution (was getting e-310s)
@@ -1045,7 +1042,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //outer product to get tensor value
                 for(int p1=0;p1<nprojbins;p1++){
                     projpairs[p1] += u[p1];
-                    //printf("u %f\n",u[p1]);
                     for(int p2=0;p2<nprojbins;p2++){
                         DOUBLE uval = u[p1]*u[p2];
                         // if value is basically zero, don't bother adding (and breaks ZERO)

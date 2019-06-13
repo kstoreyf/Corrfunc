@@ -290,16 +290,35 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     if (projfn != NULL) {
       FILE *projfile;
       printf("Reading in projection file, %s...\n", projfn);
-      //dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
       if( !(projfile=fopen(projfn,"r")) ){
         printf("ERROR opening [%s]\n",projfn);
         exit(0);
       }
-      //TODO: get these dims from file
-      int nres = 500;
-      int nbases = 4;
-      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*nbases);
+      int nres = 0;
+      int nbases = 0;
       char buf[1000];
+      /* Count rows in file */
+      while(fgets(buf, 1000, projfile)) {
+        if (nres==0) {
+          char *val;
+          val = strtok(buf, " ");
+          while (val != NULL) {
+            nbases++;
+            val = strtok(NULL, " ");
+          }
+        }
+        nres++;
+      }
+      /* Check nprojbins same as number of bases in file nbases for general_r function */
+      if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
+        printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file.\n", projdata->nprojbins, nbases);
+        exit(0);
+      }
+      projdata->nres = nres;
+      projdata->nbases = nbases;
+      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*nbases);
+      /* Read in file */
+      rewind(projfile); 
       for(int i = 0; i < nres; i++){
           fgets(buf,1000,projfile);
           char *val;
@@ -310,10 +329,6 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
           }
       }
       fclose(projfile);
-      projdata->nres = nres;
-      projdata->nbases = nbases;
-      //projdata.projbases = projbases;
-      printf("p00 %f\n", projdata->projbases[0]);
       printf("Read in %d by %d basis data\n", nres, nbases);
     }   
     
@@ -322,42 +337,32 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     //plus 1 because one more edge than number of bins
     for (int i=0; i<nsbins+1; i++){
         supp_sqr[i] = pow(sbins[i], 2);
-
-
     }
 
-    //proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
     proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
+    projdata->nprojbins = nprojbins;
+    projdata->nsbins = nsbins;
+    projdata->supp_sqr = supp_sqr;
     // ns: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
         //get basis function u for given value of s
         DOUBLE u[nprojbins];
         DOUBLE sqr_s = pow(svals[i], 2);
 
-        projdata->nprojbins = nprojbins;
-        projdata->nsbins = nsbins;
         projdata->sqr_s = sqr_s;
-        projdata->supp_sqr = supp_sqr;
         //TODO: get to work!?!
         //projdata.supp = sbins;
 
-        //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
-
         proj_func(projdata, u);
 
-        //tophat_DOUBLE(&projdata, u);
-        //piecewise_DOUBLE(&projdata, u);
-
-        //multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval)
+        /* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
         DOUBLE xival = 0;
         for (int j=0; j<nprojbins; j++){
             xival += amps[j]*u[j];
-
         }
         xi[i] = xival;
     }
-
 }
 
 
