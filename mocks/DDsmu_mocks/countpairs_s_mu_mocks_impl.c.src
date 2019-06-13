@@ -224,7 +224,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     projdata->proj_method = extra->proj_method;
     //free(projdata);
 
-    char *projfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
+    char *projfn = extra->projfn;
+    //char *projfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
     if (projfn != NULL) {
       FILE *projfile;
       printf("Reading in projection file, %s...\n", projfn);

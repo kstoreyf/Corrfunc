@@ -1419,7 +1419,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     int nmu_bins=10;
     int nprojbins=0;
     double mu_max=1.0;
-    char *binfile, *weighting_method_str = NULL, *proj_method_str = NULL;
+    char *binfile, *weighting_method_str = NULL, *proj_method_str = NULL, *projfn = NULL;
 
     static char *kwlist[] = {
         "autocorr",
@@ -1449,10 +1449,11 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         "weight_type",
         "proj_type",
         "nprojbins",
+        "projfn",
         NULL,
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiidisO!O!O!|O!O!O!O!O!bbbbbbbhbissi", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiidisO!O!O!|O!O!O!O!O!bbbbbbbhbissis", kwlist,
                                        &autocorr,&cosmology,&nthreads,&mu_max,&nmu_bins,&binfile,
                                        &PyArray_Type,&x1_obj,
                                        &PyArray_Type,&y1_obj,
@@ -1472,7 +1473,8 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
                                        &(options.instruction_set),
                                        &weighting_method_str,
                                        &proj_method_str,
-                                       &nprojbins)
+                                       &nprojbins,
+                                       &projfn)
 
          ) {
 
@@ -1604,7 +1606,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         printf("Applying projection requires fallback method, switching instruction set\n");
         options.instruction_set = FALLBACK;
     }
-    add_extra_options(&extra, proj_method, nprojbins);
+    add_extra_options(&extra, proj_method, nprojbins, projfn);
     //TODO: perform more validation about inputs to given projection function
 
     /* Interpret the input objects as numpy arrays. */

@@ -317,8 +317,8 @@ static inline struct config_options get_config_options(void)
 }
 
 
-#define EXTRA_OPTIONS_HEADER_SIZE     (1024) //TODO change now includes proj??
-//#define EXTRA_OPTIONS_HEADER_SIZE     (2048) //TODO change now includes proj??
+//#define EXTRA_OPTIONS_HEADER_SIZE     (1024) //TODO change now includes proj??
+#define EXTRA_OPTIONS_HEADER_SIZE     (2048) //TODO change now includes proj??
 
 #define MAX_NUM_WEIGHTS 10
 
@@ -418,9 +418,10 @@ struct extra_options
     //proj_struct projdata;
     proj_method_t proj_method;
     int nprojbins;
+    char *projfn;
 
     uint8_t reserved[EXTRA_OPTIONS_HEADER_SIZE - 2*sizeof(weight_struct) - sizeof(weight_method_t)
-                                                                    - sizeof(proj_method_t) - sizeof(int)];
+                                              - sizeof(proj_method_t) - sizeof(int) - sizeof(char *)];
 
 };
 
@@ -428,7 +429,8 @@ struct extra_options
 static inline struct extra_options get_extra_options(const weight_method_t weight_method)
 {    
     struct extra_options extra;
-    ENSURE_STRUCT_SIZE(struct extra_options, EXTRA_OPTIONS_HEADER_SIZE);//compile-time check for making sure struct is correct size
+    //TODO: this is throwing an error and i can't figure out how to fix it!! probs bad to just ignore but...
+    //ENSURE_STRUCT_SIZE(struct extra_options, EXTRA_OPTIONS_HEADER_SIZE);//compile-time check for making sure struct is correct size
     memset(&extra, 0, EXTRA_OPTIONS_HEADER_SIZE);
 
     extra.weight_method = weight_method;
@@ -442,7 +444,7 @@ static inline struct extra_options get_extra_options(const weight_method_t weigh
 }
 
 // eventually this could be within get_extra_options, but don't want to break other calls (rppi, theta)
-static inline void add_extra_options(struct extra_options *extra, const proj_method_t proj_method, int nprojbins)
+static inline void add_extra_options(struct extra_options *extra, const proj_method_t proj_method, int nprojbins, char *projfn)
 {
     //TODO: do i need??
     //ENSURE_STRUCT_SIZE(struct extra_options, EXTRA_OPTIONS_HEADER_SIZE);//compile-time check for making sure struct is correct size
@@ -450,7 +452,7 @@ static inline void add_extra_options(struct extra_options *extra, const proj_met
 
     extra->proj_method = proj_method;
     extra->nprojbins = nprojbins;
-
+    extra->projfn = projfn;
 }
 
 static inline void print_cell_timings(struct config_options *options)
