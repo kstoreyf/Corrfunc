@@ -47,8 +47,12 @@
 
 void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
     int ins = -1;
+    //printf("top %f\n", proj->supp_sqr[0]);
+    //printf("nsbins %d\n", proj->nsbins);
+    //printf("nprojbins %d\n", proj->nprojbins);
     for(int p=0;p<proj->nsbins;p++){
         u[p] = 0;
+        //printf("p %d suppsqr %f\n", p, proj->supp_sqr[p]);
         if (proj->sqr_s >= proj->supp_sqr[p] && proj->sqr_s < proj->supp_sqr[p+1]){
             ins = p;
         }
@@ -159,39 +163,29 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
 void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
-    double s = sqrt(proj->sqr_s);
-    //int nbases = proj->nbases;
-    
-    FILE *dfile;
-    char *dfn;
-    dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
-    //can i kill this first line below this?
-    dfile = fopen(dfn, "r");
-    
-    if( !(dfile=fopen(dfn,"r")) ){
-      printf("ERROR opening [%s]\n",dfn);
-      exit(0);
+    DOUBLE s = sqrt(proj->sqr_s);
+    //int nbases = 4;
+    //int nres = 500;
+    int nbases = proj->nbases;
+    int nres = proj->nres;
+    DOUBLE sarr[nres];
+    for (int i=0; i<nres; i++){
+      sarr[i] = proj->projbases[i*nbases];
     }
-  
-    int nres = 500;
-    int nbases = 4;
-    double pdata[nres][nbases];    
-
-    char buf[1000];
-    for(int i = 0; i < nres; i++){
-        fgets(buf,1000,dfile);
-        char *val;  
-        val = strtok(buf, " ");
-        for(int j=0; j<nbases; j++){
-          printf("%d, %d\n", i, j);
-          sscanf(val, "%lf\n", &pdata[i][j]);
-          printf("val %f\n", pdata[i][j]);
-          val = strtok(NULL, " ");
-        }
+    for (int j=0; j<nbases; j++){
+      DOUBLE basis[nres];
+      for (int i=0; i<nres; i++){ 
+        basis[i] = proj->projbases[i*nbases+j];
+      }
+      gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
+      gsl_interp_init(interpolation, sarr, basis, nres);
+      gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
+      DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
+      u[j] = val;
     }
-    fclose(dfile);
-    printf("%f, %f\n", pdata[0][0], pdata[0][1]);
+     
 }
+
 
 //////////////////////////////////
 // Utility functions
@@ -289,9 +283,40 @@ void compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2
 }
 
 void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
-                      int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method){
+                      int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn){
 
-
+    proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
+    
+    if (projfn != NULL) {
+      FILE *projfile;
+      printf("Reading in projection file, %s...\n", projfn);
+      //dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
+      if( !(projfile=fopen(projfn,"r")) ){
+        printf("ERROR opening [%s]\n",projfn);
+        exit(0);
+      }
+      //TODO: get these dims from file
+      int nres = 500;
+      int nbases = 4;
+      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*nbases);
+      char buf[1000];
+      for(int i = 0; i < nres; i++){
+          fgets(buf,1000,projfile);
+          char *val;
+          val = strtok(buf, " ");
+          for(int j=0; j<nbases; j++){
+            sscanf(val, "%lf", &projdata->projbases[i*nbases+j]);
+            val = strtok(NULL, " ");
+          }
+      }
+      fclose(projfile);
+      projdata->nres = nres;
+      projdata->nbases = nbases;
+      //projdata.projbases = projbases;
+      printf("p00 %f\n", projdata->projbases[0]);
+      printf("Read in %d by %d basis data\n", nres, nbases);
+    }   
+    
     // will need to generalize, projbins won't always be related to sbins
     DOUBLE supp_sqr[nsbins];
     //plus 1 because one more edge than number of bins
@@ -301,7 +326,7 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
 
     }
 
-    proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
+    //proj_struct_DOUBLE projdata = {.nprojbins=0, .nsbins=0, .sqr_s=0, .supp_sqr={NULL}};
     proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
     // ns: number of s values at which to evaluate xi
@@ -310,16 +335,16 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
         DOUBLE u[nprojbins];
         DOUBLE sqr_s = pow(svals[i], 2);
 
-        projdata.nprojbins = nprojbins;
-        projdata.nsbins = nsbins;
-        projdata.sqr_s = sqr_s;
-        projdata.supp_sqr = supp_sqr;
+        projdata->nprojbins = nprojbins;
+        projdata->nsbins = nsbins;
+        projdata->sqr_s = sqr_s;
+        projdata->supp_sqr = supp_sqr;
         //TODO: get to work!?!
         //projdata.supp = sbins;
 
         //proj_struct_DOUBLE projdata = {.nprojbins=nprojbins, .nsbins=nsbins, .sqr_s=sqr_s, .supp_sqr=supp_sqr};
 
-        proj_func(&projdata, u);
+        proj_func(projdata, u);
 
         //tophat_DOUBLE(&projdata, u);
         //piecewise_DOUBLE(&projdata, u);

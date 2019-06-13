@@ -994,7 +994,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     return np.array(amps)
 
 
-def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type):
+def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=None):
     try:
         from Corrfunc._countpairs_mocks import evaluate_xi as \
             eval_extn
@@ -1012,7 +1012,7 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type):
     print('Evaluating xi (Corrfunc/utils)')
     with sys_pipes():
         # TODO: allow passing kwargs
-        xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type)
+        xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn)
 
     return np.array(xi)
 

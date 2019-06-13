@@ -19,7 +19,7 @@ extern "C" {
 #include <inttypes.h> //for uint64_t
 
 #include "countpairs_s_mu_mocks.h" //for definition of results_countpairs_mocks
-
+#include "proj_functions_DOUBLE.h"
 
     extern void interrupt_handler_countpairs_s_mu_mocks_DOUBLE(int signo);
 
@@ -31,9 +31,8 @@ extern "C" {
                                                     const int nmu_bins, const DOUBLE *supp_sqr,
                                                     const DOUBLE mu_max,
                                                     DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
-                                                    DOUBLE *src_projpairs_tensor, const proj_method_t proj_method,
-                                                    DOUBLE *src_weightavg, const weight_method_t weight_method,
-                                                    int nprojbins);
+                                                    DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
+                                                    DOUBLE *src_weightavg, const weight_method_t weight_method);
 
     extern countpairs_mocks_func_ptr_DOUBLE countpairs_s_mu_mocks_driver_DOUBLE(const struct config_options *options) __attribute__((warn_unused_result));
 

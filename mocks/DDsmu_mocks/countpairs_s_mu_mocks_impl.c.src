@@ -219,6 +219,49 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     int need_weightavg = extra->weight_method != NONE;
     int need_proj = extra->proj_method != NONEPROJ;
 
+    proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
+    projdata->nprojbins = extra->nprojbins;
+    projdata->proj_method = extra->proj_method;
+    //free(projdata);
+
+    char *projfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
+    if (projfn != NULL) {
+      FILE *projfile;
+      printf("Reading in projection file, %s...\n", projfn);
+      //dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
+      //can i kill this first line below this?
+      //projfile = fopen(projfn, "r");
+      if( !(projfile=fopen(projfn,"r")) ){
+        printf("ERROR opening [%s]\n",projfn);
+        exit(0);
+      }
+      //TODO: get these dims from file
+      int nres = 500;
+      int nbases = 4;
+      //DOUBLE *projbases = (DOUBLE *) my_malloc(sizeof(DOUBLE), nres*nbases);
+      // vs sizeof(DOUBLE) ?
+      // need a * in sizeof?
+      //DOUBLE projbases 
+      //projdata->projbases =  
+      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*nbases);
+      char buf[1000];
+      for(int i = 0; i < nres; i++){
+          fgets(buf,1000,projfile);
+          char *val;
+          val = strtok(buf, " ");
+          for(int j=0; j<nbases; j++){
+            sscanf(val, "%lf", &projdata->projbases[i*nbases+j]);
+            val = strtok(NULL, " ");
+          }
+      }
+      fclose(projfile);
+      projdata->nres = nres;
+      projdata->nbases = nbases;
+      printf("p00 %f\n", projdata->projbases[0]);
+      printf("Read in %d by %d basis data\n", nres, nbases);
+    } 
+
+
     options->sort_on_z = 1;
     struct timeval t0;
     if(options->c_api_timer) {
@@ -287,6 +330,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     int nsbin;
     DOUBLE smin,smax;
     setup_bins(sbinfile,&smin,&smax,&nsbin,&supp);
+    //printf("setup nsbin"
     if( ! (smin > 0.0 && smax > 0.0 && smin < smax && nsbin > 0)) {
         fprintf(stderr,"Error: Could not setup with S bins correctly. (smin = %lf, smax = %lf, with nbins = %d). Expected non-zero smin/smax with smax > smin and nbins >=1 \n",
                 smin, smax, nsbin);
@@ -648,9 +692,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              smax, smin, nsbin,
                                                                              nmu_bins, supp_sqr, mu_max,
                                                                              this_savg, npairs, this_projpairs,
-                                                                             this_projpairs_tensor, extra->proj_method,
-                                                                             this_weightavg, extra->weight_method,
-                                                                             extra->nprojbins);
+                                                                             this_projpairs_tensor, projdata,
+                                                                             this_weightavg, extra->weight_method);
                     /* This actually causes a race condition under OpenMP - but mostly
                        I care that an error occurred - rather than the exact value of
                        the error status */
@@ -679,9 +722,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              smax, smin, nsbin,
                                                                              nmu_bins, supp_sqr, mu_max,
                                                                              this_savg, npairs, this_projpairs,
-                                                                             this_projpairs_tensor, extra->proj_method,
-                                                                             this_weightavg, extra->weight_method,
-                                                                             extra->nprojbins);
+                                                                             this_projpairs_tensor, projdata,
+                                                                             this_weightavg, extra->weight_method);
                     /* This actually causes a race condition under OpenMP - but mostly
                        I care that an error occurred - rather than the exact value of
                        the error status */
@@ -882,6 +924,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         }
     }
     free(supp);
+    free(projdata);
 
     /* reset interrupt handlers to default */
     RESET_INTERRUPT_HANDLERS();

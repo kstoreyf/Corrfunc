@@ -36,7 +36,7 @@ void compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
 
 void evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
-                      int nsbins, void *sbins, void *xi, proj_method_t proj_method, size_t element_size)
+                      int nsbins, void *sbins, void *xi, proj_method_t proj_method, size_t element_size, char *projfn)
 {
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
         fprintf(stderr,"ERROR: In %s> Can only handle doubles or floats. Got an array of size = %zu\n",
@@ -46,10 +46,10 @@ void evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
 
     if(element_size == sizeof(float)) {
         return evaluate_xi_float(nprojbins, (float *) amps, nsvals, (float *) svals,
-                      nsbins, (float *) sbins, (float *) xi, proj_method);
+                      nsbins, (float *) sbins, (float *) xi, proj_method, projfn);
     } else {
         return evaluate_xi_double(nprojbins, (double *) amps, nsvals, (double *) svals,
-                      nsbins, (double *) sbins, (double *) xi, proj_method);
+                      nsbins, (double *) sbins, (double *) xi, proj_method, projfn);
     }
 }
 

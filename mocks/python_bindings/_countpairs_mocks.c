@@ -1681,6 +1681,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     printf("ex npb %d\n", extra.nprojbins);
     results_countpairs_mocks_s_mu results;
     double c_api_time = 0.0;
+    printf("binfile \n");
     int status = countpairs_mocks_s_mu(ND1,phiD1,thetaD1,czD1,
                                        ND2,phiD2,thetaD2,czD2,
                                        nthreads,
@@ -2433,7 +2434,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *sbins_obj=NULL;
 
     int nprojbins, nsvals, nsbins;
-    char *proj_method_str = NULL;
+    char *proj_method_str = NULL, *projfn = NULL;
 
     static char *kwlist[] = {
         "nprojbins",
@@ -2443,17 +2444,19 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         "nsbins",
         "sbins",
         "proj_type",
+        "projfn",
         NULL
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!iO!s", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!iO!s|s", kwlist,
                                        &nprojbins,
                                        &PyArray_Type,&amps_obj,
                                        &nsvals,
                                        &PyArray_Type,&svals_obj,
                                        &nsbins,
                                        &PyArray_Type,&sbins_obj,
-                                       &proj_method_str
+                                       &proj_method_str,
+                                       &projfn
                                        )
 
         ) {
@@ -2520,7 +2523,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         xi[i] = 0;
     }
     //ACTUAL FUNCTION
-    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method, element_size);
+    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method, element_size, projfn);
 
 
     NPY_END_THREADS;
