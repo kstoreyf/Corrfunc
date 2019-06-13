@@ -567,6 +567,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 free_cellarray_mocks_index_particles_DOUBLE(lattice2, totncells);
             }
             free(supp);
+            if (projfn != NULL) {
+              free(projdata->projbases);
+            }
+            free(projdata);
             return EXIT_FAILURE;
         }
     }
@@ -770,6 +774,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(abort_status != EXIT_SUCCESS || interrupt_status_DDsmu_mocks_DOUBLE != EXIT_SUCCESS) {
         /* Cleanup memory here if aborting */
         free(supp);
+        if (projfn != NULL) {
+          free(projdata->projbases);
+        }
+        free(projdata);
 #if defined(_OPENMP)
         matrix_free((void **) all_npairs, numthreads);
         if(options->need_avg_sep) {
@@ -901,6 +909,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || results->weightavg == NULL || results->projpairs == NULL) {
         free_results_mocks_s_mu(results);
         free(supp);
+        if (projfn != NULL) {
+          free(projdata->projbases);
+        }
+        free(projdata);
         return EXIT_FAILURE;
     }
 
@@ -912,6 +924,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 fprintf(stderr, "ERROR: In %s> index = %d must be in range [0, %d)\n", __FUNCTION__, index, totnbins);
                 free_results_mocks_s_mu(results);
                 free(supp);
+                if (projfn != NULL) {
+                  free(projdata->projbases);
+                }
+                free(projdata);
                 return EXIT_FAILURE;
             }
             results->npairs[index] = npairs[index];
@@ -934,6 +950,9 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         }
     }
     free(supp);
+    if (projfn != NULL) {
+      free(projdata->projbases);
+    }
     free(projdata);
 
     /* reset interrupt handlers to default */

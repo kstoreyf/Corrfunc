@@ -163,26 +163,30 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
 void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 
-    DOUBLE s = sqrt(proj->sqr_s);
-    //int nbases = 4;
-    //int nres = 500;
-    int nbases = proj->nbases;
-    int nres = proj->nres;
-    DOUBLE sarr[nres];
-    for (int i=0; i<nres; i++){
-      sarr[i] = proj->projbases[i*nbases];
-    }
-    for (int j=0; j<nbases; j++){
-      DOUBLE basis[nres];
-      for (int i=0; i<nres; i++){ 
-        basis[i] = proj->projbases[i*nbases+j];
-      }
-      gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
-      gsl_interp_init(interpolation, sarr, basis, nres);
-      gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
-      DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
-      u[j] = val;
-    }
+    u[0] = 1;
+    u[1] = 2;
+    u[2] = 3;
+    u[3] = 4;
+    //DOUBLE s = sqrt(proj->sqr_s);
+    ////int nbases = 4;
+    ////int nres = 500;
+    //int nbases = proj->nbases;
+    //int nres = proj->nres;
+    //DOUBLE sarr[nres];
+    //for (int i=0; i<nres; i++){
+    //  sarr[i] = proj->projbases[i*nbases];
+    //}
+    //for (int j=0; j<nbases; j++){
+    //  DOUBLE basis[nres];
+    //  for (int i=0; i<nres; i++){ 
+    //    basis[i] = proj->projbases[i*nbases+j];
+    //  }
+    //  gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
+    //  gsl_interp_init(interpolation, sarr, basis, nres);
+    //  gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
+    //  DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
+    //  u[j] = val;
+    //}
      
 }
 
@@ -363,6 +367,10 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
         }
         xi[i] = xival;
     }
+    if (projfn!=NULL) {
+      free(projdata->projbases);
+    }
+    free(projdata);
 }
 
 
