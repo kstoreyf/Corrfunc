@@ -968,7 +968,6 @@ def sys_pipes():
     See the Wurlitzer package for usage of `wurlitzer.pipes()`;
     see also https://github.com/manodeep/Corrfunc/issues/157.
     '''
-
     kwargs = {'stdout':None if sys.stdout.isatty() else sys.stdout,
               'stderr':None if sys.stderr.isatty() else sys.stderr }
     return wurlitzer.pipes(**kwargs)
@@ -987,9 +986,10 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     from Corrfunc.utils import sys_pipes
 
     print('Computing amplitudes (Corrfunc/utils)')
-    with sys_pipes():
+    # TODO: Hung on this idk why??
+    #with sys_pipes():
         # TODO: allow passing kwargs
-        amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
+    amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
     print(amps)
     return np.array(amps)
 
@@ -1009,10 +1009,17 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=No
         msg = "Cannot pass a null project type to evaluate_xi"
         raise ValueError(msg)
 
+    # Passing None parameters breaks the parsing code, so avoid this
+    kwargs = {}
+    for k in ['projfn']:
+        v = locals()[k]
+        if v is not None:
+            kwargs[k] = v
+
     print('Evaluating xi (Corrfunc/utils)')
-    with sys_pipes():
-        # TODO: allow passing kwargs
-        xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn)
+    #with sys_pipes():
+    #    # TODO: allow passing kwargs
+    xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, **kwargs)
 
     return np.array(xi)
 

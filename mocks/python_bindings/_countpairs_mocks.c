@@ -2300,6 +2300,7 @@ static PyObject *countpairs_countspheres_vpf_mocks(PyObject *self, PyObject *arg
 
 static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, PyObject *args, PyObject *kwargs)
 {
+    printf("computing them i am\n");
     //Error-handling is global in python2 -> stored in struct module_state _struct declared at the top of this file
 #if PY_MAJOR_VERSION < 3
     (void) self;
@@ -2398,6 +2399,7 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     for(int i=0;i<nprojbins;i++){
         amps[i] = 0;
     }
+    printf("_count py\n");
     compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, qq, amps, element_size);
     printf("Amplitudes::\n");
     for(int i=0;i<nprojbins;i++){

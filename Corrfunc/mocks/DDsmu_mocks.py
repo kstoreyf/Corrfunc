@@ -285,9 +285,6 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
         if v is not None:
             kwargs[k] = v
 
-    print("kwargs")
-    print (kwargs)
-
     integer_isa = translate_isa_string_to_enum(isa)
     sbinfile, delete_after_use = return_file_with_rbins(binfile)
     with sys_pipes():

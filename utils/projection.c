@@ -19,12 +19,13 @@
 void compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             void *dd, void *dr, void *rd, void *rr, void *qq, void *amps, size_t element_size)
 {
+    printf("projection\n");
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
         fprintf(stderr,"ERROR: In %s> Can only handle doubles or floats. Got an array of size = %zu\n",
                 __FUNCTION__, element_size);
         return EXIT_FAILURE;
     }
-
+    printf("elementsize: %d, float: %d, double: %d\n", element_size, sizeof(float), sizeof(double));
     if(element_size == sizeof(float)) {
         return compute_amplitudes_float(nprojbins, nd1, nd2, nr1, nr2,
             (float *) dd, (float *) dr, (float *) rd, (float *) rr, (float *) qq, (float *) amps);
