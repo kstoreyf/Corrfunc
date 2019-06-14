@@ -57,6 +57,7 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
             ins = p;
         }
     }
+    //printf("sqr_s: %f, ins: %d\n", proj->sqr_s, ins);
     if (ins>=0 && ins<proj->nprojbins){
         u[ins] = 1.0;
     }
