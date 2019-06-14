@@ -26,7 +26,6 @@ typedef struct
     int64_t nsbins;
     int64_t nres;
     int64_t nbases;
-    DOUBLE sqr_s;
     DOUBLE *supp_sqr;
     DOUBLE *supp;
     DOUBLE *projbases;
@@ -34,22 +33,21 @@ typedef struct
 
 } proj_struct_DOUBLE;
 
-typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*);
-
+typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE);
 
 //////////////////////////////////
 // Projection functions
 //////////////////////////////////
 
-extern void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
+void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
-void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
+void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
-void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
-void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
+void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
-void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u);
+void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
 //////////////////////////////////
 // Utility functions

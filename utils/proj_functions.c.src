@@ -45,26 +45,21 @@
 // Projection functions
 //////////////////////////////////
 
-void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
     int ins = -1;
-    //printf("top %f\n", proj->supp_sqr[0]);
-    //printf("nsbins %d\n", proj->nsbins);
-    //printf("nprojbins %d\n", proj->nprojbins);
     for(int p=0;p<proj->nsbins;p++){
         u[p] = 0;
-        //printf("p %d suppsqr %f\n", p, proj->supp_sqr[p]);
-        if (proj->sqr_s >= proj->supp_sqr[p] && proj->sqr_s < proj->supp_sqr[p+1]){
+        if (sqr_s >= proj->supp_sqr[p] && sqr_s < proj->supp_sqr[p+1]){
             ins = p;
         }
     }
-    //printf("sqr_s: %f, ins: %d\n", proj->sqr_s, ins);
     if (ins>=0 && ins<proj->nprojbins){
         u[ins] = 1.0;
     }
 }
 
 
-void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
     // Assumes nsbins = nprojbins
 
@@ -75,7 +70,7 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
         double peak = 0.5*(sqrt(proj->supp_sqr[p]) + sqrt(proj->supp_sqr[p+1]));
         // assumes bins in ascending order
         double binwidth = sqrt(proj->supp_sqr[p+1]) - sqrt(proj->supp_sqr[p]);
-        double val = 1.0 - (1.0/binwidth) * fabs(sqrt(proj->sqr_s) - peak);
+        double val = 1.0 - (1.0/binwidth) * fabs(sqrt(sqr_s) - peak);
         if (val < 0) {
             val = 0;
         }
@@ -85,9 +80,9 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 }
 
 
-void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
-    double s = sqrt(proj->sqr_s);
+    double s = sqrt(sqr_s);
     
     double gamma=2.7, s0=15.0;
     double powlaw = pow(s/s0, -1*gamma);
@@ -102,8 +97,8 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 }
 
 
-void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
-    double s = sqrt(proj->sqr_s);
+void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
+    double s = sqrt(sqr_s);
 
 
     FILE *dfile;
@@ -162,13 +157,13 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
 }
 
 
-void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u){
+void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
     //u[0] = 1;
     //u[1] = 2;
     //u[2] = 3;
     //u[3] = 4;
-    DOUBLE s = sqrt(proj->sqr_s);
+    DOUBLE s = sqrt(sqr_s);
     int nbases = proj->nbases;
     int nres = proj->nres;
     DOUBLE sarr[nres];
@@ -363,12 +358,12 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
         DOUBLE u[nprojbins];
         DOUBLE sqr_s = pow(svals[i], 2);
 
-        projdata->sqr_s = sqr_s;
+        //projdata->sqr_s = sqr_s;
         //TODO: get to work!?!
         //projdata.supp = sbins;
 
-        proj_func(projdata, u);
-
+        //proj_func(projdata, u);
+        proj_func(projdata, u, sqr_s);
         /* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
         DOUBLE xival = 0;
         for (int j=0; j<nprojbins; j++){

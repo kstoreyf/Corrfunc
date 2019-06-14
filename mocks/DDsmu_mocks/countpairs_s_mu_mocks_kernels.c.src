@@ -1030,12 +1030,12 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //int nsbins = nsbin-1;
                 //projdata->nsbins = nsbins;
                 //projdata->supp_sqr = supp_sqr;
-                projdata->sqr_s = sqr_s;
+                //projdata->sqr_s = sqr_s;
 
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
                 DOUBLE u[nprojbins];
-                proj_func(projdata, u);
+                proj_func(projdata, u, sqr_s);
 
                 //#magic - TODO, find better solution (was getting e-310s)
                 DOUBLE tiny = 1.0e-16;
