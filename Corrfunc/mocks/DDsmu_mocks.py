@@ -233,6 +233,8 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
               "pair counter."
         raise ImportError(msg)
 
+    print("Corrfunc python: DDsmu")
+
     import numpy as np
     from Corrfunc.utils import translate_isa_string_to_enum, fix_ra_dec,\
         return_file_with_rbins, sys_pipes
@@ -287,8 +289,10 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
 
     integer_isa = translate_isa_string_to_enum(isa)
     sbinfile, delete_after_use = return_file_with_rbins(binfile)
-    with sys_pipes():
-        extn_results = DDsmu_extn(autocorr, cosmology, nthreads,
+    print('pre syspipes')
+    #with sys_pipes():
+    print('syspipes')
+    extn_results = DDsmu_extn(autocorr, cosmology, nthreads,
                                   mu_max, nmu_bins, sbinfile,
                                   RA1, DEC1, CZ1,
                                   is_comoving_dist=is_comoving_dist,

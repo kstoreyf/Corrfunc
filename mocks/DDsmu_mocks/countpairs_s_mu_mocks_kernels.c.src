@@ -861,7 +861,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                                                         DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                         DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
-    //printf("kernel\n");
+    //printf("kernel!\n");
     //printf("meth %d\n", proj_method);
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -1031,7 +1031,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //projdata->nsbins = nsbins;
                 //projdata->supp_sqr = supp_sqr;
                 //projdata->sqr_s = sqr_s;
-
+                //printf("proj!\n");
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
                 DOUBLE u[nprojbins];

@@ -17,7 +17,7 @@
 #include "utils.h"
 
 #include <stdint.h>
-
+#include <gsl/gsl_interp.h>
 
 // Info about a particle pair that we will pass to the projection function
 typedef struct
@@ -30,6 +30,8 @@ typedef struct
     DOUBLE *supp;
     DOUBLE *projbases;
     proj_method_t proj_method;
+    gsl_interp *interps;
+    gsl_interp_accel *accels;
 
 } proj_struct_DOUBLE;
 

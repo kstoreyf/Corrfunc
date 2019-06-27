@@ -159,39 +159,31 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
 void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
-    //u[0] = 1;
-    //u[1] = 2;
-    //u[2] = 3;
-    //u[3] = 4;
     DOUBLE s = sqrt(sqr_s);
     int nbases = proj->nbases;
     int nres = proj->nres;
     DOUBLE sarr[nres];
     
-    //gsl_interp *interpolation;
-    //gsl_interp_accel *accelerator;
-
     for (int i=0; i<nres; i++){
-      sarr[i] = proj->projbases[i*nbases];
+      // get first colum of basis file, radii
+      sarr[i] = proj->projbases[i*(nbases+1)];
     }
     for (int j=0; j<nbases; j++){
       DOUBLE basis[nres];
-      for (int i=0; i<nres; i++){ 
-        basis[i] = proj->projbases[i*nbases+j];
+      //printf("basis %d\n", j);
+      for (int i=0; i<nres; i++){
+        // +1's because 0th column is sarr 
+        basis[i] = proj->projbases[i*(nbases+1)+(j+1)];
+        //printf("%f\n", basis[i]);
       }
       gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
-      //interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
       gsl_interp_init(interpolation, sarr, basis, nres);
       gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
-      //accelerator = gsl_interp_accel_alloc();
       DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
       u[j] = val;
       gsl_interp_free(interpolation);
       gsl_interp_accel_free(accelerator);
     }
-    //gsl_interp_free(interpolation);
-    //gsl_interp_accel_free(accelerator);
-    
 }
 
 
@@ -317,6 +309,8 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
         }
         nres++;
       }
+      // to account for radii column
+      nbases -= 1;
       /* Check nprojbins same as number of bases in file nbases for general_r function */
       if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
         printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file.\n", projdata->nprojbins, nbases);
@@ -324,15 +318,15 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
       }
       projdata->nres = nres;
       projdata->nbases = nbases;
-      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*nbases);
+      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1));
       /* Read in file */
       rewind(projfile); 
       for(int i = 0; i < nres; i++){
           fgets(buf,1000,projfile);
           char *val;
           val = strtok(buf, " ");
-          for(int j=0; j<nbases; j++){
-            sscanf(val, "%lf", &projdata->projbases[i*nbases+j]);
+          for(int j=0; j<nbases+1; j++){
+            sscanf(val, "%lf", &projdata->projbases[i*(nbases+1)+j]);
             val = strtok(NULL, " ");
           }
       }

@@ -204,7 +204,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 __FUNCTION__, sizeof(DOUBLE), options->float_type);
         return EXIT_FAILURE;
     }
-
+    //printf("impl!\n");
     // If no extra options were passed, create dummy options
     // This allows us to pass arguments like "extra->weights0" below;
     // they'll just be NULLs, which is the correct behavior
@@ -247,7 +247,9 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         }
         nres++;
       }
+      nbases -= 1; //to account for r column
       printf("nres: %d, nbases: %d\n", nres, nbases);
+      
       /* Check nprojbins same as number of bases in file nbases for general_r function */
       if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
         printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file.\n", projdata->nprojbins, nbases);
@@ -255,20 +257,20 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       }
       projdata->nres = nres;
       projdata->nbases = nbases;
-      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*nbases);
+      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1));
       /* Read in file */
       rewind(projfile);
       for(int i = 0; i < nres; i++){
           fgets(buf,1000,projfile);
           char *val;
           val = strtok(buf, " ");
-          for(int j=0; j<nbases; j++){
-            sscanf(val, "%lf", &projdata->projbases[i*nbases+j]);
+          for(int j=0; j<nbases+1; j++){
+            sscanf(val, "%lf", &projdata->projbases[i*(nbases+1)+j]);
             val = strtok(NULL, " ");
           }
       }
       fclose(projfile);
-      printf("Read in %d by %d basis data\n", nres, nbases);
+      printf("Read in %d by %d basis data\n", nres, nbases+1);
     } 
 
 
@@ -698,7 +700,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                     DOUBLE *this_weightavg = need_weightavg ? weightavg:NULL;
                     DOUBLE *this_projpairs = need_proj ? projpairs:NULL;
                     DOUBLE *this_projpairs_tensor = need_proj ? projpairs_tensor:NULL;
-
+                    //printf("impl, autocorr1\n");
                     const int status = countpairs_s_mu_mocks_function_DOUBLE(N1, x1, y1, z1, d1, weights1,
                                                                              N1, x1, y1, z1, d1, weights1,
                                                                              same_cell,
@@ -729,6 +731,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                     DOUBLE *this_weightavg = need_weightavg ? weightavg:NULL;
                     DOUBLE *this_projpairs = need_proj ? projpairs:NULL;
                     DOUBLE *this_projpairs_tensor = need_proj ? projpairs_tensor:NULL;
+                    //printf("impl call to kernel!\n");
                     const int status = countpairs_s_mu_mocks_function_DOUBLE(N1, x1, y1, z1, d1, weights1,
                                                                              N2, x2, y2, z2, d2, weights2,
                                                                              same_cell,
@@ -954,6 +957,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       free(projdata->projbases);
     }
     free(projdata);
+
+    //printf("end impl!\n");
 
     /* reset interrupt handlers to default */
     RESET_INTERRUPT_HANDLERS();
