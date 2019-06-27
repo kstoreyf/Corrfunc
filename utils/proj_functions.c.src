@@ -254,7 +254,7 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
     }
 }
 
-void compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
+int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps){
 
     printf("Computing amps\n");
@@ -322,13 +322,16 @@ void compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2
         }
         amps[i] = aval;
     }
+	return EXIT_SUCCESS;
 }
 
-void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
+int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
                       int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn){
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
-    
+    projdata->nprojbins = nprojbins;
+	projdata->proj_method = proj_method;
+ 
     if (projfn != NULL) {
       FILE *projfile;
       printf("Reading in projection file, %s...\n", projfn);
@@ -385,7 +388,6 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
 
     proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
-    projdata->nprojbins = nprojbins;
     projdata->nsbins = nsbins;
     projdata->supp_sqr = supp_sqr;
     // ns: number of s values at which to evaluate xi
@@ -397,10 +399,9 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
         //projdata->sqr_s = sqr_s;
         //TODO: get to work!?!
         //projdata.supp = sbins;
-
         //proj_func(projdata, u);
         proj_func(projdata, u, sqr_s);
-        /* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
+		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
         DOUBLE xival = 0;
         for (int j=0; j<nprojbins; j++){
             xival += amps[j]*u[j];
@@ -411,6 +412,7 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
       free(projdata->projbases);
     }
     free(projdata);
+	return EXIT_SUCCESS;
 }
 
 
