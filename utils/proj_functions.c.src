@@ -157,35 +157,77 @@ void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 }
 
 
+//void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
+//
+//    DOUBLE s = sqrt(sqr_s);
+//    int nbases = proj->nbases;
+//    int nres = proj->nres;
+//    DOUBLE sarr[nres];
+//    
+//    for (int i=0; i<nres; i++){
+//      // get first colum of basis file, radii
+//      sarr[i] = proj->projbases[i*(nbases+1)];
+//    }
+//    for (int j=0; j<nbases; j++){
+//      DOUBLE basis[nres];
+//      for (int i=0; i<nres; i++){
+//        // +1's because 0th column is sarr 
+//        basis[i] = proj->projbases[i*(nbases+1)+(j+1)];
+//      }
+//      gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
+//      gsl_interp_init(interpolation, sarr, basis, nres);
+//      gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
+//      DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
+//      u[j] = val;
+//      gsl_interp_free(interpolation);
+//      gsl_interp_accel_free(accelerator);
+//    }
+//}
+
 void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
     DOUBLE s = sqrt(sqr_s);
     int nbases = proj->nbases;
     int nres = proj->nres;
-    DOUBLE sarr[nres];
-    
+    //DOUBLE sarr[nres];
+    DOUBLE sval;
+
+    // TODO: somewhere check that r is in ascending order
+    /* naive search, TODO replace w binary */
+    int i0 = -1, i1 = -1;
+    DOUBLE s0, s1, y0, y1;
     for (int i=0; i<nres; i++){
       // get first colum of basis file, radii
-      sarr[i] = proj->projbases[i*(nbases+1)];
+      sval = proj->projbases[i*(nbases+1)];
+      if (s <= sval) {
+        //idx = i-1; //index before insertion location
+        i0 = i-1;
+        i1 = i;
+        s0 = proj->projbases[i0*(nbases+1)];
+        s1 = sval;
+        //s1 = proj->projbases[i1*(nbases+1)];
+        //printf("s, s0, s1, i0 i1: %f, %f, %f, %d, %d\n", s, s0, s1, i0, i1);
+        break;
+      } 
     }
-    for (int j=0; j<nbases; j++){
-      DOUBLE basis[nres];
-      //printf("basis %d\n", j);
-      for (int i=0; i<nres; i++){
-        // +1's because 0th column is sarr 
-        basis[i] = proj->projbases[i*(nbases+1)+(j+1)];
-        //printf("%f\n", basis[i]);
+    // if not in r range, return 0s
+    // TODO: better to send an array of 0's and just return?
+    if (i0==-1){
+      for (int j=0; j<nbases; j++){
+        u[j] = 0;
       }
-      gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
-      gsl_interp_init(interpolation, sarr, basis, nres);
-      gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
-      DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
-      u[j] = val;
-      gsl_interp_free(interpolation);
-      gsl_interp_accel_free(accelerator);
     }
+    else {
+      for (int j=0; j<nbases; j++){
+        // +1's because 0th column is sarr 
+        y0 = proj->projbases[i0*(nbases+1)+(j+1)];
+        y1 = proj->projbases[i1*(nbases+1)+(j+1)];
+        u[j] = y0 + (s - s0)*(y1 - y0)/(s1 - s0); //linear interp
+        //printf("u[j]: %f\n", u[j]);
+        //u[j] = proj->projbases[idx*(nbases+1)+(j+1)];
+      }
+    } 
 }
-
 
 //////////////////////////////////
 // Utility functions

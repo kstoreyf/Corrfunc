@@ -30,9 +30,6 @@ typedef struct
     DOUBLE *supp;
     DOUBLE *projbases;
     proj_method_t proj_method;
-    gsl_interp *interps;
-    gsl_interp_accel *accels;
-
 } proj_struct_DOUBLE;
 
 typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE);
