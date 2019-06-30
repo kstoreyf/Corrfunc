@@ -27,20 +27,6 @@
 #include <gsl/gsl_interp.h>
 
 
-// Info about a particle pair that we will pass to the projection function
-//typedef struct
-//{
-//    int64_t nprojbins;
-//    int64_t nsbins;
-//    DOUBLE sqr_s;
-//    DOUBLE *supp_sqr;
-//    DOUBLE *supp;
-
-//} proj_struct_DOUBLE;
-
-//typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*);
-
-
 //////////////////////////////////
 // Projection functions
 //////////////////////////////////
@@ -62,10 +48,8 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
     // Assumes nsbins = nprojbins
-
     for(int p=0;p<proj->nprojbins;p++){
 
-        //printf("supp? %f %f\n", proj->supp[p], proj->supp_sqr[p]);
         // peaks are bin averages, for now - need to take square roots
         double peak = 0.5*(sqrt(proj->supp_sqr[p]) + sqrt(proj->supp_sqr[p+1]));
         // assumes bins in ascending order
@@ -97,99 +81,12 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 }
 
 
-void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
-    double s = sqrt(sqr_s);
-
-
-    FILE *dfile;
-    char *dfn;
-    dfn = "/home/users/ksf293/Corrfunc/utils/dcosmos.dat";
-    //can i kill this first line below this?
-    dfile = fopen(dfn, "r");
-    if( !(dfile=fopen(dfn,"r")) ){
-      printf("ERROR opening [%s]\n",dfn);
-      exit(0);
-    }
-
-    //read file into array
-    int nres = 500;
-    double sarr[nres];
-    double base[nres];
-    double dOmega_c[nres];
-    double dOmega_b[nres];
-    double pdata[4][nres];
-  
-    char string[1000];
-    for(int i = 0; i < nres; i++){
-        fscanf(dfile,"%lf %lf %lf %lf",&sarr[i],&base[i],&dOmega_c[i],&dOmega_b[i]);
-        fgets(string,1000,dfile);
-    }
-    //for(int i = 0; i < nres; i++){
-    //    fscanf(dfile,"%lf %lf %lf %lf",&pdata[0][i],&pdata[1][i],&pdata[2][i],&pdata[3][i]);
-    //    fgets(string,1000,dfile);
-    //}
-    fclose(dfile);
-
-    //for (int i = 0; i < nres; i++){
-    //  sarr[i] = pdata[0][i];
-    //  base[i] = pdata[
-    //  dOmega_c[i] = pdata[1][i];
-
-    gsl_interp *interpolation_base = gsl_interp_alloc(gsl_interp_linear,nres);
-    gsl_interp_init(interpolation_base, sarr, base, nres);
-    gsl_interp_accel * accelerator_base =  gsl_interp_accel_alloc();
-    double baseval = gsl_interp_eval(interpolation_base, sarr, base, s, accelerator_base);
-
-    gsl_interp *interpolation_d0c = gsl_interp_alloc(gsl_interp_linear,nres);
-    gsl_interp_init(interpolation_d0c, sarr, dOmega_c, nres);
-    gsl_interp_accel * accelerator_d0c =  gsl_interp_accel_alloc();
-    double dOc = gsl_interp_eval(interpolation_d0c, sarr, dOmega_c, s, accelerator_d0c);
-
-    gsl_interp *interpolation_d0b = gsl_interp_alloc(gsl_interp_linear,nres);
-    gsl_interp_init(interpolation_d0b, sarr, dOmega_b, nres);
-    gsl_interp_accel * accelerator_d0b =  gsl_interp_accel_alloc();
-    double dOb = gsl_interp_eval(interpolation_d0b, sarr, dOmega_b, s, accelerator_d0b);
-
-    u[0] = baseval;
-    u[1] = dOc;
-    u[2] = dOb;
-    printf("dcosmo\n");
-}
-
-
-//void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
-//
-//    DOUBLE s = sqrt(sqr_s);
-//    int nbases = proj->nbases;
-//    int nres = proj->nres;
-//    DOUBLE sarr[nres];
-//    
-//    for (int i=0; i<nres; i++){
-//      // get first colum of basis file, radii
-//      sarr[i] = proj->projbases[i*(nbases+1)];
-//    }
-//    for (int j=0; j<nbases; j++){
-//      DOUBLE basis[nres];
-//      for (int i=0; i<nres; i++){
-//        // +1's because 0th column is sarr 
-//        basis[i] = proj->projbases[i*(nbases+1)+(j+1)];
-//      }
-//      gsl_interp *interpolation = gsl_interp_alloc(gsl_interp_linear,nres);
-//      gsl_interp_init(interpolation, sarr, basis, nres);
-//      gsl_interp_accel *accelerator = gsl_interp_accel_alloc();
-//      DOUBLE val = gsl_interp_eval(interpolation, sarr, basis, s, accelerator);
-//      u[j] = val;
-//      gsl_interp_free(interpolation);
-//      gsl_interp_accel_free(accelerator);
-//    }
-//}
 
 void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
     DOUBLE s = sqrt(sqr_s);
     int nbases = proj->nbases;
     int nres = proj->nres;
-    //DOUBLE sarr[nres];
     DOUBLE sval;
 
     // TODO: somewhere check that r is in ascending order
@@ -205,8 +102,7 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
         i1 = i;
         s0 = proj->projbases[i0*(nbases+1)];
         s1 = sval;
-        //s1 = proj->projbases[i1*(nbases+1)];
-        //printf("s, s0, s1, i0 i1: %f, %f, %f, %d, %d\n", s, s0, s1, i0, i1);
+
         break;
       } 
     }
@@ -223,8 +119,6 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
         y0 = proj->projbases[i0*(nbases+1)+(j+1)];
         y1 = proj->projbases[i1*(nbases+1)+(j+1)];
         u[j] = y0 + (s - s0)*(y1 - y0)/(s1 - s0); //linear interp
-        //printf("u[j]: %f\n", u[j]);
-        //u[j] = proj->projbases[idx*(nbases+1)+(j+1)];
       }
     } 
 }
@@ -244,8 +138,6 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
             return &piecewise_DOUBLE;
         case POWERLAW:
             return &powerlaw_DOUBLE;
-        case DCOSMO:
-            return &dcosmo_DOUBLE;
         case GENR:
             return &general_r_DOUBLE;
         default:

@@ -45,3 +45,4 @@ cov-int
 *.blg
 *.spl
 *.toc
+*.mk

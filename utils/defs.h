@@ -339,8 +339,7 @@ typedef enum {
   TOPHAT=0,
   PIECEWISE=1,
   POWERLAW=2,
-  DCOSMO=3,
-  GENR=4,
+  GENR=3,
   NUM_PROJ_TYPE
 } proj_method_t; // type of projection to apply
 
@@ -397,10 +396,6 @@ static inline int get_proj_method_by_name(const char *name, proj_method_t *metho
         *method = POWERLAW;
         return EXIT_SUCCESS;
     }
-    if(strcmp(name, "dcosmo") == 0 || strcmp(name, "d") == 0){
-        *method = DCOSMO;
-        return EXIT_SUCCESS;
-    } 
     if(strcmp(name, "generalr") == 0 || strcmp(name, "g") == 0){
       *method = GENR;
       return EXIT_SUCCESS;
