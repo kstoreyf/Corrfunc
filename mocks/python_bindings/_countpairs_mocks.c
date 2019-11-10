@@ -1685,7 +1685,6 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
-    printf("Projection method: %d, nprojbins: %d\n", (int)proj_method, nprojbins);
     results_countpairs_mocks_s_mu results;
     double c_api_time = 0.0;
     int status = countpairs_mocks_s_mu(ND1,phiD1,thetaD1,czD1,
@@ -1703,7 +1702,6 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         c_api_time = options.c_api_time;
     }
     NPY_END_THREADS;
-    printf("finished count\n");
 
     /* Clean up. */
     Py_DECREF(x1_array);Py_DECREF(y1_array);Py_DECREF(z1_array);Py_XDECREF(weights1_array);//x1 should absolutely not be NULL
@@ -1745,9 +1743,6 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         }
         rlow=results.supp[i];
     }
-
-    //TODO: generalize
-    //const int nprojbins = results.nsbin-1;
 
     for(int i=0;i<nprojbins;i++) {
         PyObject *projitem = NULL;
@@ -2394,18 +2389,11 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
-    //ACTUAL FUNCTION
     double amps[nprojbins];
     for(int i=0;i<nprojbins;i++){
         amps[i] = 0;
     }
-    printf("_count py\n");
     compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, qq, amps, element_size);
-    printf("Amplitudes::\n");
-    for(int i=0;i<nprojbins;i++){
-        printf(" %f", amps[i]);
-    }
-    printf("\n");
 
     NPY_END_THREADS;
 
@@ -2530,9 +2518,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     for(int i=0;i<nsvals;i++){
         xi[i] = 0;
     }
-    //ACTUAL FUNCTION
     evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method, element_size, projfn);
-
 
     NPY_END_THREADS;
 
@@ -2550,6 +2536,5 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     }
     //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
     return Py_BuildValue("O", xiret);
-
 
 }

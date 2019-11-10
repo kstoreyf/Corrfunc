@@ -974,7 +974,47 @@ def sys_pipes():
 
 
 def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
+    '''
+    Evaluate the correlation function for the given amplitudes and s values.
 
+    Parameters
+    ----------
+    nprojbins : int
+       number of bins for projection
+
+    nd1 : int
+       number of particles in data1
+
+    nd2 : int
+       number of particles in data2
+
+    nr1 : int
+       number of particles in random1
+
+    nr2 : int
+       number of particles in random2
+
+    dd: array-like, double
+       projection vector for data-data cross-correlation
+
+    dr: array-like, double
+       projection vector for data-random cross-correlation
+
+    rd: array-like, double
+       projection vector for random-data cross-correlation
+
+    rr: array-like, double
+       projection vector for random-random cross-correlation
+
+    qq: array-like, double
+       projection tensor for random-random cross-correlation
+
+    Returns
+    -------
+    amps: array-like, double
+        array of amplitude values, with length nprojbins
+
+    '''
     try:
         from Corrfunc._countpairs_mocks import convert_3d_proj_counts_to_amplitude as \
             amp_extn
@@ -986,15 +1026,43 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     from Corrfunc.utils import sys_pipes
 
     print('Computing amplitudes (Corrfunc/utils)')
-    # TODO: Hung on this idk why??
+    # TODO: sys_pipes is breaking everything right now, fix
     #with sys_pipes():
-        # TODO: allow passing kwargs
     amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
     print(amps)
     return np.array(amps)
 
 
 def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=None):
+    '''
+    Evaluate the correlation function for the given amplitudes and s values.
+
+    Parameters
+    ----------
+    nprojbins : int
+       number of bins for projection
+
+    a : array-like, double
+       array of amplitudes produced by compute_amps
+
+    nsvals : int
+       number of s (separation) values at which to evaluate xi
+
+    svals : array-like, double
+       s (separation) values at which to evaluate xi
+
+    proj_type : string
+       projection method to use
+
+    projfn : string, default=None
+       filename of projection file if necessary
+
+    Returns
+    -------
+    xi: array-like, double
+        array of xi values, same shape as svals
+
+    '''
     try:
         from Corrfunc._countpairs_mocks import evaluate_xi as \
             eval_extn
@@ -1017,8 +1085,8 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=No
             kwargs[k] = v
 
     print('Evaluating xi (Corrfunc/utils)')
+    # TODO: sys_pipes is breaking everything right now, fix
     #with sys_pipes():
-    #    # TODO: allow passing kwargs
     xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, **kwargs)
 
     return np.array(xi)

@@ -46,8 +46,6 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sq
 
 void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
-void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
-
 void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
 //////////////////////////////////
@@ -56,27 +54,10 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
 extern proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method);
 
-
-//proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
-//    switch(method){
-//        case TOPHAT:
-//            return &tophat_DOUBLE;
-//        case PIECEWISE:
-//            return &piecewise_DOUBLE;
-//        case POWERLAW:
-//            return &powerlaw_DOUBLE;
-//        case DCOSMO:
-//            return &dcosmo_DOUBLE;
-//        default:
-//        case NONEPROJ:
-//            return NULL;
-//    }
-//}
-//
-void compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
+int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps);
 
-void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
+int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
             int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn);
 
 

@@ -34,6 +34,8 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
                                                               DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                               DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
+    /* TODO: implement projection in AVX */
+
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
@@ -44,16 +46,11 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
-    //TODO: deal with proj_method etc in avx
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    //TODO: make nprojbins parameter
-    //const int64_t nprojbins = nsbin-1;
     const DOUBLE sqr_mumax = mu_max*mu_max;
     const DOUBLE sqr_smax  = smax*smax;
     const DOUBLE sqr_smin  = smin*smin;
-    //int nprojbins = projdata->nprojbins;
-    //proj_method_t proj_method = projdata->proj_method;
 
     AVX_FLOATS m_supp_sqr[nsbin];
     AVX_FLOATS m_kbin[nsbin];
@@ -65,9 +62,7 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
     uint64_t npairs[totnbins];
     const DOUBLE dmu = mu_max/(DOUBLE) nmu_bins;
     const DOUBLE inv_dmu = 1.0/dmu;
-    DOUBLE savg[totnbins], weightavg[totnbins];//, projpairs[nprojbins];
-    //DOUBLE projpairs_tensor[nprojbins][nprojbins];
-    //DOUBLE projpairs_tensor[nprojbins*nprojbins];
+    DOUBLE savg[totnbins], weightavg[totnbins];
     for(int i=0;i<totnbins;i++) {
         npairs[i] = ZERO;
         if(need_savg) {
@@ -77,14 +72,6 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
             weightavg[i] = ZERO;
         }
     }
-    //for(int i=0;i<nprojbins;i++) {
-    //    projpairs[i] = ZERO;
-    //    for(int j=0;j<nprojbins;j++) {
-    //        projpairs_tensor[i*nprojbins+j] = ZERO;
-    //    }
-    //}
-
-
 
     // A copy whose pointers we can advance
     weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0},
@@ -335,28 +322,7 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
                     //const DOUBLE weight = union_mweight.weights[jj];
                     weightavg[ibin] += weight;
                 }
-                //TODO: separate when doing general proj
-                //projpairs[ibin] += weight;
             }
-
-//            //TODO: where should this go?? smarter way within avx shit?
-//            int ins = -1;
-//            for(int p=0;p<nprojbins-1;p++){
-//                if (m_sqr_s>=m_supp_sqr[p] && m_sqr_s<m_supp_sqr[p+1]){
-//                    ins = p;
-//                    break;
-//                }
-//            }
-//            if (ins>=0 && ins<nprojbins){
-//                projpairs[ins] += 1.0;
-//            }
-//            //outer product to get tensor value
-//            for(int p1=0;p1<nprojbins-1;p1++){
-//                for(int p2=0;p2<nprojbins-1;p2++){
-//                    projpairs_tensor[p1*nprojbins+p2] += projpairs[p1]*projpairs[p2];
-//                }
-//            }
-
         }//AVX j loop
 
 
@@ -421,28 +387,9 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
                     if(need_weightavg){
                         weightavg[ibin] += pairweight;
                     }
-                    //TODO: make general
-                    //projpairs[ibin] += pairweight;
                     break;
                 }
             }
-            //TODO: what's the deal with remainder??
-//            int ins = -1;
-//            for(int p=0;p<nprojbins-1;p++){
-//                if (sqr_s>=supp_sqr[p] && sqr_s<supp_sqr[p+1]){
-//                    ins = p;
-//                    break;
-//                }
-//            }
-//            if (ins>=0 && ins<nprojbins){
-//                projpairs[ins] += 1.0;
-//            }
-//            //outer product to get tensor value
-//            for(int p1=0;p1<nprojbins-1;p1++){
-//                for(int p2=0;p2<nprojbins-1;p2++){
-//                    projpairs_tensor[p1*nprojbins+p2] += projpairs[p1]*projpairs[p2];
-//                }
-//            }
         }//remainder jloop
     }//i-loop
 
@@ -455,12 +402,6 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
             src_weightavg[i] += weightavg[i];
         }
     }
-    //for(int i=0;i<nprojbins;i++) {
-    //    src_projpairs[i] += projpairs[i];
-    //    for(int j=0;j<nprojbins;j++) {
-    //        src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
-    //    }
-    //}
     return EXIT_SUCCESS;
 }
 #endif //AVX
@@ -479,6 +420,8 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                                                               DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                               DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
+    //TODO: implement projection in SSE
+
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
@@ -489,16 +432,11 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
     (void) fast_divide; //unused
-    //TODO: deal with proj_method etc in sse
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    //const int64_t nprojbins = nsbin-1;
     const DOUBLE sqr_mumax = mu_max*mu_max;
     const DOUBLE sqr_smax  = smax*smax;
     const DOUBLE sqr_smin  = smin*smin;
-
-    int nprojbins = projdata->nprojbins;
-    proj_method_t proj_method = projdata->proj_method;
 
     SSE_FLOATS m_supp_sqr[nsbin];
     SSE_FLOATS m_kbin[nsbin];
@@ -510,8 +448,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
     uint64_t npairs[totnbins];
     const DOUBLE dmu = mu_max/(DOUBLE) nmu_bins;
     const DOUBLE inv_dmu = 1.0/dmu;
-    DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
-    DOUBLE projpairs_tensor[nprojbins*nprojbins];
+    DOUBLE savg[totnbins], weightavg[totnbins];
     for(int64_t i=0;i<totnbins;i++) {
         npairs[i] = ZERO;
         if (need_savg) {
@@ -521,13 +458,6 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
             weightavg[i] = ZERO;
         }
     }
-    for(int64_t i=0;i<nprojbins;i++) {
-        projpairs[i] = ZERO;
-        for(int j=0;j<nprojbins;j++) {
-            projpairs_tensor[i*nprojbins+j] = ZERO;
-        }
-    }
-
 
     // A copy whose pointers we can advance
     weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0},
@@ -728,27 +658,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                     //const DOUBLE weight = union_mweight.weights[jj];
                     weightavg[ibin] += weight;
                 }
-                //TODO: generalize
-                //projpairs[ibin] += weight;
             }
-
-//            //TODO: where should this go?? smarter way within sse shit?
-//            int ins = -1;
-//            for(int p=0;p<nprojbins-1;p++){
-//                if (m_sqr_s>=m_supp_sqr[p] && m_sqr_s<m_supp_sqr[p+1]){
-//                    ins = p;
-//                    break;
-//                }
-//            }
-//            if (ins>=0 && ins<nprojbins){
-//                projpairs[ins] += 1.0;
-//            }
-//            //outer product to get tensor value
-//            for(int p1=0;p1<nprojbins-1;p1++){
-//                for(int p2=0;p2<nprojbins-1;p2++){
-//                    projpairs_tensor[p1*nprojbins+p2] += projpairs[p1]*projpairs[p2];
-//                }
-//            }
         }//SSE j loop
 
         //Take care of the remainder
@@ -808,23 +718,6 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                     break;
                 }
             }
-//            //TODO: where should this go?? smarter way within sse shit?
-//            int ins = -1;
-//            for(int p=0;p<nprojbins-1;p++){
-//                if (sqr_s>=supp_sqr[p] && sqr_s<supp_sqr[p+1]){
-//                    ins = p;
-//                    break;
-//                }
-//            }
-//            if (ins>=0 && ins<nprojbins){
-//                projpairs[ins] += 1.0;
-//            }
-//            //outer product to get tensor value
-//            for(int p1=0;p1<nprojbins-1;p1++){
-//                for(int p2=0;p2<nprojbins-1;p2++){
-//                    projpairs_tensor[p1*nprojbins+p2] += projpairs[p1]*projpairs[p2];
-//                }
-//            }
         }//remainder jloop
     }//i-loop
 
@@ -837,14 +730,6 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
             src_weightavg[i] += weightavg[i];
         }
     }
-    for(int i=0;i<nprojbins;i++) {
-        src_projpairs[i] += projpairs[i];
-        for(int j=0;j<nprojbins;j++) {
-            src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
-        }
-    }
-
-
     return EXIT_SUCCESS;
 }
 #endif //SSE4.2 defined
@@ -861,8 +746,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                                                         DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                         DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
-    //printf("kernel!\n");
-    //printf("meth %d\n", proj_method);
+
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
@@ -874,7 +758,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
     const int32_t need_proj = src_projpairs != NULL;
-    const int32_t need_tensor = projdata->proj_method != 5; //kernel is 5
+    const int32_t need_tensor = projdata->proj_method != GAUSSIAN_KERNEL; //kernel is 5
 
     (void) fast_divide;//unused parameter but required to keep the same function signature amongst the kernels
 
@@ -892,7 +776,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
       projdata->supp_sqr = supp_sqr;    
     }
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
-    //const int64_t nprojbins = nsbin-1;
     uint64_t npairs[totnbins];
     DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
     DOUBLE projpairs_tensor[nprojbins*nprojbins];

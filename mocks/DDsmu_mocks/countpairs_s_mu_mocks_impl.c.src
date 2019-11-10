@@ -223,6 +223,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     projdata->nprojbins = extra->nprojbins;
     projdata->proj_method = extra->proj_method;
 
+    /* Read in projection file if necessary */
     char *projfn = extra->projfn;
     if (projfn != NULL) {
       FILE *projfile;
@@ -247,8 +248,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         nres++;
       }
       nbases -= 1; //to account for r column
-      printf("nres: %d, nbases: %d\n", nres, nbases);
-      
+
       /* Check nprojbins same as number of bases in file nbases for general_r function */
       if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
         printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);

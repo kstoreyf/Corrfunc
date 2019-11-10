@@ -233,8 +233,6 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
               "pair counter."
         raise ImportError(msg)
 
-    print("Corrfunc python: DDsmu")
-
     import numpy as np
     from Corrfunc.utils import translate_isa_string_to_enum, fix_ra_dec,\
         return_file_with_rbins, sys_pipes
@@ -289,9 +287,9 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
 
     integer_isa = translate_isa_string_to_enum(isa)
     sbinfile, delete_after_use = return_file_with_rbins(binfile)
-    print('pre syspipes')
+
+    # TODO: this was throwing an error, can't figure out why
     #with sys_pipes():
-    print('syspipes')
     extn_results = DDsmu_extn(autocorr, cosmology, nthreads,
                                   mu_max, nmu_bins, sbinfile,
                                   RA1, DEC1, CZ1,
@@ -335,12 +333,6 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
 
     proj = np.array(proj)
     projt = np.array(proj_tensor)
-    # Keep projt as 1d array
-    # nprojbins = len(proj)
-    # projt = np.zeros((nprojbins, nprojbins))
-    # for i in range(nprojbins):
-    #     for j in range(nprojbins):
-    #         projt[i][j] = proj_tensor[i*nprojbins+j]
 
     if not c_api_timer:
         return results, proj, projt
