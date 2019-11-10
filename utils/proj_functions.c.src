@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <gsl/gsl_matrix_DOUBLE.h>
 #include <gsl/gsl_linalg.h>
@@ -79,6 +80,78 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
     }
 }
 
+
+//  void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
+//      //printf("Gaussian kernel\n");
+//      DOUBLE s = sqrt(sqr_s);
+//      int nbases = proj->nbases;
+//      int nres = proj->nres;
+//      DOUBLE sval;
+//  
+//      // TODO: somewhere check that r is in ascending order
+//      /* naive search, TODO replace w binary */
+//      int i0 = -1, i1 = -1;
+//      int i_closest;
+//      DOUBLE s0, s1, y0, y1, sp;
+//      for(int p=0;p<proj->nprojbins;p++){
+//        sp = sqrt(proj->supp_sqr[p]);
+//        // step through radii until desired value is less than radius
+//        if (s <= sp) {
+//          i0 = p-1; //index before insertion location
+//          i1 = p; //index after insertion location
+//          s0 = sqrt(proj->supp_sqr[p-1]); //TODO: not sure this is safe for out-of-range r
+//          s1 = sp;
+//          if (abs(s-s0)<abs(s-s1)){
+//              i_closest = i0;
+//          }
+//          else{
+//              i_closest = i1;
+//          }
+//          break;
+//        }
+//      }
+//      for (int p=0; p<proj->nprojbins; p++){
+//          u[p] = 0;
+//      }
+//  
+//      if (i0 != -1) {
+//        int ncent = (nres-1)/2;
+//        int j = 0; //first and only basis
+//        int i_neg, i_pos;
+//        DOUBLE y_neg, y_pos;
+//        u[i_closest] = proj->projbases[ncent*(nbases+1)+(j+1)];
+//        for (int n=1; n<ncent+1; n++){
+//          // +1's because 0th column is sarr
+//          i_neg = ncent-n;
+//          i_pos = ncent+n; 
+//          y_neg = proj->projbases[i_neg*(nbases+1)+(j+1)];
+//          y_pos = proj->projbases[i_pos*(nbases+1)+(j+1)];
+//          if (i_closest-n >= 0){
+//              u[i_closest-n] = y_neg;
+//          }
+//          if (i_closest+n < proj->nprojbins){
+//              u[i_closest+n] = y_pos;
+//          }
+//        }
+//      }
+//  }
+
+void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
+   //printf("Gaussian kernel\n");
+   double sigma = 3.0;
+   double s = sqrt(sqr_s);
+   double amp = 1.0/(sqrt(2.0*M_PI)*sigma);
+   for(int p=0;p<proj->nprojbins;p++){
+       double rp = sqrt(proj->supp_sqr[p]);
+       if (abs(rp-s)<4.0*sigma) {
+           double gaussian = amp * exp( -0.5* pow((rp-s) / sigma, 2.0));
+           u[p] = gaussian;
+       }
+       else {
+           u[p] = 0;
+       }
+   }
+}
 
 void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 
@@ -248,6 +321,8 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
             return &dcosmo_DOUBLE;
         case GENR:
             return &general_r_DOUBLE;
+        case GAUSSIAN_KERNEL:
+            return &gaussian_kernel_DOUBLE;
         default:
         case NONEPROJ:
             return NULL;
@@ -354,13 +429,14 @@ void evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
       // to account for radii column
       nbases -= 1;
       /* Check nprojbins same as number of bases in file nbases for general_r function */
-      if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
+      if (nbases != nprojbins && proj_method==GENR) {
         printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file.\n", projdata->nprojbins, nbases);
         exit(0);
       }
       projdata->nres = nres;
       projdata->nbases = nbases;
       projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1));
+      projdata->proj_method = proj_method;
       /* Read in file */
       rewind(projfile); 
       for(int i = 0; i < nres; i++){

@@ -42,6 +42,8 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
 void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
+void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
+
 void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);
 
 void dcosmo_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s);

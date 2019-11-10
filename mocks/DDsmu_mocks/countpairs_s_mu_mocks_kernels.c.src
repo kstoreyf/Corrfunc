@@ -874,6 +874,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
     const int32_t need_proj = src_projpairs != NULL;
+    const int32_t need_tensor = projdata->proj_method != 5; //kernel is 5
 
     (void) fast_divide;//unused parameter but required to keep the same function signature amongst the kernels
 
@@ -905,12 +906,17 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
         }
     }
 
-    if(need_proj){
+    if(need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
             projpairs[i] = ZERO;
             for(int j=0;j<nprojbins;j++) {
                 projpairs_tensor[i*nprojbins+j] = ZERO;
             }
+        }
+    }
+    if (need_proj && !need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
         }
     }
 
@@ -1022,7 +1028,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 }
 
             }//finding kbin
-
+            //printf("should project?\n");
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
                 //number of edges vs bins
@@ -1032,22 +1038,31 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //projdata->supp_sqr = supp_sqr;
                 //projdata->sqr_s = sqr_s;
                 //printf("proj!\n");
+                //printf("projecting\n");
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
-
+                //printf("%d\n", proj_method);
+                //printf("%d\n", proj_func);
                 DOUBLE u[nprojbins];
                 proj_func(projdata, u, sqr_s);
-
+                //printf("projected\n");
                 //#magic - TODO, find better solution (was getting e-310s)
                 DOUBLE tiny = 1.0e-16;
                 //outer product to get tensor value
-                for(int p1=0;p1<nprojbins;p1++){
-                    projpairs[p1] += u[p1];
-                    for(int p2=0;p2<nprojbins;p2++){
-                        DOUBLE uval = u[p1]*u[p2];
-                        // if value is basically zero, don't bother adding (and breaks ZERO)
-                        if (uval>tiny || uval<-tiny){
-                            projpairs_tensor[p1*nprojbins+p2] += uval;
+                if (need_tensor) { 
+                    for(int p1=0;p1<nprojbins;p1++){
+                        projpairs[p1] += u[p1];
+                        for(int p2=0;p2<nprojbins;p2++){
+                            DOUBLE uval = u[p1]*u[p2];
+                            // if value is basically zero, don't bother adding (and breaks ZERO)
+                            if (uval>tiny || uval<-tiny){
+                                projpairs_tensor[p1*nprojbins+p2] += uval;
+                            }
                         }
+                    }
+                }
+                else {
+                    for(int p1=0;p1<nprojbins;p1++){
+                        projpairs[p1] += u[p1];
                     }
                 }
             }
@@ -1066,12 +1081,17 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             src_weightavg[i] += weightavg[i];
         }
     }
-    if(need_proj) {
+    if(need_proj && need_tensor) {
         for(int i=0;i<nprojbins;i++) {
             src_projpairs[i] += projpairs[i];
             for(int j=0;j<nprojbins;j++) {
                 src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
             }
+        }
+    }
+    if(need_proj && !need_tensor) {
+        for(int i=0;i<nprojbins;i++) {
+            src_projpairs[i] += projpairs[i];
         }
     }
 

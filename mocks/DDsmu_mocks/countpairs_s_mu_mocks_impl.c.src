@@ -214,9 +214,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       dummy_extra = get_extra_options(dummy_method);
       extra = &dummy_extra;
     }
-
+    //printf("Countpairs here\n");
     int need_weightavg = extra->weight_method != NONE;
     int need_proj = extra->proj_method != NONEPROJ;
+    int need_tensor = false; //TODO allow to pass as param
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     projdata->nprojbins = extra->nprojbins;
@@ -250,7 +251,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       
       /* Check nprojbins same as number of bases in file nbases for general_r function */
       if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
-        printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file.\n", projdata->nprojbins, nbases);
+        printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
         exit(0);
       }
       projdata->nres = nres;
