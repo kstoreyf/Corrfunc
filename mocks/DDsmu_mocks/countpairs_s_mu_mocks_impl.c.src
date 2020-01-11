@@ -226,52 +226,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     /* Read in projection file if necessary */
     char *projfn = extra->projfn;
     if (projfn != NULL) {
-      FILE *projfile;
-      printf("Reading in projection file, %s...\n", projfn);
-      if( !(projfile=fopen(projfn,"r")) ){
-        printf("ERROR opening [%s]\n",projfn);
-        exit(0);
-      }
-      int nres = 0;
-      int nbases = 0;
-      char buf[1000];
-      /* Count rows in file */
-      while(fgets(buf, 1000, projfile)) {
-        if (nres==0) {
-          char *val;
-          val = strtok(buf, " ");
-          while (val != NULL) {
-            nbases++;
-            val = strtok(NULL, " ");
-          }
-        }
-        nres++;
-      }
-      nbases -= 1; //to account for r column
-
-      /* Check nprojbins same as number of bases in file nbases for general_r function */
-      if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
-        printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
-        exit(0);
-      }
-      projdata->nres = nres;
-      projdata->nbases = nbases;
-      projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1));
-      /* Read in file */
-      rewind(projfile);
-      for(int i = 0; i < nres; i++){
-          fgets(buf,1000,projfile);
-          char *val;
-          val = strtok(buf, " ");
-          for(int j=0; j<nbases+1; j++){
-            sscanf(val, "%lf", &projdata->projbases[i*(nbases+1)+j]);
-            val = strtok(NULL, " ");
-          }
-      }
-      fclose(projfile);
-      printf("Read in %d by %d basis data\n", nres, nbases+1);
+        read_projfile_DOUBLE(projfn, projdata);
     } 
-
 
     options->sort_on_z = 1;
     struct timeval t0;
