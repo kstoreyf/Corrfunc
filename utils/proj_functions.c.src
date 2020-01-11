@@ -168,6 +168,7 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
     }
 }
 
+
 int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps){
 
@@ -224,10 +225,15 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 	return EXIT_SUCCESS;
 }
 
+
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
                       int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn){
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
+    if(projdata == NULL){
+        free(projdata);
+        return EXIT_FAILURE;
+    }
     projdata->nprojbins = nprojbins;
 	projdata->proj_method = proj_method;
 
@@ -279,7 +285,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     projfile=fopen(projfn,"r");
     if( !projfile ){
         printf("ERROR opening [%s]\n",projfn);
-        exit(0);
+        return EXIT_FAILURE;
     }
     int nres = 0;
     int nbases = 0;
@@ -301,11 +307,16 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     /* Check nprojbins same as number of bases in file nbases for general_r function */
     if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
         printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
-        exit(0);
+        return EXIT_FAILURE;
     }
     projdata->nres = nres;
     projdata->nbases = nbases;
     projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1));
+    if(projdata->projbases == NULL){
+        free(projdata->projbases);
+        return EXIT_FAILURE;
+    }
+
     /* Read in file */
     rewind(projfile);
     for(int i = 0; i < nres; i++){
@@ -319,4 +330,5 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     }
     fclose(projfile);
     printf("Read in %d by %d basis data\n", nres, nbases+1);
+    return EXIT_SUCCESS;
 }

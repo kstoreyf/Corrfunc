@@ -220,6 +220,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     int need_tensor = false; //TODO allow to pass as param
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
+    if(projdata == NULL){
+        free(projdata);
+        return EXIT_FAILURE;
+    }
     projdata->nprojbins = extra->nprojbins;
     projdata->proj_method = extra->proj_method;
 
@@ -863,9 +867,10 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     results->supp   = my_malloc(sizeof(*(results->supp))  , nsbin);
     results->savg  = my_malloc(sizeof(*(results->savg)) , totnbins);
     results->weightavg  = my_calloc(sizeof(DOUBLE)  , totnbins);
-    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || results->weightavg == NULL || results->projpairs == NULL) {
+    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || results->weightavg == NULL || results->projpairs == NULL || results->projpairs_tensor == NULL) {
         free_results_mocks_s_mu(results);
         free(supp);
+        // Should I be freeing this here?
         if (projfn != NULL) {
           free(projdata->projbases);
         }
