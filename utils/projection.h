@@ -1,10 +1,10 @@
 /* File: projection.h */
 /*
- *   This file is a part of the Corrfunc package
- *     Copyright (C) 2015-- Manodeep Sinha (manodeep@gmail.com)
- *       License: MIT LICENSE. See LICENSE file under the top-level
- *         directory at https://github.com/manodeep/Corrfunc/
- *         */
+  This file is an extenstion of the Corrfunc package
+  Copyright (C) 2020-- Kate Storey-Fisher (kstoreyfisher@gmail.com)
+  License: MIT LICENSE. See LICENSE file under the top-level
+  directory at https://github.com/kstoreyf/Corrfunc/
+*/
 #pragma once
 
 #ifdef __cplusplus

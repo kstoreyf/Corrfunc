@@ -46,3 +46,4 @@ cov-int
 *.spl
 *.toc
 *.mk
+.vscode/*
