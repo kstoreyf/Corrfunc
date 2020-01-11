@@ -29,7 +29,7 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
                                                               const int same_cell,
                                                               const int fast_divide,
                                                               const DOUBLE smax, const DOUBLE smin, const int nsbin,const int nmu_bins,
-                                                              const DOUBLE *supp_sqr, const DOUBLE mu_max,
+                                                              const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                               DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                               DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                               DOUBLE *src_weightavg, const weight_method_t weight_method)
@@ -415,7 +415,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                                                               const int same_cell,
                                                               const int fast_divide,
                                                               const DOUBLE smax, const DOUBLE smin, const int nsbin,
-                                                              const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max,
+                                                              const int nmu_bins, const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                               DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                               DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                               DOUBLE *src_weightavg, const weight_method_t weight_method)
@@ -687,6 +687,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
             const DOUBLE sqr_mu = sqr_s_dot_l/(norm_l * sqr_s);
             const int mubin  = (sqr_mu >= sqr_mumax) ? nmu_bins:(int) (SQRT(sqr_mu)*inv_dmu);
             DOUBLE s, pairweight;
+            // keeping this for now, but need s for proj so always compute
             if(need_savg) {
                 s = SQRT(sqr_s);
             }
@@ -741,7 +742,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                                                         const int same_cell,
                                                         const int fast_divide,
                                                         const DOUBLE smax, const DOUBLE smin, const int nsbin,
-                                                        const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max,
+                                                        const int nmu_bins, const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max,
                                                         DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                         DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                         DOUBLE *src_weightavg, const weight_method_t weight_method)
@@ -773,6 +774,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     if(need_proj) {
       int nsbins = nsbin-1;
       projdata->nsbins = nsbins;
+      projdata->supp = supp;
       projdata->supp_sqr = supp_sqr;    
     }
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
@@ -883,7 +885,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             const DOUBLE sqr_mu = sqr_s_dot_l/(sqr_l * sqr_s);
             const int mubin  = (sqr_mu >= sqr_mumax) ? nmu_bins:(int) (SQRT(sqr_mu)*inv_dmu);
             DOUBLE s, pairweight;
-            if(need_savg) {
+            if(need_savg || need_proj) {
                 s = SQRT(sqr_s);
             }
             if(need_weightavg){
@@ -926,7 +928,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //printf("%d\n", proj_method);
                 //printf("%d\n", proj_func);
                 DOUBLE u[nprojbins];
-                proj_func(projdata, u, sqr_s);
+                proj_func(projdata, u, s, sqr_s);
                 //printf("projected\n");
                 //#magic - TODO, find better solution (was getting e-310s)
                 DOUBLE tiny = 1.0e-16;

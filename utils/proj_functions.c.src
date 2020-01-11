@@ -17,6 +17,7 @@
 
 #include "defs.h"
 #include "utils.h"
+#include "function_precision.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -35,7 +36,8 @@
 // Projection functions
 //////////////////////////////////
 
-void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
+void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+    (void) s;//to suppress the unused variable warning
     int ins = -1;
     for(int p=0;p<proj->nsbins;p++){
         u[p] = 0;
@@ -49,16 +51,16 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 }
 
 
-void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
-
+void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+    (void) sqr_s;//to suppress the unused variable warning
     // Assumes nsbins = nprojbins
     for(int p=0;p<proj->nprojbins;p++){
 
         // peaks are bin averages, for now - need to take square roots
-        double peak = 0.5*(sqrt(proj->supp_sqr[p]) + sqrt(proj->supp_sqr[p+1]));
+        double peak = 0.5*(proj->supp[p] + proj->supp[p+1]);
         // assumes bins in ascending order
-        double binwidth = sqrt(proj->supp_sqr[p+1]) - sqrt(proj->supp_sqr[p]);
-        double val = 1.0 - (1.0/binwidth) * fabs(sqrt(sqr_s) - peak);
+        double binwidth = proj->supp[p+1] - proj->supp[p];
+        double val = 1.0 - (1.0/binwidth) * FABS(s - peak);
         if (val < 0) {
             val = 0;
         }
@@ -68,26 +70,25 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 }
 
 
-void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
-   double sigma = 3.0;
-   double s = sqrt(sqr_s);
-   double amp = 1.0/(sqrt(2.0*M_PI)*sigma);
-   for(int p=0;p<proj->nprojbins;p++){
-       double rp = sqrt(proj->supp_sqr[p]);
-       if (abs(rp-s)<4.0*sigma) {
-           double gaussian = amp * exp( -0.5* pow((rp-s) / sigma, 2.0));
-           u[p] = gaussian;
-       }
-       else {
-           u[p] = 0;
-       }
-   }
+void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+    (void) sqr_s;//to suppress the unused variable warning
+    double sigma = 3.0;
+    double amp = 1.0/(SQRT(2.0*M_PI)*sigma);
+    for(int p=0;p<proj->nprojbins;p++){
+        double rp = proj->supp[p];
+        if (abs(rp-s)<4.0*sigma) {
+            double gaussian = amp * exp( -0.5* pow((rp-s) / sigma, 2.0));
+            u[p] = gaussian;
+        }
+        else {
+            u[p] = 0;
+        }
+    }
 }
 
 
-void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
-
-    double s = sqrt(sqr_s);
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+    (void) sqr_s;//to suppress the unused variable warning
     
     double gamma=2.7, s0=15.0;
     double powlaw = pow(s/s0, -1*gamma);
@@ -102,9 +103,8 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
 }
 
 
-void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE sqr_s){
-
-    DOUBLE s = sqrt(sqr_s);
+void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+    (void) sqr_s;//to suppress the unused variable warning
     int nbases = proj->nbases;
     int nres = proj->nres;
     DOUBLE sval;
@@ -252,6 +252,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
 
     projdata->nsbins = nsbins;
+    projdata->supp = sbins;
     projdata->supp_sqr = supp_sqr;
     // ns: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
@@ -259,11 +260,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
         DOUBLE u[nprojbins];
         DOUBLE sqr_s = pow(svals[i], 2);
 
-        //projdata->sqr_s = sqr_s;
-        //TODO: get to work!?!
-        //projdata.supp = sbins;
-        //proj_func(projdata, u);
-        proj_func(projdata, u, sqr_s);
+        proj_func(projdata, u, svals[i], sqr_s);
 		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
         DOUBLE xival = 0;
         for (int j=0; j<nprojbins; j++){

@@ -665,7 +665,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              same_cell,
                                                                              options->fast_divide_and_NR_steps,
                                                                              smax, smin, nsbin,
-                                                                             nmu_bins, supp_sqr, mu_max,
+                                                                             nmu_bins, supp, supp_sqr, mu_max,
                                                                              this_savg, npairs, this_projpairs,
                                                                              this_projpairs_tensor, projdata,
                                                                              this_weightavg, extra->weight_method);
@@ -695,7 +695,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                              same_cell,
                                                                              options->fast_divide_and_NR_steps,
                                                                              smax, smin, nsbin,
-                                                                             nmu_bins, supp_sqr, mu_max,
+                                                                             nmu_bins, supp, supp_sqr, mu_max,
                                                                              this_savg, npairs, this_projpairs,
                                                                              this_projpairs_tensor, projdata,
                                                                              this_weightavg, extra->weight_method);

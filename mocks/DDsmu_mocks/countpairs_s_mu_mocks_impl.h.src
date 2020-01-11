@@ -28,7 +28,7 @@ extern "C" {
                                                     const int same_cell,
                                                     const int fast_divide,
                                                     const DOUBLE smax, const DOUBLE smin, const int nsbin,
-                                                    const int nmu_bins, const DOUBLE *supp_sqr,
+                                                    const int nmu_bins, const DOUBLE *supp, const DOUBLE *supp_sqr,
                                                     const DOUBLE mu_max,
                                                     DOUBLE *src_savg, uint64_t *src_npairs, DOUBLE *src_projpairs,
                                                     DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
