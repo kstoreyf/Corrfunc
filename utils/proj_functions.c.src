@@ -36,17 +36,20 @@
 // Projection functions
 //////////////////////////////////
 
+//
 void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) s;//to suppress the unused variable warning
-    int ins = -1;
-    for(int p=0;p<proj->nsbins;p++){
+
+    // nsbins is number of bins and not edges
+    // supp_sqr has length nsbins+1, number of edges
+    for(int p=proj->nsbins-1; p>=0; p--){
         u[p] = 0;
-        if (sqr_s >= proj->supp_sqr[p] && sqr_s < proj->supp_sqr[p+1]){
-            ins = p;
-        }
     }
-    if (ins>=0 && ins<proj->nprojbins){
-        u[ins] = 1.0;
+    for(int p=proj->nsbins-1; p>=0; p--){
+        if (sqr_s >= proj->supp_sqr[p] && sqr_s < proj->supp_sqr[p+1]){
+            u[p] = 1.0;
+            break;
+        }
     }
 }
 
@@ -55,7 +58,6 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
     (void) sqr_s;//to suppress the unused variable warning
     // Assumes nsbins = nprojbins
     for(int p=0;p<proj->nprojbins;p++){
-
         // peaks are bin averages, for now - need to take square roots
         double peak = 0.5*(proj->supp[p] + proj->supp[p+1]);
         // assumes bins in ascending order
@@ -65,7 +67,6 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
             val = 0;
         }
         u[p] = val;
-
     }
 }
 
@@ -76,8 +77,8 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s,
     double amp = 1.0/(SQRT(2.0*M_PI)*sigma);
     for(int p=0;p<proj->nprojbins;p++){
         double rp = proj->supp[p];
-        if (abs(rp-s)<4.0*sigma) {
-            double gaussian = amp * exp( -0.5* pow((rp-s) / sigma, 2.0));
+        if (FABS(rp-s)<4.0*sigma) {
+            double gaussian = amp * exp( -0.5*( ((rp-s)/sigma)*((rp-s)/sigma)) );
             u[p] = gaussian;
         }
         else {
@@ -91,14 +92,14 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE
     (void) sqr_s;//to suppress the unused variable warning
     
     double gamma=2.7, s0=15.0;
-    double powlaw = pow(s/s0, -1*gamma);
+    double powlaw = pow(s/s0, -gamma);
     u[0] = powlaw;
 
     double amp=0.004, width=10, mean=107;
-    double bump = amp * exp(-1*pow(s-mean,2)/(2*pow(width,2)));
+    double bump = amp * exp(-(s-mean)*(s-mean)/(2*width*width));
     u[1] = bump;
    
-    double dwidth = amp*pow(s-mean,2)/pow(width,3) * exp(-1*pow(s-mean,2)/(2*pow(width,2))); 
+    double dwidth = amp*(s-mean)*(s-mean)/(width*width*width) * exp(-(s-mean)*(s-mean)/(2*width*width)); 
     u[2] = dwidth;
 }
 
@@ -108,39 +109,41 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
     int nbases = proj->nbases;
     int nres = proj->nres;
     DOUBLE sval;
+    // TODO: somewhere check that r is in ascending order !! IMPORTANT !!
 
-    // TODO: somewhere check that r is in ascending order
-    /* naive search, TODO replace w binary */
-    int i0 = -1, i1 = -1;
-    DOUBLE s0, s1, y0, y1;
-    for (int i=0; i<nres; i++){
-      // get first colum of basis file, radii
-      sval = proj->projbases[i*(nbases+1)];
-      if (s <= sval) {
-        //idx = i-1; //index before insertion location
-        i0 = i-1;
-        i1 = i;
-        s0 = proj->projbases[i0*(nbases+1)];
-        s1 = sval;
-
-        break;
-      } 
-    }
     // if not in r range, return 0s
     // TODO: better to send an array of 0's and just return?
-    if (i0==-1){
+    if (s<proj->projbases[0] || s>=proj->projbases[(nres-1)*(nbases+1)]){
       for (int j=0; j<nbases; j++){
         u[j] = 0;
       }
+      return;
     }
-    else {
-      for (int j=0; j<nbases; j++){
+
+    /* naive search, TODO replace w binary */
+    int i0 = -1, i1 = -1;
+    DOUBLE s0, s1, y0, y1;
+    // loop backwards because last bins cover larger volume, should increase speed
+    // nres-2 because nres-1 is max value, which would be caught by above case
+    for (int i=nres-2; i>=0; i--){
+      // get first colum of basis file, radii
+      sval = proj->projbases[i*(nbases+1)];
+      // >= because looping backward
+      if (s >= sval) {
+        i0 = i; //index before insertion location
+        i1 = i+1; //index after insertion location
+        s0 = sval;
+        s1 = proj->projbases[i1*(nbases+1)];
+        break;
+      } 
+    }
+
+    for (int j=0; j<nbases; j++){
         // +1's because 0th column is sarr 
         y0 = proj->projbases[i0*(nbases+1)+(j+1)];
         y1 = proj->projbases[i1*(nbases+1)+(j+1)];
         u[j] = y0 + (s - s0)*(y1 - y0)/(s1 - s0); //linear interp
-      }
-    } 
+    }
 }
 
 //////////////////////////////////
@@ -246,7 +249,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     DOUBLE supp_sqr[nsbins];
     //plus 1 because one more edge than number of bins
     for (int i=0; i<nsbins+1; i++){
-        supp_sqr[i] = pow(sbins[i], 2);
+        supp_sqr[i] = sbins[i]*sbins[i];
     }
 
     proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
@@ -258,7 +261,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     for (int i=0; i<nsvals; i++){
         //get basis function u for given value of s
         DOUBLE u[nprojbins];
-        DOUBLE sqr_s = pow(svals[i], 2);
+        DOUBLE sqr_s = svals[i]*svals[i];
 
         proj_func(projdata, u, svals[i], sqr_s);
 		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
@@ -321,7 +324,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
         char *val;
         val = strtok(buf, " ");
         for(int j=0; j<nbases+1; j++){
-            sscanf(val, "%lf", &projdata->projbases[i*(nbases+1)+j]);
+            sscanf(val, "%"REAL_FORMAT, &projdata->projbases[i*(nbases+1)+j]);
             val = strtok(NULL, " ");
         }
     }

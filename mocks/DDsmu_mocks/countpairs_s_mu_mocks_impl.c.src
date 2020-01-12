@@ -301,7 +301,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     int nsbin;
     DOUBLE smin,smax;
     setup_bins(sbinfile,&smin,&smax,&nsbin,&supp);
-    //printf("setup nsbin"
+    
     if( ! (smin > 0.0 && smax > 0.0 && smin < smax && nsbin > 0)) {
         fprintf(stderr,"Error: Could not setup with S bins correctly. (smin = %lf, smax = %lf, with nbins = %d). Expected non-zero smin/smax with smax > smin and nbins >=1 \n",
                 smin, smax, nsbin);
@@ -403,6 +403,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         Z2 = Z1;
     }
 
+    //nsbin is number of bin edges
     DOUBLE supp_sqr[nsbin];
     for(int i=0; i < nsbin;i++) {
         supp_sqr[i] = supp[i]*supp[i];

@@ -66,7 +66,9 @@ int setup_bins(const char *fname,double *rmin,double *rmax,int *nbin,double **ru
     const char comment='#';
     const int nitems=2;
     int nread=0;
+    //nbin is the number of bins + 1 = bin edges??
     *nbin = ((int) getnumlines(fname,comment))+1;
+    //rupp is size of bin edges + 1??
     *rupp = my_calloc(sizeof(double),*nbin+1);
 
     fp = my_fopen(fname,"r");
