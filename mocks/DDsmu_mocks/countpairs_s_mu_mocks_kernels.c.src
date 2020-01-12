@@ -912,37 +912,20 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                     }
                     break;
                 }
-
             }//finding kbin
-            //printf("should project?\n");
+
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
-                //number of edges vs bins
-                //assigned these at top
-                //int nsbins = nsbin-1;
-                //projdata->nsbins = nsbins;
-                //projdata->supp_sqr = supp_sqr;
-                //projdata->sqr_s = sqr_s;
-                //printf("proj!\n");
-                //printf("projecting\n");
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
-                //printf("%d\n", proj_method);
-                //printf("%d\n", proj_func);
                 DOUBLE u[nprojbins];
                 proj_func(projdata, u, s, sqr_s);
-                //printf("projected\n");
-                //#magic - TODO, find better solution (was getting e-310s)
-                DOUBLE tiny = 1.0e-16;
                 //outer product to get tensor value
                 if (need_tensor) { 
                     for(int p1=0;p1<nprojbins;p1++){
                         projpairs[p1] += u[p1];
                         for(int p2=0;p2<nprojbins;p2++){
                             DOUBLE uval = u[p1]*u[p2];
-                            // if value is basically zero, don't bother adding (and breaks ZERO)
-                            if (uval>tiny || uval<-tiny){
-                                projpairs_tensor[p1*nprojbins+p2] += uval;
-                            }
+                            projpairs_tensor[p1*nprojbins+p2] += uval;
                         }
                     }
                 }
@@ -952,7 +935,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                     }
                 }
             }
-
 
         }//j loop over second set of particles
     }//i loop over first set of particles

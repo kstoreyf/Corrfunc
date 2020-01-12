@@ -92,7 +92,7 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE
     (void) sqr_s;//to suppress the unused variable warning
     
     double gamma=2.7, s0=15.0;
-    double powlaw = pow(s/s0, -gamma);
+    double powlaw = POW(s/s0, -gamma);
     u[0] = powlaw;
 
     double amp=0.004, width=10, mean=107;
