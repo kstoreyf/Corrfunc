@@ -214,7 +214,6 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       dummy_extra = get_extra_options(dummy_method);
       extra = &dummy_extra;
     }
-    //printf("Countpairs here\n");
     int need_weightavg = extra->weight_method != NONE;
     int need_proj = extra->proj_method != NONEPROJ;
     int need_tensor = false; //TODO allow to pass as param
@@ -660,7 +659,6 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                     DOUBLE *this_weightavg = need_weightavg ? weightavg:NULL;
                     DOUBLE *this_projpairs = need_proj ? projpairs:NULL;
                     DOUBLE *this_projpairs_tensor = need_proj ? projpairs_tensor:NULL;
-                    //printf("impl, autocorr1\n");
                     const int status = countpairs_s_mu_mocks_function_DOUBLE(N1, x1, y1, z1, d1, weights1,
                                                                              N1, x1, y1, z1, d1, weights1,
                                                                              same_cell,
@@ -917,8 +915,6 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       free(projdata->projbases);
     }
     free(projdata);
-
-    //printf("end impl!\n");
 
     /* reset interrupt handlers to default */
     RESET_INTERRUPT_HANDLERS();

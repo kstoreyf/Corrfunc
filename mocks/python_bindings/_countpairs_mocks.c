@@ -1605,10 +1605,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         Py_RETURN_NONE; 
     }
 
-    //TODO: when clean up avx so can input no projection, change to line below
-    //if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
-    if (options.instruction_set!=FALLBACK){
-
+    if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
         printf("Applying projection requires fallback method, switching instruction set\n");
         options.instruction_set = FALLBACK;
     }
@@ -2353,7 +2350,10 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
 
     size_t element_size;
     const int64_t npb = check_dims_and_datatype(module, dd_obj, dr_obj, rd_obj, rr_obj, &element_size);
-
+    if(npb == -1) {
+        //Error has already been set -> simply return
+        Py_RETURN_NONE;
+    }
      /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
     PyObject *dd_array = NULL, *dr_array = NULL, *rd_array = NULL, *rr_array = NULL, *qq_array = NULL;

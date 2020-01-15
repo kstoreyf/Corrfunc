@@ -914,6 +914,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 }
             }//finding kbin
 
+            /* Where the projection magic happens */
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
@@ -922,16 +923,31 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 //outer product to get tensor value
                 if (need_tensor) { 
                     for(int p1=0;p1<nprojbins;p1++){
-                        projpairs[p1] += u[p1];
+                        if (need_weightavg){
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
                         for(int p2=0;p2<nprojbins;p2++){
-                            DOUBLE uval = u[p1]*u[p2];
-                            projpairs_tensor[p1*nprojbins+p2] += uval;
+                            //figure out why this is not *pairweight^2
+                            if (need_weightavg){
+                                projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2]*pairweight;
+                            }
+                            else{
+                                projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2];
+                            }
                         }
                     }
                 }
                 else {
                     for(int p1=0;p1<nprojbins;p1++){
-                        projpairs[p1] += u[p1];
+                        if (need_weightavg){
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
                     }
                 }
             }
