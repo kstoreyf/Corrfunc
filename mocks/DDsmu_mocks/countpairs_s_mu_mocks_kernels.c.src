@@ -46,6 +46,11 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
+    //unused parameters (only implemented in fallback for now)
+    (void) supp;
+    (void) src_projpairs;
+    (void) src_projpairs_tensor;
+    (void) projdata;
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     const DOUBLE sqr_mumax = mu_max*mu_max;
@@ -420,7 +425,7 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
                                                               DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
                                                               DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
-    //TODO: implement projection in SSE
+    /* TODO: implement projection in SSE */
 
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -431,7 +436,12 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
+    //unused parameters (only implemented in fallback for now)
     (void) fast_divide; //unused
+    (void) supp;
+    (void) src_projpairs;
+    (void) src_projpairs_tensor;
+    (void) projdata;
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     const DOUBLE sqr_mumax = mu_max*mu_max;

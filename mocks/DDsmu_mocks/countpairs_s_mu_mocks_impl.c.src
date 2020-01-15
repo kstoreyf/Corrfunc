@@ -299,6 +299,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     DOUBLE *supp;
     int nsbin;
     DOUBLE smin,smax;
+    //getting warning because setup_bins is defined with double arguments, but may be float
     setup_bins(sbinfile,&smin,&smax,&nsbin,&supp);
     
     if( ! (smin > 0.0 && smax > 0.0 && smin < smax && nsbin > 0)) {
@@ -806,7 +807,6 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         }
     }
 
-    //TODONOW: Fix this error about k! check against pushed version for what k was
     for(int i=0;i<numthreads;i++) {
         for(int j=0;j<totnbins;j++) {
             npairs[j] += all_npairs[i][j];

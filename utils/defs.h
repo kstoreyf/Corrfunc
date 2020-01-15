@@ -415,7 +415,6 @@ struct extra_options
     weight_struct weights1;
     weight_method_t weight_method; // the function that will get called to give the weight of a particle pair
 
-    //proj_struct projdata;
     proj_method_t proj_method;
     int nprojbins;
     char *projfn;
