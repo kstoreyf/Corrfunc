@@ -1,3 +1,27 @@
+The Continuous-Function Estimator
+=================================
+
+This is an implementation of the continuous-function estimator, a generalization of the standard (Landy-Szalay) estimator for the two-point correlation function. 
+It is built within the `Corrfunc <https://github.com/manodeep/Corrfunc>`_  package, by Manodeep Sinha. 
+The Corrfunc README is copied below. 
+
+The 2-point correlation function measures the clustering of galaxies (or other tracers) as a function of scale. 
+Traditionally, this is done by counting the pairs of galaxies in a given separation bin, and normalizing by the pairs in a uniform random catalog. 
+
+The continuous-function estimator eliminates the need for binning, in separation or any other quantity. 
+Rather, it projects the pairs onto any user-defined set of basis functions.
+It replaces the pair counts with vectors, and the random normalization vector term with a matrix, that describe the contribution of the pairs to each basis function.
+The correlation function can then be directly evaluated at any separation, resulting in a continuous estimation.
+
+An example script for using the estimator is in example.ipynb.
+Currently implemented bases are tophat and piecewise.
+General r-dependent basis functions can be read in from a file; helper routines for these include spline basis functions of any order, the BAO fitting function, and derivatives with respect to cosmological parameters.
+
+The paper is in prep (Storey-Fisher \& Hogg, exp 2020). In the meantime, feel free to email k.sf@nyu.edu for more details. 
+
+Original Corrfunc README
+========================
+
 |logo|
 
 |Release| |PyPI| |MIT licensed| |Travis Build| |RTD| |Codacy| |Issues|
