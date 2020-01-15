@@ -2,9 +2,13 @@
 
 #define NLATMAX           100
 
-#define BOOST_CELL_THRESH   10
+#define BOOST_CELL_THRESH    10
 #define BOOST_NUMPART_THRESH 250
-#define BOOST_BIN_REF       1
+#define BOOST_BIN_REF        1
+
+//what fraction of particles have to be sorted
+//to switch from quicksort to heapsort
+#define FRACTION_SORTED_REQD_TO_HEAP_SORT   0.6
 
 #define ADD_DIFF_TIME(t0,t1)            ((t1.tv_sec - t0.tv_sec) + 1e-6*(t1.tv_usec - t0.tv_usec))
 #define REALTIME_ELAPSED_NS(t0, t1)     ((t1.tv_sec - t0.tv_sec)*1000000000.0 + (t1.tv_nsec - t0.tv_nsec))
@@ -13,6 +17,10 @@
 
 #define STRINGIFY(x)   #x
 #define STR(x) STRINGIFY(x)
+
+
+#define MIN(X, Y)                        (( (X) < (Y)) ? (X):(Y))
+#define MAX(X, Y)                        (( (X) > (Y)) ? (X):(Y))
 
 
 #define ASSIGN_CELL_TIMINGS(thread_timings, nx1, nx2, timediff, tid, first_cellid, second_cellid) \
@@ -102,7 +110,7 @@ the ROOT DIRECTORY of ``Corrfunc`` and re-install the entire packge.\n"
      do { if (!(EXP)) {                                                 \
              fprintf(stderr,"Error in file: %s\tfunc: %s\tline: %d with expression `"#EXP"'\n", __FILE__, __FUNCTION__, __LINE__); \
              fprintf(stderr,__VA_ARGS__);                               \
-             fprintf(stderr,ANSI_COLOR_BLUE "Hopefully, input validation. Otherwise, bug in code: please email Manodeep Sinha <manodeep@gmail.com>"ANSI_COLOR_RESET"\n"); \
+             fprintf(stderr,ANSI_COLOR_BLUE "Hopefully, input validation. Otherwise, bug in code: please file an issue on GitHub: https://github.com/manodeep/Corrfunc/issues"ANSI_COLOR_RESET"\n"); \
              return EXIT_FAILURE;                                       \
          }                                                              \
      } while (0)
@@ -115,7 +123,7 @@ the ROOT DIRECTORY of ``Corrfunc`` and re-install the entire packge.\n"
      do { if (!(EXP)) {                                                 \
              fprintf(stderr,"Error in file: %s\tfunc: %s\tline: %d with expression `"#EXP"'\n", __FILE__, __FUNCTION__, __LINE__); \
              fprintf(stderr,__VA_ARGS__);                               \
-             fprintf(stderr,ANSI_COLOR_BLUE "Hopefully, input validation. Otherwise, bug in code: please email Manodeep Sinha <manodeep@gmail.com>"ANSI_COLOR_RESET"\n"); \
+             fprintf(stderr,ANSI_COLOR_BLUE "Hopefully, input validation. Otherwise, bug in code: please file an issue on GitHub: https://github.com/manodeep/Corrfunc/issues"ANSI_COLOR_RESET"\n"); \
          }                                                              \
      } while (0)
 #endif
@@ -128,7 +136,7 @@ the ROOT DIRECTORY of ``Corrfunc`` and re-install the entire packge.\n"
      do { if (!(EXP)) {                                                 \
              fprintf(stderr,"Error in file: %s\tfunc: %s\tline: %d with expression `"#EXP"'\n", __FILE__, __FUNCTION__, __LINE__); \
              fprintf(stderr,__VA_ARGS__);                               \
-             fprintf(stderr,ANSI_COLOR_BLUE "Hopefully, input validation. Otherwise, bug in code: please email Manodeep Sinha <manodeep@gmail.com>"ANSI_COLOR_RESET"\n"); \
+             fprintf(stderr,ANSI_COLOR_BLUE "Hopefully, input validation. Otherwise, bug in code: please file an issue on GitHub: https://github.com/manodeep/Corrfunc/issues"ANSI_COLOR_RESET"\n"); \
              return VAL;                                                \
          }                                                              \
      } while (0)

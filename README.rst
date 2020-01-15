@@ -1,23 +1,26 @@
-|logo| 
+|logo|
 
-|Release| |PyPI| |MIT licensed| |ASCL| |Travis Build| |Issues| |RTD| |Landscape|
+|Release| |PyPI| |MIT licensed| |Travis Build| |RTD| |Codacy| |Issues|
+
+|ASCL| |Paper I| |Paper II|
 
 Description
 ===========
 
-This repo contains a set of codes to calculate correlation functions and 
-other clustering statistics in a cosmological box (co-moving XYZ)
-or on a mock (RA, DEC, CZ). Read the documentation on `corrfunc.rtfd.io <http://corrfunc.rtfd.io/>`_. 
+This repo contains a suite of codes to calculate correlation functions and
+other clustering statistics for **simulated** galaxies in a cosmological box (co-moving XYZ)
+and on **observed** galaxies with on-sky positions (RA, DEC, CZ). Read the
+documentation on `corrfunc.rtfd.io <http://corrfunc.rtfd.io/>`_.
 
 Why Should You Use it
 ======================
 
 1. **Fast** Theory pair-counting is **7x** faster than ``SciPy cKDTree``, and at least **2x** faster than all existing public codes.
 2. **OpenMP Parallel** All pair-counting codes can be done in parallel (with strong scaling efficiency >~ 95% up to 10 cores)
-3. **Python Extensions** Python extensions allow you to do the compute-heavy bits using C while retaining all of the user-friendliness of python. 
+3. **Python Extensions** Python extensions allow you to do the compute-heavy bits using C while retaining all of the user-friendliness of python.
 4. **Weights** All correlation functions now support *arbitrary, user-specified* weights for individual points
-5. **Modular** The code is written in a modular fashion and is easily extensible to compute arbitrary clustering statistics. 
-6. **Future-proof** As I get access to newer instruction-sets, the codes will get updated to use the latest and greatest CPU features. 
+5. **Modular** The code is written in a modular fashion and is easily extensible to compute arbitrary clustering statistics.
+6. **Future-proof** As we get access to newer instruction-sets, the codes will get updated to use the latest and greatest CPU features.
 
 *If you use the codes for your analysis, please star this repo -- that helps us keep track of the number of users.*
 
@@ -26,7 +29,7 @@ Benchmark against Existing Codes
 
 Please see this
 `gist <https://gist.github.com/manodeep/cffd9a5d77510e43ccf0>`__ for
-some benchmarks with current codes. If you have a pair-counter that you would like to compare, please add in a corresponding function and update the timings. 
+some benchmarks with current codes. If you have a pair-counter that you would like to compare, please add in a corresponding function and update the timings.
 
 Installation
 ============
@@ -40,7 +43,7 @@ Pre-requisites
    ``theory.options`` and ``mocks.options``. You might need to ask your
    sys-admin for system-wide installs of the compiler; if you prefer to
    install your own then ``conda install gcc`` (MAC/linux) or
-   ``(sudo) port install gcc5`` (on MAC) should work. 
+   ``(sudo) port install gcc5`` (on MAC) should work.
 3. ``gsl >= 2.4``. Use either
    ``conda install -c conda-forge gsl``
    (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl``
@@ -54,10 +57,10 @@ Preferred Install Method
 ::
 
     $ git clone https://github.com/manodeep/Corrfunc/
-    $ make 
+    $ make
     $ make install
     $ python setup.py install (--user)
-    $ make tests 
+    $ make tests
 
 Assuming you have ``gcc`` in your ``PATH``, ``make`` and
 ``make install`` should compile and install the C libraries + python
@@ -82,7 +85,15 @@ Compilation Notes
 Alternate Install Method
 -------------------------
 
-The python package is directly installable via ``pip install Corrfunc``. However, in that case you will lose the ability to recompile the code according to your needs. Installing via ``pip`` is **not** recommended, please open an install issue on this repo first; doing so helps improve the code-base and saves future users from running into similar install issues. 
+The python package is directly installable via ``pip install Corrfunc``. However, in that case you will lose the ability to recompile the code according to your needs. Installing via ``pip`` is **not** recommended, please open an install issue on this repo first; doing so helps improve the code-base and saves future users from running into similar install issues.
+
+OpenMP on OSX
+--------------
+
+Automatically detecting OpenMP support from the compiler and the runtime is a
+bit tricky. If you run into any issues compiling (or running) with OpenMP,
+please refer to the `FAQ <FAQ>`__ for potential solutions.
+
 
 Installation notes
 ------------------
@@ -99,8 +110,22 @@ pre-requisites, please see the `FAQ <FAQ>`__ or `email
 the Corrfunc mailing list <mailto:corrfunc@googlegroups.com>`__. Also, feel free to create a new issue
 with the ``Installation`` label.
 
-Clustering Measures on a Cosmological box
------------------------------------------
+Clustering Measures on simulated galaxies
+------------------------------------------
+
+Input data
++++++++++++
+
+The input galaxies (or any discrete distribution of points) are derived from a
+simulation. For instance, the galaxies could be a result of an Halo Occupation
+Distribution (HOD) model, a Subhalo Abundance matching (SHAM) model, a
+Semi-Empirical model (SEM), or a Semi-Analytic model (SAM) etc. The input set of
+points can also be the dark matter halos, or the dark matter particles from
+a cosmological simulation. The input set of points are expected to have
+positions specified in Cartesian XYZ.
+
+Types of available clustering statistics
++++++++++++++++++++++++++++++++++++++++++
 
 All codes that work on cosmological boxes with co-moving positions are
 located in the ``theory`` directory. The various clustering measures
@@ -123,8 +148,27 @@ are:
 
 6. ``vpf`` -- Measures the void probability function + counts-in-cells.
 
-Clustering measures on a Mock
------------------------------
+Clustering measures on observed galaxies
+----------------------------------------
+
+Input data
++++++++++++
+
+The input galaxies are typically observed galaxies coming from a large-scale
+galaxy survey. In addition, simulated galaxies that have been projected onto the sky
+(i.e., where observational systematics have been incorporated and on-sky
+positions have been generated) can also be used. We generically refer to both
+these kinds of galaxies as "mocks".
+
+
+The input galaxies are expected to have positions specified in spherical
+co-ordinates with at least right ascension (RA) and declination (DEC).
+For spatial correlation functions, an approximate "co-moving" distance
+(speed of light multiplied by redshift, CZ) is also required.
+
+
+Types of available clustering statistics
++++++++++++++++++++++++++++++++++++++++++
 
 All codes that work on mock catalogs (RA, DEC, CZ) are located in the
 ``mocks`` directory. The various clustering measures are:
@@ -134,9 +178,9 @@ All codes that work on mock catalogs (RA, DEC, CZ) are located in the
    produce the Landy-Szalay estimator for `wp(rp)`.
 
 2. ``DDsmu_mocks`` -- The standard auto/cross correlation between two data
-   sets. The outputs, DD, DR and RR can be combined using the python utility 
+   sets. The outputs, DD, DR and RR can be combined using the python utility
    ``convert_3d_counts_to_cf`` to produce the Landy-Szalay estimator for `xi(s, mu)`.
-   
+
 3. ``DDtheta_mocks`` -- Computes angular correlation function between two data
    sets. The outputs from ``DDtheta_mocks`` need to be combined with
    ``wtheta`` to get the full `\omega(\theta)`
@@ -151,10 +195,10 @@ code runtime options at compile-time. For theory routines, these options
 are in the file `theory.options <theory.options>`__ while for the mocks, these options are
 in file `mocks.options <mocks.options>`__.
 
-**Note** All options can be specified at 
+**Note** All options can be specified at
 runtime if you use the python interface or the static libraries. Each one of
 the following ``Makefile`` option has a corresponding entry for the runtime
-libraries. 
+libraries.
 
 Theory (in `theory.options <theory.options>`__)
 -------------------------------------------------
@@ -164,11 +208,8 @@ Theory (in `theory.options <theory.options>`__)
 
 2. ``OUTPUT_RPAVG`` -- switches on output of ``<rp>`` in each ``rp``
    bin. Can be a massive performance hit (~ 2.2x in case of wp).
-   Disabled by default. 
+   Disabled by default.
 
-3. ``DOUBLE_PREC`` -- switches on calculations in double precision. Disabled
-   by default (i.e., calculations are performed in single precision by default).
-   
 Mocks (in `mocks.options <mocks.options>`__)
 ----------------------------------------------
 
@@ -179,43 +220,77 @@ Mocks (in `mocks.options <mocks.options>`__)
    be extremely slow (~5x) depending on compiler, and CPU capabilities.
    Disabled by default.
 
-3. ``DOUBLE_PREC`` -- switches on calculations in double precision. Disabled
-   by default (i.e., calculations are performed in single precision by default).
-   
-4. ``LINK_IN_DEC`` -- creates binning in declination for ``DDtheta``. Please
-   check that for your desired limits ``\theta``, this binning does not 
+3. ``LINK_IN_DEC`` -- creates binning in declination for ``DDtheta_mocks``. Please
+   check that for your desired limits ``\theta``, this binning does not
    produce incorrect results (due to numerical precision). Generally speaking,
    if your ``\thetamax`` (the max. ``\theta`` to consider pairs within) is too
    small (probaly less than 1 degree), then you should check with and without
-   this option. Errors are typically sub-percent level. 
+   this option. Errors are typically sub-percent level.
 
-5. ``LINK_IN_RA`` -- creates binning in RA once binning in DEC has been
-   enabled. Same numerical issues as ``LINK_IN_DEC``
+4. ``LINK_IN_RA`` -- creates binning in RA once binning in DEC has been
+   enabled for ``DDtheta_mocks``. Same numerical issues as ``LINK_IN_DEC``
 
-6. ``FAST_DIVIDE`` -- Disabled by default. Divisions are slow but required
-   ``DD(r_p,\pi)``. Enabling this option, replaces
-   the divisions with a reciprocal followed by a Newton-Raphson. The code
-   will run ~20% faster at the expense of some numerical precision.
-   Please check that the loss of precision is not important for your
-   use-case. 
-
-7. ``FAST_ACOS`` -- Relevant only when ``OUTPUT_THETAAVG`` is enabled. Disabled 
-   by default. An ``arccos`` is required to calculate ``<\theta>``. In absence of vectorized
-   ``arccos`` (intel compiler, ``icc`` provides one via intel Short Vector Math 
-   Library), this calculation is extremely slow. However, we can approximate
+5. ``FAST_ACOS`` -- Relevant only when ``OUTPUT_THETAAVG`` is enabled for
+   ``DDtheta_mocks``. Disabled by default. An ``arccos`` is required to
+   calculate ``<\theta>``. In absence of vectorized ``arccos`` (intel compiler,
+   ``icc`` provides one via intel Short Vector Math Library), this calculation is extremely slow. However, we can approximate
    ``arccos`` using polynomials (with `Remez Algorithm <https://en.wikipedia.org/wiki/Remez_algorithm>`_).
    The approximations are taken from implementations released by `Geometric Tools <http://geometrictools.com/>`_.
-   Depending on the level of accuracy desired, this implementation of ``fast acos`` 
+   Depending on the level of accuracy desired, this implementation of ``fast acos``
    can be tweaked in the file `utils/fast_acos.h <utils/fast_acos.h>`__. An alternate, less
-   accurate implementation is already present in that file. Please check that the loss of 
-   precision is not important for your use-case. 
+   accurate implementation is already present in that file. Please check that the loss of
+   precision is not important for your use-case.
 
-8. ``COMOVING_DIST`` -- Currently there is no support in ``Corrfunc`` for different cosmologies. However, for the
+6. ``COMOVING_DIST`` -- Currently there is no support in ``Corrfunc`` for different cosmologies. However, for the
    mocks routines like, ``DDrppi_mocks`` and ``vpf_mocks``, cosmology parameters are required to convert between
-   redshift and co-moving distance. Both ``DDrppi_mocks`` and ``vpf_mocks`` expects to receive a ``redshift`` array 
+   redshift and co-moving distance. Both ``DDrppi_mocks`` and ``vpf_mocks`` expects to receive a ``redshift`` array
    as input; however, with this option enabled, the ``redshift`` array will be assumed to contain already converted
    co-moving distances. So, if you have redshifts and want to use an arbitrary cosmology, then convert the redshifts
-   into co-moving distances, enable this option, and pass the co-moving distance array into the routines. 
+   into co-moving distances, enable this option, and pass the co-moving distance array into the routines.
+
+Common Code options for both Mocks and Theory
+==============================================
+
+1. ``DOUBLE_PREC`` -- switches on calculations in double
+   precision. Calculations are performed in double precision when enabled. This
+   option is disabled by default in theory and enabled by default in the mocks
+   routines.
+
+2. ``USE_OMP`` -- uses OpenMP parallelization. Scaling is great for DD
+   (close to perfect scaling up to 12 threads in our tests) and okay (runtime
+   becomes constant ~6-8 threads in our tests) for ``DDrppi`` and ``wp``.
+   Enabled by default. The ``Makefile`` will compare the `CC` variable with
+   known OpenMP enabled compilers and set compile options accordingly.
+   Set in `common.mk <common.mk>`__ by default.
+
+3. ``ENABLE_MIN_SEP_OPT`` -- uses some further optimisations based on the
+   minimum separation between pairs of cells. Enabled by default.
+
+4. ``COPY_PARTICLES`` -- whether or not to create a copy of the particle
+   positions (and weights, if supplied). Enabled by default (copies of the
+   particle arrays **are** created)
+
+5. ``FAST_DIVIDE`` -- Disabled by default. Divisions are slow but required
+   ``DDrppi_mocks(r_p,\pi)``, ``DDsmu_mocks(s, \mu)`` and ``DD(s, \mu)``.
+   Enabling this option, replaces the divisions with a reciprocal
+   followed by a Newton-Raphson. The code will run ~20% faster at the expense
+   of some numerical precision. Please check that the loss of precision is not
+   important for your use-case.
+
+*Optimization for your architecture*
+
+1. The values of ``bin_refine_factor`` and/or ``zbin_refine_factor`` in
+   the ``countpairs\_\*.c`` files control the cache-misses, and
+   consequently, the runtime. In my trial-and-error methods, I have seen
+   any values larger than 3 are generally slower for theory routines but
+   can be faster for mocks. But some different
+   combination of 1/2 for ``(z)bin_refine_factor`` might be faster on
+   your platform.
+
+2. If you are using the angular correlation function and need ``thetaavg``,
+   you might benefit from using the INTEL MKL library. The vectorized
+   trigonometric functions provided by MKL can provide significant speedup.
+
 
 Running the codes
 =================
@@ -232,8 +307,8 @@ what you want. If not, edit those two files (and possibly
 `common.mk <common.mk>`__), and recompile. Then, you can use the command-line
 executables in each individual subdirectory corresponding to the
 clustering measure you are interested in. For example, if you want to
-compute the full 3-D correlation function, ``\xi(r)``, then run the 
-executable ``theory/xi/xi``. If you run executables without any arguments, 
+compute the full 3-D correlation function, ``\xi(r)``, then run the
+executable ``theory/xi/xi``. If you run executables without any arguments,
 the program will output a message with all the required arguments.
 
 Calling from C
@@ -280,7 +355,7 @@ use the C extensions directly. Here are a few examples:
     rmin = 0.1
     rmax = 20.0
     nbins = 20
-    
+
     # Create the bins
     rbins = np.logspace(np.log10(0.1), np.log10(rmax), nbins + 1)
 
@@ -292,32 +367,9 @@ use the C extensions directly. Here are a few examples:
     print("##       rmin           rmax            rpavg             wp            npairs")
     print("#############################################################################")
     print(wp_results)
-                                                        
 
-Common Code options for both Mocks and Cosmological Boxes
-=========================================================
 
-1. ``USE_OMP`` -- uses OpenMP parallelization. Scaling is great for DD
-   (close to perfect scaling up to 12 threads in our tests) and okay (runtime
-   becomes constant ~6-8 threads in our tests) for ``DDrppi`` and ``wp``.
-   Enabled by default. The ``Makefile`` will compare the `CC` variable with
-   known OpenMP enabled compilers and set compile options accordingly. 
-   Set in `common.mk <common.mk>`__ by default. 
-
-*Optimization for your architecture*
-
-1. The values of ``bin_refine_factor`` and/or ``zbin_refine_factor`` in
-   the ``countpairs\_\*.c`` files control the cache-misses, and
-   consequently, the runtime. In my trial-and-error methods, I have seen
-   any values larger than 3 are always slower. But some different
-   combination of 1/2 for ``(z)bin_refine_factor`` might be faster on
-   your platform.
-
-2. If you have AVX2/AVX-512/KNC, you will need to add a new kernel within
-   the ``*_kernels.c`` and edit the runtime dispatch code to call this new
-   kernel. 
-
-Author & Maintainers 
+Author & Maintainers
 =====================
 
 Corrfunc was designed by Manodeep Sinha and is currently maintained by
@@ -326,22 +378,50 @@ Corrfunc was designed by Manodeep Sinha and is currently maintained by
 Citing
 ======
 
-If you use the code, please cite using the `ascl entry <http://ascl.net/1703.003>`_ as indexed by `ADS <http://adsabs.harvard.edu/abs/2017ascl.soft03003S>`_. The BibTex entry for the code is
+If you use ``Corrfunc`` for research, please cite using the MNRAS code paper with the following
+bibtex entry:
 
 ::
 
-      @misc{2017ascl.soft03003S,
-         author = {{Sinha}, M. and {Garrison}, L.},
-         title = "{Corrfunc: Blazing fast correlation functions on the CPU}",
-         keywords = {Software},
-         howpublished = {Astrophysics Source Code Library},
-         year = 2017,
-         month = mar,
-         archivePrefix = "ascl",
-         eprint = {1703.003},
-         adsurl = {http://adsabs.harvard.edu/abs/2017ascl.soft03003S},
-         adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+   @ARTICLE{2020MNRAS.491.3022S,
+       author = {{Sinha}, Manodeep and {Garrison}, Lehman H.},
+       title = "{CORRFUNC - a suite of blazing fast correlation functions on
+       the CPU}",
+       journal = {\mnras},
+       keywords = {methods: numerical, galaxies: general, galaxies:
+       haloes, dark matter, large-scale structure of Universe, cosmology:
+       theory},
+       year = "2020",
+       month = "Jan",
+       volume = {491},
+       number = {2},
+       pages = {3022-3041},
+       doi = {10.1093/mnras/stz3157},
+       adsurl =
+       {https://ui.adsabs.harvard.edu/abs/2020MNRAS.491.3022S},
+       adsnote = {Provided by the SAO/NASA
+       Astrophysics Data System}
+   }
+
+
+If you are using ``Corrfunc v2.3.0`` or later, **and** you benefit from the
+enhanced vectorised kernels, then please additionally cite this paper:
+
+::
+
+      @InProceedings{10.1007/978-981-13-7729-7_1,
+          author="Sinha, Manodeep and Garrison, Lehman",
+          editor="Majumdar, Amit and Arora, Ritu",
+          title="CORRFUNC: Blazing Fast Correlation Functions with AVX512F SIMD Intrinsics",
+          booktitle="Software Challenges to Exascale Computing",
+          year="2019",
+          publisher="Springer Singapore",
+          address="Singapore",
+          pages="3--20",
+          isbn="978-981-13-7729-7",
+          url={https://doi.org/10.1007/978-981-13-7729-7_1}
       }
+
 
 
 Mailing list
@@ -359,12 +439,12 @@ with the code, including using it in commercial application.
 Project URL
 ===========
 
--  documentation (http://corrfunc.rtfd.io/)   
+-  documentation (http://corrfunc.rtfd.io/)
 -  version control (https://github.com/manodeep/Corrfunc)
 
 .. |logo| image:: https://github.com/manodeep/Corrfunc/blob/master/corrfunc_logo.png
     :target: https://github.com/manodeep/Corrfunc
-    :alt: Corrfunc logo   
+    :alt: Corrfunc logo
 .. |Release| image:: https://img.shields.io/github/release/manodeep/Corrfunc.svg
    :target: https://github.com/manodeep/Corrfunc/releases/latest
    :alt: Latest Release
@@ -386,6 +466,15 @@ Project URL
 .. |RTD| image:: https://readthedocs.org/projects/corrfunc/badge/?version=master
    :target: http://corrfunc.readthedocs.io/en/master/?badge=master
    :alt: Documentation Status
-.. |Landscape| image:: https://landscape.io/github/manodeep/Corrfunc/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/manodeep/Corrfunc/master
-   :alt: Code Health
+
+.. |Codacy| image:: https://api.codacy.com/project/badge/Grade/95717e4798b04ee5ad42d5cab3c15429
+   :target: https://app.codacy.com/project/manodeep/Corrfunc/dashboard
+   :alt: Code Quality
+
+.. |Paper I| image:: https://img.shields.io/badge/arXiv-1911.03545-%23B31B1B
+   :target: https://arxiv.org/abs/1911.03545
+   :alt: Corrfunc Paper I
+
+.. |Paper II| image:: https://img.shields.io/badge/arXiv-1911.08275-%23B31B1B
+   :target: https://arxiv.org/abs/1911.08275
+   :alt: Corrfunc Paper II

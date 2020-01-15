@@ -8,7 +8,7 @@
 ### less effort to do so here.
 ### *NOTE* Does not honour environment variable CC, since that
 ### is typically set to really outdated fail-safe compiler, /usr/bin/cc
-CC := 
+CC :=
 
 #### Add any compiler specific flags you want
 CFLAGS ?=
@@ -40,8 +40,8 @@ OPT += -DUSE_OMP
 ### You should NOT edit below this line
 DISTNAME:=Corrfunc
 MAJOR:=2
-MINOR:=2
-PATCHLEVEL:=0
+MINOR:=3
+PATCHLEVEL:=2
 VERSION:=$(MAJOR).$(MINOR).$(PATCHLEVEL)
 ABI_COMPAT_VERSION:=$(MAJOR).0
 # Whenever conda needs to be checked again
@@ -54,37 +54,37 @@ ifneq ($(filter $(CLEAN_CMDS),$(MAKECMDGOALS)),)
   DO_CHECKS := 0
 endif
 
+export RUNNING_TESTS ?= 0
+ifeq ($(RUNNING_TESTS), 0)
+  ifneq ($(filter tests,$(MAKECMDGOALS)),)
+    export RUNNING_TESTS := 1
+    $(info Setting RUNNING_TESTS to 1)
+  endif
+endif
+
 
 ## Only set everything if the command is not "make clean" (or related to "make clean")
 ifeq ($(DO_CHECKS), 1)
   UNAME := $(shell uname)
-  ## Colored text output
-  ## Taken from: http://stackoverflow.com/questions/24144440/color-highlighting-of-makefile-warnings-and-errors
-  ## Except, you have to use "echo -e" on linux and "echo" on Mac
-  ECHO_COMMAND := echo -e
-  ifeq ($(UNAME), Darwin)
-    ECHO_COMMAND := echo
-  endif
-  ifeq ($(TRAVIS_OS_NAME), linux)
-    ECHO_COMMAND := echo
-  endif 
 
   ifneq ($(UNAME), Darwin)
     CLINK += -lrt # need real time library for the nano-second timers. Not required on OSX
   endif
 
+  ## Colored text output
+  ## https://stackoverflow.com/questions/4332478/read-the-current-text-color-in-a-xterm/4332530#4332530
   ## Broadly speaking, here's the color convention (not strictly adhered to yet):
   ## green - shell commands
   ## red - error messages
   ## magenta - general highlight
   ## blue - related to code/compile option
   ## bold - only used with printing out compilation options
-  ccred:=$(shell $(ECHO_COMMAND) "\033[0;31m")
-  ccmagenta:=$(shell $(ECHO_COMMAND) "\033[0;35m")
-  ccgreen:=$(shell $(ECHO_COMMAND) "\033[0;32m")
-  ccblue:=$(shell $(ECHO_COMMAND) "\033[0;34m")
-  ccreset:=$(shell $(ECHO_COMMAND) "\033[0;0m")
-  boldfont:=$(shell $(ECHO_COMMAND) "\033[1m")
+  ccred:=$(shell tput setaf 1)
+  ccmagenta:=$(shell tput setaf 5)
+  ccgreen:=$(shell tput setaf 2)
+  ccblue:=$(shell tput setaf 4)
+  ccreset:=$(shell tput sgr0)
+  boldfont:=$(shell tput bold)
   ## end of colored text output
 
   ## First check make version. Versions of make older than 3.80 will crash
@@ -100,7 +100,7 @@ ifeq ($(DO_CHECKS), 1)
     endif
     $(error $(ccred)Project requires make >= 3.80 to compile.$(ccreset))
   endif
-  #end of checks for make. 
+  #end of checks for make.
 
 
   ## Set the C compiler if not set
@@ -121,10 +121,10 @@ ifeq ($(DO_CHECKS), 1)
     endif
   else
     export CMDLINE_CC_INFO_PRINTED ?= 0
-    ifeq ($(CMDLINE_CC_INFO_PRINTED), 0)    
+    ifeq ($(CMDLINE_CC_INFO_PRINTED), 0)
       $(info If you want to permanently set the default compiler to $(ccmagenta)$(CC)$(ccreset) for all future compilations, please update the $(ccblue)"CC"$(ccreset) variable in $(ccmagenta)"common.mk"$(ccreset))
       export CMDLINE_CC_INFO_PRINTED := 1
-    endif  
+    endif
   endif
 
   ifeq ($(CC),)
@@ -157,7 +157,7 @@ ifeq ($(DO_CHECKS), 1)
   #   $(warning $(ccmagenta) CPU does not seem support AVX instructions. Removing USE_AVX from compile options. $(ccreset))
   #   OPT:=$(filter-out -DUSE_AVX,$(OPT))
   # endif
-  # # end of checking if CPU supports AVX      
+  # # end of checking if CPU supports AVX
   ## This entire AVX section is now commented out because the code has runtime-dispatch based on the CPU capabilities and picks the latest instruction set by default
 
   # Now check if gcc is set to be the compiler but if clang is really under the hood.
@@ -250,15 +250,20 @@ ifeq ($(DO_CHECKS), 1)
   ## done with check for conflicting options
 
   ifeq (icc,$(findstring icc,$(CC)))
-    CFLAGS += -xhost -opt-prefetch -opt-prefetch-distance=16 #-vec-report6
+    # Normally, one would use -xHost with icc instead of -march=native
+    # But -xHost does not allow you to later turn off just AVX-512,
+    # which we may decide is necessary if the GAS bug is present
+    CFLAGS += -march=native
     ifeq (USE_OMP,$(findstring USE_OMP,$(OPT)))
-      CFLAGS += -openmp
-      CLINK  += -openmp
+      CFLAGS += -qopenmp
+      CLINK  += -qopenmp
     endif ##openmp with icc
+
+    ICC_MAJOR_VER = $(shell icc -V 2>&1 | \grep -oP '(?<=Version )\d+')
   else ## not icc -> gcc or clang follow
 
     ## Warning that w(theta) with OUTPUT_THETAAVG is very slow without icc
-    ## Someday I am going to fix that by linking with MKL 
+    ## Someday I am going to fix that by linking with MKL
     # ifeq (USE_AVX,$(findstring USE_AVX,$(OPT)))
     #   ifeq (OUTPUT_THETAAVG,$(findstring OUTPUT_THETAAVG,$(OPT)))
     #     $(warning WARNING: $(ccblue)"OUTPUT_THETAAVG"$(ccreset) with AVX capabilties is slow with gcc/clang (disables AVX essentially) with gcc/clang. Try to use $(ccblue)"icc"$(ccreset) if available)
@@ -301,10 +306,14 @@ ifeq ($(DO_CHECKS), 1)
           # Apple clang/gcc does not support OpenMP
           ifeq (Apple, $(findstring Apple, $(CC_VERSION)))
             CLANG_OMP_AVAIL:= false
-            $(warning $(ccmagenta)Compiler is Apple clang and does not support OpenMP$(ccreset))
-            $(info $(ccmagenta)If you want OpenMP support, please install clang with OpenMP support$(ccreset))
-            $(info $(ccmagenta)For homebrew, use $(ccgreen)"brew update && (brew outdated xctool || brew upgrade xctool) && brew tap homebrew/versions && brew install clang-omp"$(ccreset))
-            $(info $(ccmagenta)For Macports, use $(ccgreen)"sudo port install clang-3.8 +assertions +debug + openmp"$(ccreset))
+            export CLANG_OMP_WARNING_PRINTED ?= 0
+            ifeq ($(CLANG_OMP_WARNING_PRINTED), 0)
+              $(warning $(ccmagenta)Compiler is Apple clang and does not support OpenMP$(ccreset))
+              $(info $(ccmagenta)If you want OpenMP support, please install clang with OpenMP support$(ccreset))
+              $(info $(ccmagenta)For homebrew, use $(ccgreen)"brew update && (brew outdated xctool || brew upgrade xctool) && brew tap homebrew/versions && brew install clang-omp"$(ccreset))
+              $(info $(ccmagenta)For Macports, use $(ccgreen)"sudo port install clang-3.8 +assertions +debug + openmp"$(ccreset))
+              export CLANG_OMP_WARNING_PRINTED := 1
+            endif
             export APPLE_CLANG := 1
           else
             ## Need to do a version check clang >= 3.7 supports OpenMP. If it is Apple clang, then it doesn't support OpenMP.
@@ -333,41 +342,74 @@ ifeq ($(DO_CHECKS), 1)
                   $(warning With $(ccblue)"clang-3.8"$(ccreset), You might see this $(ccred)$(CLANG_LD_ERROR)$(ccreset) error with the final linking step.)
                   $(info Use this command to fix the issue $(ccmagenta) "sudo install_name_tool -change @executable_path/../lib/libLTO.dylib @rpath/../lib/libLTO.dylib /opt/local/libexec/ld64/ld-latest"$(ccreset))
                   $(info You can see the bug report here $(ccmagenta)"https://trac.macports.org/ticket/50853"$(ccreset))
-                  export CLANG_LD_WARNING_PRINTED := 1
                 endif #clang-3.8
+                export CLANG_LD_WARNING_PRINTED := 1
               endif #clang warning printed
             endif #Darwin
-          endif #Apple clang. If at some point Apple clang supports OpenMP, then there will need to be an else above this endif. 
+          endif #Apple clang. If at some point Apple clang supports OpenMP, then there will need to be an else above this endif.
         else
           # I dislike being warned multiple times but the compiler warning will not
-          # be visible if the entire codebase is being compiled. 
-          # export WARNING_PRINTED ?= 0
-	        # ifeq ($(WARNING_PRINTED), 0)
-          $(warning $(ccmagenta) $$CC = ${CC} does not support OpenMP - please use gcc/icc for compiling with openmp. Removing $(ccblue)"USE_OMP"$(ccmagenta) from compile options. $(ccreset))
-          infovar := "OPT:=$$(filter-out -DUSE_OMP,$$(OPT))"
-          $(info If you are sure your version of $(ccblue)"clang"$(ccreset) ($(ccblue) must be >= 3.7, NOT Apple clang$(ccreset)) does support OpenMP, then comment out the line $(ccred) $(infovar) $(ccmagenta) in the file $(ccgreen)"common.mk"$(ccreset))
-          $(info You might have to add in the include path (path to $(ccblue)"omp.h"$(ccreset)) to $(ccblue)"CFLAGS"$(ccreset) and the runtime library path to $(ccblue)"CLINK"$(ccreset) at the top of $(ccgreen)"common.mk"$(ccreset))
+          # be visible if the entire codebase is being compiled.
+          export WARNING_PRINTED ?= 0
+          ifeq ($(WARNING_PRINTED), 0)
+            $(warning $(ccmagenta) $$CC = ${CC} does not support OpenMP - please use gcc/icc for compiling with openmp. Removing $(ccblue)"USE_OMP"$(ccmagenta) from compile options. $(ccreset))
+            infovar := "OPT:=$$(filter-out -DUSE_OMP,$$(OPT))"
+            $(info If you are sure your version of $(ccblue)"clang"$(ccreset) ($(ccblue) must be >= 3.7, NOT Apple clang$(ccreset)) does support OpenMP, then comment out the line $(ccred) $(infovar) $(ccmagenta) in the file $(ccgreen)"common.mk"$(ccreset))
+            $(info You might have to add in the include path (path to $(ccblue)"omp.h"$(ccreset)) to $(ccblue)"CFLAGS"$(ccreset) and the runtime library path to $(ccblue)"CLINK"$(ccreset) at the top of $(ccgreen)"common.mk"$(ccreset))
 
-          # comment out the following line if your version of clang definitely supports OpenMP
-          OPT:=$(filter-out -DUSE_OMP,$(OPT))
-          # export WARNING_PRINTED := 1
-         endif # CLANG_OMP_AVAIL is not 1
+            # comment out the following line if your version of clang definitely supports OpenMP
+            OPT:=$(filter-out -DUSE_OMP,$(OPT))
+            export WARNING_PRINTED := 1
+          endif
+        endif # CLANG_OMP_AVAIL is not 1
       endif # USE_OMP
     endif # CC is clang
-
-    # #### common options for gcc and clang
-    # ifeq (USE_AVX,$(findstring USE_AVX,$(OPT)))
-    #   CFLAGS  +=  -mavx
-    # endif
 
     CFLAGS += -funroll-loops
     CFLAGS += -march=native -fno-strict-aliasing
     CFLAGS += -Wformat=2  -Wpacked  -Wnested-externs -Wpointer-arith  -Wredundant-decls  -Wfloat-equal -Wcast-qual
     CFLAGS +=  -Wcast-align -Wmissing-declarations -Wmissing-prototypes  -Wnested-externs -Wstrict-prototypes  #-D_POSIX_C_SOURCE=2 -Wpadded -Wconversion
     CFLAGS += -Wno-unused-local-typedefs ## to suppress the unused typedef warning for the compile time assert for sizeof(struct config_options)
-    CLINK += -lm 
+
+    # if TESTS are being run then add the -fsanitize options
+    # Commented out for now -> need to overhaul testing infrastructure and
+    # toolchain. Otherwise, travis has compile failure due to unknown compiler options
+    # ifeq ($(RUNNING_TESTS), 1)
+    #   ifeq ($(ON_CI), true)
+    #     CFLAGS +=-fsanitize=leak -fsanitize=undefined -fsanitize=bounds -fsanitize=address -fsanitize-address-use-after-scope -fsanitize-undefined-trap-on-error -fstack-protector-all
+    #     CLINK +=-fsanitize=leak -fsanitize=undefined -fsanitize=bounds -fsanitize=address -fsanitize-address-use-after-scope -fsanitize-undefined-trap-on-error -fstack-protector-all
+    #   endif
+    # endif
+
+    CLINK += -lm
   endif #not icc
 
+  # The GNU Assembler (GAS) has an AVX-512 bug in versions 2.30 to 2.31.1
+  # So we turn off AVX-512 if the compiler reports it is using one of these versions.
+  # This works for gcc and icc.
+  # clang typically uses its own assembler, but if it is using the system assembler, this will also detect that.
+  # See: https://github.com/manodeep/Corrfunc/issues/193
+  GAS_BUG_DISABLE_AVX512 := $(shell $(CC) $(CFLAGS) -xc -Wa,-v -c /dev/null -o /dev/null 2>&1 | \grep -Ecm1 'GNU assembler version (2\.30|2\.31|2\.31\.1)')
+
+  ifeq ($(GAS_BUG_DISABLE_AVX512),1)
+    # Did the compiler support AVX-512 in the first place? Otherwise no need to disable it!
+    CC_SUPPORTS_AVX512 := $(shell $(CC) $(CFLAGS) -dM -E - < /dev/null | \grep -Ecm1 __AVX512F__)
+    ifeq ($(CC_SUPPORTS_AVX512),1)
+      ifeq ($(shell test 0$(ICC_MAJOR_VER) -ge 019 -o -z "$(ICC_MAJOR_VER)"; echo $$?),0)
+      	# If gcc, clang, or new icc, we can use this
+        CFLAGS += -mno-avx512f
+      else
+        CFLAGS += -xCORE-AVX2
+      endif
+
+      CFLAGS += -DGAS_BUG_DISABLE_AVX512
+
+      ifneq ($(GAS_BUG_WARNING_PRINTED),1)
+        $(warning $(ccred)DISABLING AVX-512 SUPPORT DUE TO GNU ASSEMBLER BUG.  UPGRADE TO BINUTILS >=2.32 TO FIX THIS.$(ccreset))
+      endif
+      export GAS_BUG_WARNING_PRINTED := 1
+    endif
+  endif
 
   # All of the python/numpy checks follow
   export PYTHON_CHECKED ?= 0
@@ -437,10 +479,9 @@ ifeq ($(DO_CHECKS), 1)
             # python3-config failed; let's try python-config (for Python 2 or 3)
             PYTHON_CONFIG_EXE:="$(PYTHON_SCRIPTS)/python-config"
           endif
-
           $(warning $(ccblue)"PYTHON"$(ccreset) is set to $(ccblue)$(PYTHON)$(ccreset); using $(ccblue)$(PYTHON_CONFIG_EXE)$(ccreset) as $(ccblue)python-config$(ccreset). If this is not correct, please also set $(ccblue)"PYTHON_CONFIG_EXE"$(ccreset) in $(ccgreen)"common.mk"$(ccreset) to appropriate $(ccblue)python-config$(ccreset))
         endif
-      
+
         PYTHON_CONFIG_INCL := $(shell $(PYTHON_CONFIG_EXE) --includes 2>/dev/null)
         # if PYTHON_CONFIG_INCL is still undef, then we failed to find any python-config
         ifndef PYTHON_CONFIG_INCL
@@ -472,7 +513,7 @@ ifeq ($(DO_CHECKS), 1)
         # export PYTHON_LINK   := -L$(PYTHON_LIBDIR) $(PYTHON_LIBS) -Xlinker -rpath -Xlinker $(PYTHON_LIBDIR)
         # export PYTHON_LINK   := -L$(PYTHON_LIBDIR) $(PYTHON_LIBS) -Xlinker -rpath -Xlinker $(PYTHON_LIBDIR)
         SOABI := $(shell $(PYTHON) -c "from __future__ import print_function; import sysconfig; print(sysconfig.get_config_var('SOABI'))" 2>/dev/null)
-        export PYTHON_SOABI := 
+        export PYTHON_SOABI :=
         ifdef SOABI
           ifneq ($(SOABI), None)
             PYTHON_SOABI = .$(SOABI)
@@ -514,6 +555,14 @@ ifeq ($(DO_CHECKS), 1)
   endif ## PYTHON_CHECKED
   ### Done with python checks
 
+  ifeq (INTEGRATION_TESTS, $(findstring INTEGRATION_TESTS, $(CFLAGS)))
+    CFLAGS +=-fsanitize=leak -fsanitize=undefined -fsanitize=bounds -fsanitize=address -fsanitize-address-use-after-scope -fsanitize-undefined-trap-on-error -fstack-protector-all
+    CLINK +=-fsanitize=leak -fsanitize=undefined -fsanitize=bounds -fsanitize=address -fsanitize-address-use-after-scope -fsanitize-undefined-trap-on-error -fstack-protector-all
+    ifeq ($(COMPILE_PYTHON_EXT), 1)
+      $(info $(ccmagenta)Disabling python extensions while running integration tests$(ccreset))
+      export COMPILE_PYTHON_EXT := 0
+    endif
+  endif
 
   ### The following sections are currently not relevant for the Corrfunc package
   ### but I do not want to have to figure this out again!
@@ -556,11 +605,11 @@ ifeq ($(DO_CHECKS), 1)
     ifeq (USE_MKL,$(findstring USE_MKL,$(OPT)))
       MAKEFILE_VARS += BLAS_INCLUDE BLAS_LINK
     endif
-    tabvar:= $(shell $(ECHO_COMMAND) "\t")
+    tabvar:= $(shell printf "\t")
     $(info )
     $(info $(ccmagenta)$(boldfont)-------COMPILE SETTINGS------------$(ccreset))
     $(foreach var, $(MAKEFILE_VARS), $(info $(tabvar) $(boldfont)$(var)$(ccreset)$(tabvar)$(tabvar) = ["$(ccblue)$(boldfont)${${var}}$(ccreset)"]))
-    # this line is identical to the previous except for one less tab character. 
+    # this line is identical to the previous except for one less tab character.
     $(foreach var, $(BIG_MAKEFILE_VARS), $(info $(tabvar) $(boldfont)$(var)$(ccreset)$(tabvar) = ["$(ccblue)$(boldfont)${${var}}$(ccreset)"]))
     $(info $(ccmagenta)$(boldfont)-------END OF COMPILE SETTINGS------------$(ccreset))
     $(info )

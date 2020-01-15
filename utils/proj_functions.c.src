@@ -90,7 +90,8 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s,
 
 void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) sqr_s;//to suppress the unused variable warning
-    
+    (void) proj;
+
     double gamma=2.7, s0=15.0;
     double powlaw = POW(s/s0, -gamma);
     u[0] = powlaw;
@@ -111,8 +112,7 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
     DOUBLE sval;
     // TODO: somewhere check that r is in ascending order !! IMPORTANT !!
 
-    // if not in r range, return 0s
-    // TODO: better to send an array of 0's and just return?
+    /* if not in r range, return 0s */
     if (s<proj->projbases[0] || s>=proj->projbases[(nres-1)*(nbases+1)]){
       for (int j=0; j<nbases; j++){
         u[j] = 0;
@@ -120,7 +120,7 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
       return;
     }
 
-    /* naive search, TODO replace w binary */
+    /* reverse linear search - binary may be faster? */
     int i0 = -1, i1 = -1;
     DOUBLE s0, s1, y0, y1;
     // loop backwards because last bins cover larger volume, should increase speed
@@ -306,7 +306,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
 
     /* Check nprojbins same as number of bases in file nbases for general_r function */
     if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
-        printf("The value of nprojbins (%d) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
+        printf("The value of nprojbins (%ld) must be the same as nbases (%ld), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
         return EXIT_FAILURE;
     }
     projdata->nres = nres;

@@ -15,7 +15,7 @@
 
 /* BUG NOTE: Might be worthwhile to take the minimum cache linesize across all cpus
    just in case the cpus have different caches. This has already happened on ARM
-   https://github.com/mono/mono/pull/3549 
+   https://github.com/mono/mono/pull/3549
    http://lists.infradead.org/pipermail/linux-arm-kernel/2016-September/453859.html
 */
 
@@ -36,10 +36,9 @@ size_t cache_line_size(void)
 #include <stdio.h>
 size_t cache_line_size(void)
 {
-    FILE *fp = 0;
-    fp = fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
-    size_t lineSize = 0;
-    if (fp) {
+    FILE *fp = fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
+    size_t lineSize = DEFAULT_CACHE_LINE_SIZE;
+    if (fp != NULL) {
         int nitems = fscanf(fp, "%zu", &lineSize);
         if(nitems !=1)  {
             linesize=0;
@@ -47,8 +46,14 @@ size_t cache_line_size(void)
         fclose(fp);
     }
     return lineSize;
-}    
-    
+}
+
 #else
-#error Unrecognized platform
+
+#warning Unrecognized platform for figuring out cache line size - returning a default value of DEFAULT_CACHE_LINE_SIZE
+size_t cache_line_size(void)
+{
+    return DEFAULT_CACHE_LINE_SIZE;//set a default of 64 bytes for cache line size
+}
+
 #endif
