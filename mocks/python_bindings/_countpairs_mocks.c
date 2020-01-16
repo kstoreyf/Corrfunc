@@ -2432,7 +2432,6 @@ static PyObject *countpairs_countspheres_vpf_mocks(PyObject *self, PyObject *arg
 /* This lives in _countpairs_mocks.c but is also applicable to theory - ideally would create new file in utils/python_bindings, TODO */
 static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    printf("computing them i am\n");
     //Error-handling is global in python2 -> stored in struct module_state _struct declared at the top of this file
 #if PY_MAJOR_VERSION < 3
     (void) self;

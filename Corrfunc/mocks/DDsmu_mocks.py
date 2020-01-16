@@ -298,23 +298,22 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
     integer_isa = translate_isa_string_to_enum(isa)
     sbinfile, delete_after_use = return_file_with_rbins(binfile)
 
-    # TODO: this was throwing an error, can't figure out why
-    #with sys_pipes():
-    extn_results = DDsmu_extn(autocorr, cosmology, nthreads,
-                                  mu_max, nmu_bins, sbinfile,
-                                  RA1, DEC1, CZ1,
-                                  is_comoving_dist=is_comoving_dist,
-                                  verbose=verbose,
-                                  output_savg=output_savg,
-                                  fast_divide_and_NR_steps=fast_divide_and_NR_steps,
-                                  xbin_refine_factor=xbin_refine_factor,
-                                  ybin_refine_factor=ybin_refine_factor,
-                                  zbin_refine_factor=zbin_refine_factor,
-                                  max_cells_per_dim=max_cells_per_dim,
-                                  copy_particles=copy_particles,
-                                  enable_min_sep_opt=enable_min_sep_opt,
-                                  c_api_timer=c_api_timer,
-                                  isa=integer_isa, **kwargs)
+    with sys_pipes():
+        extn_results = DDsmu_extn(autocorr, cosmology, nthreads,
+                                    mu_max, nmu_bins, sbinfile,
+                                    RA1, DEC1, CZ1,
+                                    is_comoving_dist=is_comoving_dist,
+                                    verbose=verbose,
+                                    output_savg=output_savg,
+                                    fast_divide_and_NR_steps=fast_divide_and_NR_steps,
+                                    xbin_refine_factor=xbin_refine_factor,
+                                    ybin_refine_factor=ybin_refine_factor,
+                                    zbin_refine_factor=zbin_refine_factor,
+                                    max_cells_per_dim=max_cells_per_dim,
+                                    copy_particles=copy_particles,
+                                    enable_min_sep_opt=enable_min_sep_opt,
+                                    c_api_timer=c_api_timer,
+                                    isa=integer_isa, **kwargs)
     if extn_results is None:
         msg = "RuntimeError occurred"
         raise RuntimeError(msg)

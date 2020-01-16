@@ -175,8 +175,6 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
 int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps){
 
-    printf("Computing amps\n");
-
     // Computer numerator of estimator
     DOUBLE numerator[nprojbins];
     DOUBLE qqnorm[nprojbins*nprojbins];
