@@ -21,7 +21,8 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
           xbin_refine_factor=2, ybin_refine_factor=2,
           zbin_refine_factor=1, max_cells_per_dim=100,
           copy_particles=True, enable_min_sep_opt=True,
-          c_api_timer=False, isa=r'fastest', weight_type=None):
+          c_api_timer=False, isa=r'fastest', weight_type=None,
+          proj_type=None, nprojbins=None, projfn=None):
     """
     Calculate the 2-D pair-counts corresponding to the redshift-space
     correlation function, :math:`\\xi(s, \mu)` Pairs which are separated
@@ -287,7 +288,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
 
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
-    for k in ['weights1', 'weights2', 'weight_type', 'X2', 'Y2', 'Z2']:
+    for k in ['weights1', 'weights2', 'weight_type', 'proj_type', 'nprojbins', 'projfn', 'X2', 'Y2', 'Z2']:
         v = locals()[k]
         if v is not None:
             kwargs[k] = v
@@ -316,7 +317,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
         msg = "RuntimeError occurred"
         raise RuntimeError(msg)
     else:
-        extn_results, api_time = extn_results
+        extn_results, proj, proj_tensor, api_time = extn_results
 
     if delete_after_use:
         import os
@@ -330,10 +331,13 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
                               (bytes_to_native_str(b'weightavg'), np.float),])
     results = np.array(extn_results, dtype=results_dtype)
 
+    proj = np.array(proj)
+    projt = np.array(proj_tensor)
+
     if not c_api_timer:
-        return results
+        return results, proj, projt
     else:
-        return results, api_time
+        return results, proj, projt, api_time
 
 
 if __name__ == '__main__':

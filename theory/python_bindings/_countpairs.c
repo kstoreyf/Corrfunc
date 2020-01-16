@@ -2217,6 +2217,9 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
     int8_t xbin_ref=options.bin_refine_factors[0],
         ybin_ref=options.bin_refine_factors[1],
         zbin_ref=options.bin_refine_factors[2];
+    /* Projection */
+    char *proj_method_str = NULL, *projfn = NULL;
+    int nprojbins=0;
 
     static char *kwlist[] = {
         "autocorr",
@@ -2246,10 +2249,13 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         "c_api_timer",
         "isa",/* instruction set to use of type enum isa; valid values are AVX512F, AVX, SSE, FALLBACK */
         "weight_type",
+        "proj_type",
+        "nprojbins",
+        "projfn",
         NULL
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iisdiO!O!O!|O!O!O!O!O!bbdbbbbbhbbbis", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iisdiO!O!O!|O!O!O!O!O!bbdbbbbbhbbbissis", kwlist,
                                        &autocorr,&nthreads,&binfile, &mu_max, &nmu_bins,
                                        &PyArray_Type,&x1_obj,
                                        &PyArray_Type,&y1_obj,
@@ -2270,9 +2276,13 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
                                        &(options.enable_min_sep_opt),
                                        &(options.c_api_timer),
                                        &(options.instruction_set),
-                                       &weighting_method_str)
+                                       &weighting_method_str,
+                                       &proj_method_str,
+                                       &nprojbins,
+                                       &projfn)
 
          ) {
+        /* End Projection */
         PyObject_Print(kwargs, stdout, 0);
         fprintf(stdout, "\n");
 
@@ -2375,6 +2385,31 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
             Py_RETURN_NONE;
         }
     }
+
+    /* Projection */
+    /* Validate the user's choice of projection function */
+    proj_method_t proj_method;
+    int pstatus = get_proj_method_by_name(proj_method_str, &proj_method);
+    if(pstatus != EXIT_SUCCESS){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: unknown proj_type %s!", __FUNCTION__, proj_method_str);
+        countpairs_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+    if (proj_method==GENR && projfn==NULL) {
+        char msg[1024];
+        snprintf(msg, 1024, "Argument Error: For generalr projection type, must provide projection basis filename.");
+        countpairs_error_out(module, msg);
+        Py_RETURN_NONE; 
+    }
+
+    if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
+        printf("Applying projection requires fallback method, switching instruction set\n");
+        options.instruction_set = FALLBACK;
+    }
+    add_extra_options(&extra, proj_method, nprojbins, projfn);
+    //TODO: perform more validation about inputs to given projection function
+    /* End Projection */
 
     /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
@@ -2487,10 +2522,30 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         }
         smin=smax;
     }
-    free_results_s_mu(&results);
 
-    return Py_BuildValue("(Od)", ret, c_api_time);
-}
+    /* Projection */
+    PyObject *projret = PyList_New(0);//create an empty list
+    PyObject *projtensorret = PyList_New(0);//create an empty list
+
+    for(int i=0;i<nprojbins;i++) {
+        PyObject *projitem = NULL;
+        projitem = Py_BuildValue("d", results.projpairs[i]);
+        PyList_Append(projret, projitem);
+        Py_XDECREF(projitem);
+
+        for(int j=0;j<nprojbins;j++) {
+            PyObject *projtensoritem = NULL;
+            projtensoritem = Py_BuildValue("d", results.projpairs_tensor[i*nprojbins+j]);
+            PyList_Append(projtensorret, projtensoritem);
+            Py_XDECREF(projtensoritem);
+
+        }
+    }
+
+    free_results_s_mu(&results);
+    return Py_BuildValue("(OOOd)", ret, projret, projtensorret, c_api_time);
+    /* End Projection */
+    }
 
 
 static PyObject *countpairs_countspheres_vpf(PyObject *self, PyObject *args, PyObject *kwargs)

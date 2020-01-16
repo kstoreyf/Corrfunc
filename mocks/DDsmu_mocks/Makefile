@@ -39,8 +39,10 @@ LIBOBJS:=$(LIBSRC:.c=.o)
 
 all: $(TARGETS) $(TARGETSRC) $(ROOT_DIR)/mocks.options $(ROOT_DIR)/common.mk Makefile
 
+# /* Projection */
 EXTRA_INCL:=$(GSL_CFLAGS)
 EXTRA_LINK:=$(GSL_LINK)
+# /* End Projection */
 
 countpairs_s_mu_mocks_impl_double.o:countpairs_s_mu_mocks_impl_double.c countpairs_s_mu_mocks_impl_double.h countpairs_s_mu_mocks_kernels_double.c $(UTILS_DIR)/gridlink_mocks_impl_double.h $(UTILS_DIR)/cellarray_mocks_double.h $(UTILS_DIR)/gridlink_utils_double.h
 countpairs_s_mu_mocks_impl_float.o:countpairs_s_mu_mocks_impl_float.c countpairs_s_mu_mocks_impl_float.h countpairs_s_mu_mocks_kernels_float.c $(UTILS_DIR)/gridlink_mocks_impl_float.h $(UTILS_DIR)/cellarray_mocks_float.h $(UTILS_DIR)/gridlink_utils_float.h

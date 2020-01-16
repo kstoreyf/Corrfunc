@@ -17,21 +17,26 @@
 #include "utils.h"
 
 #include "weight_functions_DOUBLE.h"
+#include "proj_functions_DOUBLE.h"
 
 #if defined(__AVX512F__)
 #include "avx512_calls.h"
 
-static inline int countpairs_s_mu_avx512_intrinsics_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0, const weight_struct_DOUBLE *weights0,
-                                                           const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1, const weight_struct_DOUBLE *weights1,
-                                                           const int same_cell,
-                                                           const unsigned int fast_divide_and_NR_steps,
-                                                           const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin,
-                                                           const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
-                                                           const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
-                                                           const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff, 
-                                                           const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
-                                                           DOUBLE *src_savg, uint64_t *src_npairs,
-                                                           DOUBLE *src_weightavg, const weight_method_t weight_method)
+static inline int countpairs_s_mu_avx512_intrinsics_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0,
+                                                                 const weight_struct_DOUBLE *weights0,
+                                                                 const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1,
+                                                                 const weight_struct_DOUBLE *weights1,
+                                                                 const int same_cell,
+                                                                 const unsigned int fast_divide_and_NR_steps,
+                                                                 const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin,const int nmu_bins,
+                                                                 const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
+                                                                 const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
+                                                                 const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff,
+                                                                 const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
+                                                                 DOUBLE *src_savg,
+                                                                 uint64_t *src_npairs, 
+                                                                 DOUBLE *src_projpairs, DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
+                                                                 DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
     (void) sqr_smax, (void) sqr_smin;
     if(N0 == 0 || N1 == 0) {
@@ -41,6 +46,14 @@ static inline int countpairs_s_mu_avx512_intrinsics_DOUBLE(const int64_t N0, DOU
     if(src_npairs == NULL) {
         return EXIT_FAILURE;
     }
+
+    /* Projection */
+    //unused parameters (only implemented in fallback for now)
+    (void) supp;
+    (void) src_projpairs;
+    (void) src_projpairs_tensor;
+    (void) projdata;
+    /* End Projection */
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
@@ -312,17 +325,21 @@ static inline int countpairs_s_mu_avx512_intrinsics_DOUBLE(const int64_t N0, DOU
 #if defined(__AVX__)
 #include "avx_calls.h"
 
-static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0, const weight_struct_DOUBLE *weights0,
-                                                        const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1, const weight_struct_DOUBLE *weights1,
-                                                        const int same_cell,
-                                                        const unsigned int fast_divide_and_NR_steps,
-                                                        const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin,
-                                                        const int nmu_bins, const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
-                                                        const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
-                                                        const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff, 
-                                                        const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
-                                                        DOUBLE *src_savg, uint64_t *src_npairs,
-                                                        DOUBLE *src_weightavg, const weight_method_t weight_method)
+static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0,
+                                                                 const weight_struct_DOUBLE *weights0,
+                                                                 const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1,
+                                                                 const weight_struct_DOUBLE *weights1,
+                                                                 const int same_cell,
+                                                                 const unsigned int fast_divide_and_NR_steps,
+                                                                 const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin,const int nmu_bins,
+                                                                 const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
+                                                                 const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
+                                                                 const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff,
+                                                                 const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
+                                                                 DOUBLE *src_savg,
+                                                                 uint64_t *src_npairs, 
+                                                                 DOUBLE *src_projpairs, DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
+                                                                 DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
@@ -331,6 +348,14 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
     if(src_npairs == NULL) {
         return EXIT_FAILURE;
     }
+
+    /* Projection */
+    //unused parameters (only implemented in fallback for now)
+    (void) supp;
+    (void) src_projpairs;
+    (void) src_projpairs_tensor;
+    (void) projdata;
+    /* End Projection */
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
@@ -670,20 +695,31 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
 #if defined (__SSE4_2__)
 #include "sse_calls.h"
 
-static inline int countpairs_s_mu_sse_intrinsics_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0, const weight_struct_DOUBLE *weights0,
-                                                        const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1, const weight_struct_DOUBLE *weights1,
-                                                        const int same_cell,
-                                                        const unsigned int fast_divide_and_NR_steps,
-                                                        const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin, const int nmu_bins,
-                                                        const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
-                                                        const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
-                                                        const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff, 
-                                                        const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
-                                                        DOUBLE *src_savg, uint64_t *src_npairs,
-                                                        DOUBLE *src_weightavg, const weight_method_t weight_method)
+static inline int countpairs_s_mu_sse_intrinsics_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0,
+                                                                 const weight_struct_DOUBLE *weights0,
+                                                                 const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1,
+                                                                 const weight_struct_DOUBLE *weights1,
+                                                                 const int same_cell,
+                                                                 const unsigned int fast_divide_and_NR_steps,
+                                                                 const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin,const int nmu_bins,
+                                                                 const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
+                                                                 const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
+                                                                 const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff,
+                                                                 const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
+                                                                 DOUBLE *src_savg,
+                                                                 uint64_t *src_npairs, 
+                                                                 DOUBLE *src_projpairs, DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
+                                                                 DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
+    /* Projection */
+    //unused parameters (only implemented in fallback for now)
     (void) fast_divide_and_NR_steps;
-    
+    (void) supp;
+    (void) src_projpairs;
+    (void) src_projpairs_tensor;
+    (void) projdata;
+    /* End Projection */
+
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
@@ -1015,29 +1051,36 @@ static inline int countpairs_s_mu_sse_intrinsics_DOUBLE(const int64_t N0, DOUBLE
 #endif //__SSE4_2__
 
 
-static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0, const weight_struct_DOUBLE *weights0,
-                                                  const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1, const weight_struct_DOUBLE *weights1,
-                                                  const int same_cell,
-                                                  const unsigned int fast_divide_and_NR_steps,
-                                                  const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin, const int nmu_bins,
-                                                  const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
-                                                  const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
-                                                  const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff, 
-                                                  const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
-                                                  DOUBLE *src_savg, uint64_t *src_npairs,
-                                                  DOUBLE *src_weightavg, const weight_method_t weight_method)
+static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, DOUBLE *y0, DOUBLE *z0,
+                                                                 const weight_struct_DOUBLE *weights0,
+                                                                 const int64_t N1, DOUBLE *x1, DOUBLE *y1, DOUBLE *z1,
+                                                                 const weight_struct_DOUBLE *weights1,
+                                                                 const int same_cell,
+                                                                 const unsigned int fast_divide_and_NR_steps,
+                                                                 const DOUBLE sqr_smax, const DOUBLE sqr_smin, const int nsbin,const int nmu_bins,
+                                                                 const DOUBLE *supp, const DOUBLE *supp_sqr, const DOUBLE mu_max, const DOUBLE pimax,
+                                                                 const DOUBLE off_xwrap, const DOUBLE off_ywrap, const DOUBLE off_zwrap,
+                                                                 const DOUBLE min_xdiff, const DOUBLE min_ydiff, const DOUBLE min_zdiff,
+                                                                 const DOUBLE closest_icell_xpos, const DOUBLE closest_icell_ypos, const DOUBLE closest_icell_zpos,
+                                                                 DOUBLE *src_savg,
+                                                                 uint64_t *src_npairs, 
+                                                                 DOUBLE *src_projpairs, DOUBLE *src_projpairs_tensor, proj_struct_DOUBLE *projdata,
+                                                                 DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
+
+    printf("KERNEL\n");
 
     (void) fast_divide_and_NR_steps;
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
-
+    printf("NPAIRS\n");
     if(src_npairs == NULL) {
         return EXIT_FAILURE;
     }
 
     /*----------------- FALLBACK CODE --------------------*/
+    printf("KEREL FALLBACK\n");
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
@@ -1052,6 +1095,37 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
             weightavg[i]=ZERO;
         }
     }
+    printf("KEREL PROJ START\n");
+    /* Projection */ 
+    int nprojbins = projdata->nprojbins;
+    proj_method_t proj_method = projdata->proj_method;
+    const int32_t need_proj = src_projpairs != NULL;
+    const int32_t need_tensor = src_projpairs_tensor != NULL;
+    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
+
+    //TODO: only do this if need_proj?
+    if(need_proj) {
+      //nsbin is number of edges, want number of bins
+      int nsbins = nsbin-1;
+      projdata->nsbins = nsbins;
+      projdata->supp = supp;
+      projdata->supp_sqr = supp_sqr;    
+    }
+    if (need_proj && need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+            for(int j=0;j<nprojbins;j++) {
+                projpairs_tensor[i*nprojbins+j] = ZERO;
+            }
+        }
+    }
+    if (need_proj && !need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+        }
+    }
+    /* End Projection */ 
+    printf("KEREL PROJ DONE\n");
 
     // A copy whose pointers we can advance
     weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0}, local_w1 = {.weights={NULL}, .num_weights=0};
@@ -1117,6 +1191,8 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
             continue;
         }
         
+        printf("KERNEL ACK\n");
+
         /* Okay so there MAY be a pair */
         if(same_cell == 1) {
             z1++;
@@ -1163,6 +1239,8 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
             local_w1.weights[w] = weights1->weights[w] + n_off;
         }
 
+        printf("KERNEL PRE NLEFT\n");
+
         for(int64_t j=0;j<nleft;j++) {
             const DOUBLE dx = *localx1++ - xpos;
             const DOUBLE dy = *localy1++ - ypos;
@@ -1181,7 +1259,7 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
 
             const DOUBLE mu = SQRT(sqr_dz/s2);
             DOUBLE s, pairweight;
-            if(need_savg) {
+            if(need_savg || need_proj) {
                 s = SQRT(s2);
             }
 
@@ -1206,7 +1284,49 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
                     }
                     break;
                 }
+            }//kbin
+
+            /* Projection */ 
+            /* Where the projection magic happens */
+            printf("KERNEL PROJ\n");
+
+            proj_func_t_DOUBLE proj_func = NULL;
+            if(need_proj){
+                proj_func = get_proj_func_by_method_DOUBLE(proj_method);
+                DOUBLE u[nprojbins];
+                proj_func(projdata, u, s, s2);
+                //outer product to get tensor value
+                if (need_tensor) { 
+                    for(int p1=0;p1<nprojbins;p1++){
+                        if (need_weightavg){
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
+                        for(int p2=0;p2<nprojbins;p2++){
+                            //figure out why this is not *pairweight^2
+                            if (need_weightavg){
+                                projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2]*pairweight;
+                            }
+                            else{
+                                projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2];
+                            }
+                        }
+                    }
+                }
+                else {
+                    for(int p1=0;p1<nprojbins;p1++){
+                        if (need_weightavg){
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
+                    }
+                }
             }
+            /* End Projection */
         }
     }
     for(int i=0;i<totnbins;i++) {
@@ -1218,6 +1338,21 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
             src_weightavg[i] += weightavg[i];
         }
     }
+    /* Projection */ 
+    if(need_proj && need_tensor) {
+        for(int i=0;i<nprojbins;i++) {
+            src_projpairs[i] += projpairs[i];
+            for(int j=0;j<nprojbins;j++) {
+                src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
+            }
+        }
+    }
+    if(need_proj && !need_tensor) {
+        for(int i=0;i<nprojbins;i++) {
+            src_projpairs[i] += projpairs[i];
+        }
+    }
+    /* End Projection */
    /*----------------- FALLBACK CODE --------------------*/
     return EXIT_SUCCESS;
 }

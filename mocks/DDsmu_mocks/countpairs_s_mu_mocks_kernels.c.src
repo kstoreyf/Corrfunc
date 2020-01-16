@@ -48,6 +48,14 @@ static inline int countpairs_s_mu_mocks_avx512_intrinsics_DOUBLE(const int64_t N
         return EXIT_FAILURE;
     }
 
+    /* Projection */
+    //unused parameters (only implemented in fallback for now)
+    (void) supp;
+    (void) src_projpairs;
+    (void) src_projpairs_tensor;
+    (void) projdata;
+    /* End Projection */
+    
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
 
@@ -360,11 +368,13 @@ static inline int countpairs_s_mu_mocks_avx_intrinsics_DOUBLE(const int64_t N0, 
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
+    /* Projection */
     //unused parameters (only implemented in fallback for now)
     (void) supp;
     (void) src_projpairs;
     (void) src_projpairs_tensor;
     (void) projdata;
+    /* End Projection */
 
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     const DOUBLE sqr_mumax = mu_max*mu_max;
@@ -749,13 +759,14 @@ static inline int countpairs_s_mu_mocks_sse_intrinsics_DOUBLE(const int64_t N0, 
 
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
+    /* Projection */
     //unused parameters (only implemented in fallback for now)
     (void) fast_divide_and_NR_steps; //unused
     (void) supp;
     (void) src_projpairs;
     (void) src_projpairs_tensor;
     (void) projdata;
-
+    /* End Projection */
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     const DOUBLE sqr_mumax = mu_max*mu_max;
 
@@ -1118,27 +1129,15 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     (void) fast_divide_and_NR_steps;//unused parameter but required to keep the same function signature amongst the kernels
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
-    const int32_t need_proj = src_projpairs != NULL;
-    const int32_t need_tensor = src_projpairs_tensor != NULL;
+
     //const int32_t need_tensor = projdata->proj_method != GAUSSIAN_KERNEL; //kernel is 5
 
     const DOUBLE sqr_mumax = mu_max*mu_max;
 
     /*----------------- FALLBACK CODE --------------------*/
-    int nprojbins = projdata->nprojbins;
-    proj_method_t proj_method = projdata->proj_method;
-    //TODO: only do this if need_proj?
-    if(need_proj) {
-      //nsbin is number of edges, want number of bins
-      int nsbins = nsbin-1;
-      projdata->nsbins = nsbins;
-      projdata->supp = supp;
-      projdata->supp_sqr = supp_sqr;    
-    }
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
     uint64_t npairs[totnbins];
-    DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
-    DOUBLE projpairs_tensor[nprojbins*nprojbins];
+    DOUBLE savg[totnbins], weightavg[totnbins];
     for(int i=0;i<totnbins;i++) {
         npairs[i] = ZERO;
         if(need_savg) {
@@ -1149,6 +1148,21 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
         }
     }
 
+    /* Projection */ 
+    int nprojbins = projdata->nprojbins;
+    proj_method_t proj_method = projdata->proj_method;
+    const int32_t need_proj = src_projpairs != NULL;
+    const int32_t need_tensor = src_projpairs_tensor != NULL;
+    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
+
+    //TODO: only do this if need_proj?
+    if(need_proj) {
+      //nsbin is number of edges, want number of bins
+      int nsbins = nsbin-1;
+      projdata->nsbins = nsbins;
+      projdata->supp = supp;
+      projdata->supp_sqr = supp_sqr;    
+    }
     if(need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
             projpairs[i] = ZERO;
@@ -1162,6 +1176,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             projpairs[i] = ZERO;
         }
     }
+    /* End Projection */ 
 
     // A copy whose pointers we can advance
     weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0},
@@ -1278,9 +1293,11 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             const DOUBLE sqr_mu = sqr_s_dot_l/(sqr_l * sqr_s);
             const int mubin  = (sqr_mu >= sqr_mumax) ? nmu_bins:(int) (SQRT(sqr_mu)*inv_dmu);
             DOUBLE s, pairweight;
+            /* Projection */ 
             if(need_savg || need_proj) {
                 s = SQRT(sqr_s);
             }
+            /* End Projection */ 
             if(need_weightavg){
                 pair.dx.d = perpx;
                 pair.dy.d = perpy;
@@ -1306,6 +1323,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                 }
             }//finding kbin
 
+            /* Projection */ 
             /* Where the projection magic happens */
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
@@ -1343,6 +1361,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
                     }
                 }
             }
+            /* End Projection */
 
         }//j loop over second set of particles
     }//i loop over first set of particles
@@ -1357,6 +1376,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             src_weightavg[i] += weightavg[i];
         }
     }
+    /* Projection */ 
     if(need_proj && need_tensor) {
         for(int i=0;i<nprojbins;i++) {
             src_projpairs[i] += projpairs[i];
@@ -1370,6 +1390,6 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             src_projpairs[i] += projpairs[i];
         }
     }
-
+    /* End Projection */
     return EXIT_SUCCESS;
 }//end of fallback code

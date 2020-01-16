@@ -229,6 +229,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
       extra = &dummy_extra;
     }
     int need_weightavg = extra->weight_method != NONE;
+    /* Projection */
     int need_proj = extra->proj_method != NONEPROJ;
     int need_tensor = extra->proj_method != NONEPROJ || extra->proj_method != GAUSSIAN_KERNEL;
 
@@ -245,6 +246,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if (projfn != NULL) {
         read_projfile_DOUBLE(projfn, projdata);
     } 
+    /* End Projection */
 
     options->sort_on_z = 1;
     struct timeval t0;
@@ -562,17 +564,18 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             free_cellarray_mocks_DOUBLE(lattice2, totncells);
         }
         free(supp);
+        /* Projection */
         if (projfn != NULL) {
             free(projdata->projbases);
         }
         free(projdata);
+        /* End Projection */
         return EXIT_FAILURE;
     }
 
 
     /*---Gridlink-variables----------------*/
     const int totnbins = (nmu_bins+1)*(nsbin+1);
-    const int nprojbins = extra->nprojbins;
 #if defined(_OPENMP)
     uint64_t **all_npairs = (uint64_t **) matrix_calloc(sizeof(uint64_t), numthreads, totnbins);
     DOUBLE **all_savg = NULL;
@@ -583,6 +586,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(need_weightavg) {
       all_weightavg = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,totnbins);
     }
+    /* Projection */
+    const int nprojbins = extra->nprojbins;
     DOUBLE **all_projpairs = NULL, **all_projpairs_tensor = NULL;
     if(need_proj) {
         all_projpairs = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,nprojbins);
@@ -590,13 +595,11 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(need_tensor) {
         all_projpairs_tensor = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,nprojbins*nprojbins);
     }
-
+    /* End Projection */
 
 #else //USE_OMP
     uint64_t npairs[totnbins];
-    DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
-    DOUBLE projpairs_tensor[nprojbins*nprojbins];
-
+    DOUBLE savg[totnbins], weightavg[totnbins];
     for(int i=0; i <totnbins;i++) {
         npairs[i] = 0;
         if(options->need_avg_sep) {
@@ -606,6 +609,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             weightavg[i] = ZERO;
         }
     }
+    /* Projection */
+    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
     if(need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
             projpairs[i] = ZERO;
@@ -619,6 +624,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             projpairs[i] = ZERO;
         }
     }
+    /* End Projection */
 #endif //USE_OMP
 
     /* runtime dispatch - get the function pointer */
@@ -639,7 +645,6 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         const int tid = omp_get_thread_num();
         uint64_t npairs[totnbins];
         DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
-        DOUBLE projpairs_tensor[nprojbins*nprojbins];
 
         for(int i=0;i<totnbins;i++) {
             npairs[i] = 0;
@@ -650,6 +655,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 weightavg[i] = ZERO;
             }
         }
+        /* Projection */
+        DOUBLE projpairs_tensor[nprojbins*nprojbins];
         if(need_proj && need_tensor){
             for(int i=0;i<nprojbins;i++) {
                 projpairs[i] = ZERO;
@@ -663,6 +670,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 projpairs[i] = ZERO;
             }
         }
+        /* End Projection */
 
 #pragma omp for  schedule(dynamic)
 #endif//USE_OMP
@@ -691,13 +699,14 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 struct cell_pair_DOUBLE *this_cell_pair = &all_cell_pairs[icellpair];
                 DOUBLE *this_savg = options->need_avg_sep ? &(savg[0]):NULL;
                 DOUBLE *this_weightavg = need_weightavg ? weightavg:NULL;
-                DOUBLE *this_projpairs = need_proj ? projpairs:NULL;
-                DOUBLE *this_projpairs_tensor = need_tensor ? projpairs_tensor:NULL;
 
                 const int64_t icell = this_cell_pair->cellindex1;
                 const int64_t icell2 = this_cell_pair->cellindex2;
                 const cellarray_mocks_DOUBLE *first = &lattice1[icell];
                 const cellarray_mocks_DOUBLE *second = &lattice2[icell2];
+                /* Projection */
+                DOUBLE *this_projpairs = need_proj ? projpairs:NULL;
+                DOUBLE *this_projpairs_tensor = need_tensor ? projpairs_tensor:NULL;
 
                 const int status = countpairs_s_mu_mocks_function_DOUBLE(first->nelements, first->x, first->y, first->z, &(first->weights),
                                                                          second->nelements, second->x, second->y, second->z, &(second->weights),
@@ -709,6 +718,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                                                                          this_savg, npairs,
                                                                          this_projpairs, this_projpairs_tensor, projdata,
                                                                          this_weightavg, extra->weight_method);
+                /* End Projection */
 
                 /* This actually causes a race condition under OpenMP - but mostly
                    I care that an error occurred - rather than the exact value of
@@ -728,6 +738,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 all_weightavg[tid][i] = weightavg[i];
             }
         }
+        /* Projection */
         if(need_proj && need_tensor){
             for(int i=0;i<nprojbins;i++) {
                 all_projpairs[tid][i] = projpairs[i];
@@ -741,6 +752,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 all_projpairs[tid][i] = projpairs[i];
             }
         }
+        /* End Projection */
     }//close the omp parallel region
 #endif//USE_OMP
     free(all_cell_pairs);
@@ -770,10 +782,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(abort_status != EXIT_SUCCESS || interrupt_status_DDsmu_mocks_DOUBLE != EXIT_SUCCESS) {
         /* Cleanup memory here if aborting */
         free(supp);
+        /* Projection */
         if (projfn != NULL) {
           free(projdata->projbases);
         }
         free(projdata);
+        /* End Projection */
 #if defined(_OPENMP)
         matrix_free((void **) all_npairs, numthreads);
         if(options->need_avg_sep) {
@@ -782,12 +796,14 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         if(need_weightavg) {
             matrix_free((void **) all_weightavg, numthreads);
         }
+        /* Projection */
         if(need_proj) {
             matrix_free((void **) all_projpairs, numthreads);
         }
         if(need_tensor) {
             matrix_free((void **) all_projpairs_tensor, numthreads);
         }
+        /* End Projection */
 #endif
         return EXIT_FAILURE;
     }
@@ -800,8 +816,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
 
 #if defined(_OPENMP)
     uint64_t npairs[totnbins];
-    DOUBLE savg[totnbins], weightavg[totnbins], projpairs[nprojbins];
-    DOUBLE projpairs_tensor[nprojbins*nprojbins];
+    DOUBLE savg[totnbins], weightavg[totnbins];
     for(int i=0;i<totnbins;i++) {
         npairs[i] = 0;
         if(options->need_avg_sep) {
@@ -811,6 +826,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             weightavg[i] = ZERO;
         }
     }
+    /* Projection */
+    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
     if(need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
             projpairs[i] = ZERO;
@@ -824,7 +841,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             projpairs[i] = ZERO;
         }
     }
-
+    /* End Projection */
     for(int i=0;i<numthreads;i++) {
         for(int j=0;j<totnbins;j++) {
             npairs[j] += all_npairs[i][j];
@@ -835,6 +852,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 weightavg[j] += all_weightavg[i][j];
             }
         }
+        /* Projection */
         if(need_proj && need_tensor){
             for(int j=0;j<nprojbins;j++) {
                 projpairs[j] += all_projpairs[i][j];
@@ -848,6 +866,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 projpairs[j] += all_projpairs[i][j];
             }
         }
+        /* End Projection */
     }
 
     matrix_free((void **) all_npairs, numthreads);
@@ -857,13 +876,14 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     if(need_weightavg) {
         matrix_free((void **) all_weightavg, numthreads);
     }
+    /* Projection */
     if(need_proj) {
         matrix_free((void **) all_projpairs, numthreads);
     }
     if(need_tensor) {
         matrix_free((void **) all_projpairs_tensor, numthreads);
     }
-
+    /* End Projection */
 #endif //USE_OMP
 
     //The code does not DOUBLE count for autocorrelations
@@ -880,6 +900,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 weightavg[i] *= dbl_fac;
             }
         }
+        /* Projection */
         if(need_proj && need_tensor){
             for(int i=0;i<nprojbins;i++) {
                 projpairs[i] *= dbl_fac;
@@ -893,6 +914,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 projpairs[i] *= dbl_fac;
             }
         }
+        /* End Projection */
 
         // TODO: check what this is doing, added in 2.3.2
         /* Is the min. requested separation 0.0 ?*/
@@ -943,12 +965,14 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
     results->mu_max = max_mu;//NOTE max_mu which is DOUBLE and not mu_max (which might be float)
     results->mu_min = ZERO;
     results->npairs = my_malloc(sizeof(*(results->npairs)), totnbins);
-    results->projpairs = my_malloc(sizeof(*(results->npairs)), nprojbins);
-    results->projpairs_tensor = my_malloc(sizeof(*(results->npairs)), nprojbins*nprojbins);
     results->supp   = my_malloc(sizeof(*(results->supp))  , nsbin);
     results->savg  = my_malloc(sizeof(*(results->savg)) , totnbins);
     results->weightavg  = my_calloc(sizeof(DOUBLE)  , totnbins);
-    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || results->weightavg == NULL || results->projpairs == NULL || results->projpairs_tensor == NULL) {
+    /* Projection */
+    results->projpairs = my_malloc(sizeof(*(results->npairs)), nprojbins);
+    results->projpairs_tensor = my_malloc(sizeof(*(results->npairs)), nprojbins*nprojbins);
+    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || 
+        results->weightavg == NULL || results->projpairs == NULL || results->projpairs_tensor == NULL) {
         free_results_mocks_s_mu(results);
         free(supp);
         // Should I be freeing this here?
@@ -958,7 +982,7 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
         free(projdata);
         return EXIT_FAILURE;
     }
-
+    /* End Projection */
     for(int i=0;i<nsbin;i++) {
         results->supp[i] = supp[i];
         for(int j=0;j<nmu_bins;j++) {
@@ -967,10 +991,12 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
                 fprintf(stderr, "ERROR: In %s> index = %d must be in range [0, %d)\n", __FUNCTION__, index, totnbins);
                 free_results_mocks_s_mu(results);
                 free(supp);
+                /* Projection */
                 if (projfn != NULL) {
                   free(projdata->projbases);
                 }
                 free(projdata);
+                /* End Projection */
                 return EXIT_FAILURE;
             }
             results->npairs[index] = npairs[index];
@@ -984,6 +1010,8 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             }
         }
     }
+    free(supp);
+    /* Projection */
     if(need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
             results->projpairs[i] = projpairs[i];
@@ -997,11 +1025,11 @@ int countpairs_mocks_s_mu_DOUBLE(const int64_t ND1, DOUBLE *ra1, DOUBLE *dec1, D
             results->projpairs[i] = projpairs[i];
         }
     }
-    free(supp);
     if (projfn != NULL) {
       free(projdata->projbases);
     }
     free(projdata);
+    /* End Projection */
 
     /* reset interrupt handlers to default */
     RESET_INTERRUPT_HANDLERS();

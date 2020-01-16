@@ -20,6 +20,10 @@ void free_results_s_mu(results_countpairs_s_mu *results)
         return;
 
     free(results->npairs);results->npairs = NULL;
+    /* Projection */
+    free(results->projpairs);results->projpairs = NULL;
+    free(results->projpairs_tensor);results->projpairs_tensor = NULL;
+    /* End Projection */
     free(results->supp);results->supp = NULL;
     free(results->savg);results->savg = NULL;
     free(results->weightavg);results->weightavg = NULL;

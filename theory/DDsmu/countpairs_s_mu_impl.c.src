@@ -21,6 +21,7 @@
 #include "utils.h" //all of the utilities
 #include "progressbar.h" //for the progressbar
 #include "cpu_features.h" //prototype get_max_usable_isa required for runtime dispatch
+#include "proj_functions_DOUBLE.h"
 
 #include "gridlink_impl_DOUBLE.h"//function proto-type for gridlink
 #include "gridlink_utils_DOUBLE.h" //for associated helper routines
@@ -161,6 +162,26 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     }
 
     int need_weightavg = extra->weight_method != NONE;
+    /* Projection */
+    printf("IMPL\n");
+    int need_proj = extra->proj_method != NONEPROJ;
+    int need_tensor = extra->proj_method != NONEPROJ || extra->proj_method != GAUSSIAN_KERNEL;
+
+    proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
+    if(projdata == NULL){
+        free(projdata);
+        return EXIT_FAILURE;
+    }
+    projdata->nprojbins = extra->nprojbins;
+    projdata->proj_method = extra->proj_method;
+
+    /* Read in projection file if necessary */
+    char *projfn = extra->projfn;
+    if (projfn != NULL) {
+        read_projfile_DOUBLE(projfn, projdata);
+    } 
+    /* End Projection */
+    printf("IMPL PROJ INIT\n");
 
     struct timeval t0;
     if(options->c_api_timer) {
@@ -271,6 +292,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
         }
     }
 
+    printf("IMPL LATTICE\n");
 
     /*---Create 3-D lattice--------------------------------------*/
     int nmesh_x=0,nmesh_y=0,nmesh_z=0;
@@ -354,6 +376,12 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
             free_cellarray_DOUBLE(lattice2, totncells);
         }
         free(supp);
+        /* Projection */
+        if (projfn != NULL) {
+            free(projdata->projbases);
+        }
+        free(projdata);
+        /* End Projection */
         return EXIT_FAILURE;
     }
 
@@ -380,10 +408,20 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     if(need_weightavg) {
       all_weightavg = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,totnbins);
     }
-
+    /* Projection */
+    const int nprojbins = extra->nprojbins;
+    DOUBLE **all_projpairs = NULL, **all_projpairs_tensor = NULL;
+    if(need_proj) {
+        all_projpairs = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,nprojbins);
+    }
+    if(need_tensor) {
+        all_projpairs_tensor = (DOUBLE **) matrix_calloc(sizeof(DOUBLE),numthreads,nprojbins*nprojbins);
+    }
     if(all_npairs == NULL ||
        (options->need_avg_sep && all_savg == NULL) ||
        (need_weightavg && all_weightavg == NULL)) {
+//       (need_proj && all_projpairs == NULL) ||
+//       (need_tensor && all_projpairs_tensor == NULL)) {
         free_cellarray_DOUBLE(lattice1, totncells);
         if(autocorr == 0) {
             free_cellarray_DOUBLE(lattice2, totncells);
@@ -395,9 +433,16 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
         if(need_weightavg) {
             matrix_free((void**) all_weightavg, numthreads);
         }
+        if(need_proj) {
+            matrix_free((void**) all_projpairs, numthreads);
+        }
+        if(need_tensor) {
+            matrix_free((void**) all_projpairs_tensor, numthreads);
+        }
         free(supp);
         return EXIT_FAILURE;
     }
+    /* End Projection */
 #else
     uint64_t npairs[totnbins];
     DOUBLE savg[totnbins], weightavg[totnbins];
@@ -410,6 +455,22 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
             weightavg[ibin] = ZERO;
         }
     }
+    /* Projection */
+    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
+    if(need_proj && need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+            for(int j=0;j<nprojbins;j++) {
+                projpairs_tensor[i*nprojbins+j] = ZERO;
+            }
+        }
+    }
+    if (need_proj && !need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+        }
+    }
+    /* End Projection */
 #endif//OMP
 
 
@@ -435,6 +496,22 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 weightavg[i] = ZERO;
             }
         }
+        /* Projection */
+        DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
+        if(need_proj && need_tensor){
+            for(int i=0;i<nprojbins;i++) {
+                projpairs[i] = ZERO;
+                for(int j=0;j<nprojbins;j++) {
+                    projpairs_tensor[i*nprojbins+j] = ZERO;
+                }
+            }
+        }
+        if (need_proj && !need_tensor){
+            for(int i=0;i<nprojbins;i++) {
+                projpairs[i] = ZERO;
+            }
+        }
+        /* End Projection */
 
 #pragma omp for  schedule(dynamic) nowait
 #endif
@@ -470,17 +547,23 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 const int64_t icell2 = this_cell_pair->cellindex2;
                 const cellarray_DOUBLE *first = &lattice1[icell];
                 const cellarray_DOUBLE *second = &lattice2[icell2];
+                /* Projection */
+                DOUBLE *this_projpairs = need_proj ? projpairs:NULL;
+                DOUBLE *this_projpairs_tensor = need_tensor ? projpairs_tensor:NULL;
+
+                printf("IMPL CALL KERNEL\n");
 
                 const int status = countpairs_s_mu_function_DOUBLE(first->nelements, first->x, first->y, first->z, &(first->weights),
-                                                                   second->nelements, second->x, second->y, second->z, &(second->weights),
-                                                                   this_cell_pair->same_cell,
-                                                                   options->fast_divide_and_NR_steps,
-                                                                   sqr_smax, sqr_smin, nsbin, nmu_bins, supp_sqr, mu_max, pimax,
-                                                                   this_cell_pair->xwrap, this_cell_pair->ywrap, this_cell_pair->zwrap,
-                                                                   this_cell_pair->min_dx, this_cell_pair->min_dy, this_cell_pair->min_dz,
-                                                                   this_cell_pair->closest_x1, this_cell_pair->closest_y1, this_cell_pair->closest_z1,
-                                                                   this_rpavg, npairs,
-                                                                   this_weightavg, extra->weight_method);
+                                                                         second->nelements, second->x, second->y, second->z, &(second->weights),
+                                                                         this_cell_pair->same_cell,
+                                                                         options->fast_divide_and_NR_steps,
+                                                                         sqr_smax, sqr_smin, nsbin, nmu_bins, supp, supp_sqr, mu_max,
+                                                                         this_cell_pair->min_dx, this_cell_pair->min_dy, this_cell_pair->min_dz,
+                                                                         this_cell_pair->closest_x1, this_cell_pair->closest_y1, this_cell_pair->closest_z1,
+                                                                         this_rpavg, npairs,
+                                                                         this_projpairs, this_projpairs_tensor, projdata,
+                                                                         this_weightavg, extra->weight_method);
+                /* End Projection */
 
                 /* This actually causes a race condition under OpenMP - but mostly
                    I care that an error occurred - rather than the exact value of
@@ -500,6 +583,21 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 all_weightavg[tid][i] = weightavg[i];
             }
         }
+        /* Projection */
+        if(need_proj && need_tensor){
+            for(int i=0;i<nprojbins;i++) {
+                all_projpairs[tid][i] = projpairs[i];
+                for(int j=0;j<nprojbins;j++) {
+                    all_projpairs_tensor[tid][i*nprojbins+j] = projpairs_tensor[i*nprojbins+j];
+                }
+            }
+        }
+        if (need_proj && !need_tensor){
+            for(int i=0;i<nprojbins;i++) {
+                all_projpairs[tid][i] = projpairs[i];
+            }
+        }
+        /* End Projection */
     }//close the omp parallel region
 #endif
 
@@ -527,6 +625,12 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     if(abort_status != EXIT_SUCCESS || interrupt_status_DDsmu_DOUBLE != EXIT_SUCCESS) {
         /* Cleanup memory here if aborting */
         free(supp);
+        /* Projection */
+        if (projfn != NULL) {
+          free(projdata->projbases);
+        }
+        free(projdata);
+        /* End Projection */
 #if defined(_OPENMP)
         matrix_free((void **) all_npairs, numthreads);
         if(options->need_avg_sep) {
@@ -535,6 +639,14 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
         if(need_weightavg) {
             matrix_free((void **) all_weightavg, numthreads);
         }
+        /* Projection */
+        if(need_proj) {
+            matrix_free((void **) all_projpairs, numthreads);
+        }
+        if(need_tensor) {
+            matrix_free((void **) all_projpairs_tensor, numthreads);
+        }
+        /* End Projection */
 #endif
         return EXIT_FAILURE;
     }
@@ -557,7 +669,22 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
             weightavg[i] = 0.0;
         }
     }
-
+    /* Projection */
+    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
+    if(need_proj && need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+            for(int j=0;j<nprojbins;j++) {
+                projpairs_tensor[i*nprojbins+j] = ZERO;
+            }
+        }
+    }
+    if (need_proj && !need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            projpairs[i] = ZERO;
+        }
+    }
+    /* End Projection */
     for(int i=0;i<numthreads;i++) {
         for(int j=0;j<totnbins;j++) {
             npairs[j] += all_npairs[i][j];
@@ -568,6 +695,21 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 weightavg[j] += all_weightavg[i][j];
             }
         }
+        /* Projection */
+        if(need_proj && need_tensor){
+            for(int j=0;j<nprojbins;j++) {
+                projpairs[j] += all_projpairs[i][j];
+                for(int k=0;k<nprojbins;k++) {
+                    projpairs_tensor[j*nprojbins+k] += all_projpairs_tensor[i][j*nprojbins+k];
+                }
+            }
+        }
+        if (need_proj && !need_tensor){
+            for(int j=0;j<nprojbins;j++) {
+                projpairs[j] += all_projpairs[i][j];
+            }
+        }
+        /* End Projection */
     }
     matrix_free((void **) all_npairs, numthreads);
     if(options->need_avg_sep) {
@@ -576,6 +718,14 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     if(need_weightavg) {
       matrix_free((void **) all_weightavg, numthreads);
     }
+    /* Projection */
+    if(need_proj) {
+        matrix_free((void **) all_projpairs, numthreads);
+    }
+    if(need_tensor) {
+        matrix_free((void **) all_projpairs_tensor, numthreads);
+    }
+    /* End Projection */
 #endif
 
 
@@ -593,6 +743,21 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 weightavg[i] *= dbl_fac;
             }
         }
+        /* Projection */
+        if(need_proj && need_tensor){
+            for(int i=0;i<nprojbins;i++) {
+                projpairs[i] *= dbl_fac;
+                for(int j=0;j<nprojbins;j++) {
+                    projpairs_tensor[i*nprojbins+j] *= dbl_fac;
+                }
+            }
+        }
+        if (need_proj && !need_tensor){
+            for(int i=0;i<nprojbins;i++) {
+                projpairs[i] *= dbl_fac;
+            }
+        }
+        /* End Projection */
 
         /* Is the min. requested separation 0.0 ?*/
         /* The comparison is '<=' rather than '==' only to silence
@@ -634,7 +799,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 weightavg[i] /= (DOUBLE) npairs[i];
             }
         }
-    }
+    } // don't need proj_pairs here, not averaging
 
 
     //Pack in the results
@@ -646,13 +811,20 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     results->supp   = my_malloc(sizeof(double)  , nsbin);
     results->savg  = my_malloc(sizeof(double)  , totnbins);
     results->weightavg  = my_calloc(sizeof(double)  , totnbins);
-    if(results->npairs == NULL || results->supp == NULL ||
-       results->savg == NULL || results->weightavg == NULL) {
+    /* Projection */
+    results->projpairs = my_malloc(sizeof(*(results->npairs)), nprojbins);
+    results->projpairs_tensor = my_malloc(sizeof(*(results->npairs)), nprojbins*nprojbins);
+    if(results->npairs == NULL || results->supp == NULL || results->savg == NULL || 
+        results->weightavg == NULL || results->projpairs == NULL || results->projpairs_tensor == NULL) {
         free_results_s_mu(results);
         free(supp);
+        if (projfn != NULL) {
+          free(projdata->projbases);
+        }
+        free(projdata);
         return EXIT_FAILURE;
     }
-
+    /* End Projection */
     for(int i=0;i<nsbin;i++) {
         results->supp[i] = supp[i];
         for(int j=0;j<nmu_bins;j++) {
@@ -660,6 +832,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
             if(index < 0 || index >= totnbins) {
                 fprintf(stderr,"ERROR: In %s> Bin index = %d must lie within range [0, %"PRId64") (possible int overflow)\n",
                         __FUNCTION__, index, totnbins);
+                // need to free things here? see countpairs_s_mu_mocks_impl.c.src
                 return EXIT_FAILURE;
             }
 
@@ -675,6 +848,25 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
         }
     }
     free(supp);
+    /* Projection */
+    if(need_proj && need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            results->projpairs[i] = projpairs[i];
+            for(int j=0;j<nprojbins;j++) {
+                results->projpairs_tensor[i*nprojbins+j] = projpairs_tensor[i*nprojbins+j];
+            }
+        }
+    }
+    if (need_proj && !need_tensor){
+        for(int i=0;i<nprojbins;i++) {
+            results->projpairs[i] = projpairs[i];
+        }
+    }
+    if (projfn != NULL) {
+      free(projdata->projbases);
+    }
+    free(projdata);
+    /* End Projection */
 
     /* reset interrupt handlers to default */
     RESET_INTERRUPT_HANDLERS();

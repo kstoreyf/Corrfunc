@@ -306,7 +306,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
 
     /* Check nprojbins same as number of bases in file nbases for general_r function */
     if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
-        printf("The value of nprojbins (%ld) must be the same as nbases (%ld), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
+        printf("The value of nprojbins (%ld) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
         return EXIT_FAILURE;
     }
     projdata->nres = nres;

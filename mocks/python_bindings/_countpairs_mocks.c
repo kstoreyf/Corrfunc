@@ -1561,9 +1561,11 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     int nthreads=4;
     int cosmology=1;
     int nmu_bins=10;
-    int nprojbins=0;
     double mu_max=1.0;
-    char *binfile, *weighting_method_str = NULL, *proj_method_str = NULL, *projfn = NULL;
+    char *binfile, *weighting_method_str = NULL;
+    /* Projection */
+    char *proj_method_str = NULL, *projfn = NULL;
+    int nprojbins=0;
 
     static char *kwlist[] = {
         "autocorr",
@@ -1625,6 +1627,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
                                        &projfn)
 
          ) {
+        /* End Projection */
 
         PyObject_Print(kwargs, stdout, 0);
         fprintf(stdout, "\n");
@@ -1730,6 +1733,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         }
     }
 
+    /* Projection */
     /* Validate the user's choice of projection function */
     proj_method_t proj_method;
     int pstatus = get_proj_method_by_name(proj_method_str, &proj_method);
@@ -1752,6 +1756,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     }
     add_extra_options(&extra, proj_method, nprojbins, projfn);
     //TODO: perform more validation about inputs to given projection function
+    /* End Projection */
 
     /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
@@ -1862,8 +1867,6 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
 
     /* Build the output list */
     PyObject *ret = PyList_New(0);//create an empty list
-    PyObject *projret = PyList_New(0);//create an empty list
-    PyObject *projtensorret = PyList_New(0);//create an empty list
 
     double rlow=results.supp[0];
     const double dmu = mu_max/(double)results.nmu_bins ;
@@ -1879,6 +1882,10 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         }
         rlow=results.supp[i];
     }
+
+    /* Projection */
+    PyObject *projret = PyList_New(0);//create an empty list
+    PyObject *projtensorret = PyList_New(0);//create an empty list
 
     for(int i=0;i<nprojbins;i++) {
         PyObject *projitem = NULL;
@@ -1897,6 +1904,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
 
     free_results_mocks_s_mu(&results);
     return Py_BuildValue("(OOOd)", ret, projret, projtensorret, c_api_time);
+    /* End Projection */
 }
 
 static PyObject *countpairs_countpairs_theta_mocks(PyObject *self, PyObject *args, PyObject *kwargs)
