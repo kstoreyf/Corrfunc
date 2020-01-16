@@ -27,8 +27,8 @@ from Corrfunc.utils import evaluate_xi
 
 boxsize = 750
 nbar_str = '1e-5'
-#proj_type = 'tophat'
-proj_type = None
+proj_type = 'tophat'
+#proj_type = None
 
 rmin = 40
 rmax = 150
@@ -99,7 +99,6 @@ def extract_counts(res, weight_type=None):
 
 
 # standard
-proj_type = 'tophat'
 dd_res_corrfunc, _, _ = DDsmu(1, nthreads, rbins, mumax, nmubins, x, y, z,
                 proj_type=proj_type, nprojbins=nbins,
                 verbose=verbose, boxsize=boxsize)

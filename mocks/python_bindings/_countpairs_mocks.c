@@ -2429,7 +2429,7 @@ static PyObject *countpairs_countspheres_vpf_mocks(PyObject *self, PyObject *arg
     return Py_BuildValue("(Od)", ret, c_api_time);
 }
 
-
+/* This lives in _countpairs_mocks.c but is also applicable to theory - ideally would create new file in utils/python_bindings, TODO */
 static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     printf("computing them i am\n");

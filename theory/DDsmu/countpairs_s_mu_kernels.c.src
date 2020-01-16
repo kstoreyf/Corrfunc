@@ -1068,19 +1068,15 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
                                                                  DOUBLE *src_weightavg, const weight_method_t weight_method)
 {
 
-    printf("KERNEL\n");
-
     (void) fast_divide_and_NR_steps;
     if(N0 == 0 || N1 == 0) {
         return EXIT_SUCCESS;
     }
-    printf("NPAIRS\n");
     if(src_npairs == NULL) {
         return EXIT_FAILURE;
     }
 
     /*----------------- FALLBACK CODE --------------------*/
-    printf("KEREL FALLBACK\n");
     const int32_t need_savg = src_savg != NULL;
     const int32_t need_weightavg = src_weightavg != NULL;
     const int64_t totnbins = (nmu_bins+1)*(nsbin+1);
@@ -1095,21 +1091,21 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
             weightavg[i]=ZERO;
         }
     }
-    printf("KEREL PROJ START\n");
     /* Projection */ 
     int nprojbins = projdata->nprojbins;
     proj_method_t proj_method = projdata->proj_method;
     const int32_t need_proj = src_projpairs != NULL;
     const int32_t need_tensor = src_projpairs_tensor != NULL;
+
     DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
 
     //TODO: only do this if need_proj?
     if(need_proj) {
-      //nsbin is number of edges, want number of bins
-      int nsbins = nsbin-1;
-      projdata->nsbins = nsbins;
-      projdata->supp = supp;
-      projdata->supp_sqr = supp_sqr;    
+        //nsbin is number of edges, want number of bins
+        int nsbins = nsbin-1;
+        projdata->nsbins = nsbins;
+        projdata->supp = supp;
+        projdata->supp_sqr = supp_sqr;    
     }
     if (need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
@@ -1125,7 +1121,6 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
         }
     }
     /* End Projection */ 
-    printf("KEREL PROJ DONE\n");
 
     // A copy whose pointers we can advance
     weight_struct_DOUBLE local_w0 = {.weights={NULL}, .num_weights=0}, local_w1 = {.weights={NULL}, .num_weights=0};
@@ -1191,8 +1186,6 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
             continue;
         }
         
-        printf("KERNEL ACK\n");
-
         /* Okay so there MAY be a pair */
         if(same_cell == 1) {
             z1++;
@@ -1238,8 +1231,6 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
         for(int w = 0; w < pair.num_weights; w++){
             local_w1.weights[w] = weights1->weights[w] + n_off;
         }
-
-        printf("KERNEL PRE NLEFT\n");
 
         for(int64_t j=0;j<nleft;j++) {
             const DOUBLE dx = *localx1++ - xpos;
@@ -1288,7 +1279,6 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
 
             /* Projection */ 
             /* Where the projection magic happens */
-            printf("KERNEL PROJ\n");
 
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
