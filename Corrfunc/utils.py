@@ -1106,10 +1106,8 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     from Corrfunc.utils import sys_pipes
 
     print('Computing amplitudes (Corrfunc/utils)')
-    # TODO: sys_pipes is breaking everything right now, fix
-    #with sys_pipes():
-    amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
-    print(amps)
+    with sys_pipes():
+        amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
     return np.array(amps)
 
 
@@ -1165,9 +1163,8 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=No
             kwargs[k] = v
 
     print('Evaluating xi (Corrfunc/utils)')
-    # TODO: sys_pipes is breaking everything right now, fix
-    #with sys_pipes():
-    xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, **kwargs)
+    with sys_pipes():
+        xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, **kwargs)
 
     return np.array(xi)
 
