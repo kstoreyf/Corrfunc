@@ -318,7 +318,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     /* Read in file */
     rewind(projfile);
     for(int i = 0; i < nres; i++){
-        fgets(buf,1000,projfile);
+        fgets(buf,MAXLEN,projfile);
         char *val;
         val = strtok(buf, " ");
         for(int j=0; j<nbases+1; j++){
@@ -329,4 +329,77 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     fclose(projfile);
     printf("Read in %d by %d basis data\n", nres, nbases+1);
     return EXIT_SUCCESS;
+}
+
+DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
+    DOUBLE space = (xmax - xmin)/(xnum-1);
+    int i;
+    for (i=0; i<xnum; i++){
+        xarr[i] = xmin + i*space;
+    }
+    return space;
+}
+
+
+int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *qq, proj_method_t proj_method, char *projfn){
+
+    printf("qq analytic\n");
+
+    proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
+    if(projdata == NULL){
+        free(projdata);
+        return EXIT_FAILURE;
+    }
+    projdata->nprojbins = nprojbins;
+	projdata->proj_method = proj_method;
+
+    /* Read in projection file if necessary */
+    if (projfn != NULL) {
+        read_projfile_DOUBLE(projfn, projdata);
+    } 
+    
+    // will need to generalize, projbins won't always be related to sbins
+    DOUBLE supp_sqr[nsbins];
+    //plus 1 because one more edge than number of bins
+    for (int i=0; i<nsbins+1; i++){
+        supp_sqr[i] = sbins[i]*sbins[i];
+    }
+
+    proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
+
+    projdata->nsbins = nsbins;
+    projdata->supp = sbins;
+    projdata->supp_sqr = supp_sqr;
+
+    int nrfine = 100000;
+    DOUBLE dr;
+    DOUBLE rfine[nrfine];
+    dr = linspace_DOUBLE(rmin, rmax, nrfine, &rfine);
+    DOUBLE prefac = 4*M_PI*nd*(nd-1)/volume;
+    DOUBLE integrand, integral;
+
+    for (int k=0; k<nrfine; k++){
+        //get basis function u for given value of s
+        DOUBLE u[nprojbins];
+        DOUBLE r = rfine[k];
+        DOUBLE r_sqr = r*r;
+        proj_func(projdata, u, r, r_sqr);
+		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
+
+        for (int i=0; i<nprojbins; i++){
+            for (int j=0; j<nprojbins; j++){
+                integrand = r_sqr * u[i] * u[j];
+                integral = integrand * dr;
+                qq[i*nprojbins+j] += integral;
+            }
+        }
+    }
+    for (int i=0; i<nprojbins*nprojbins; i++){
+        qq[i] *= prefac;
+    }
+    if (projfn!=NULL) {
+      free(projdata->projbases);
+    }
+    free(projdata);
+	return EXIT_SUCCESS;
 }

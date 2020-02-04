@@ -33,6 +33,9 @@
 //for unicode characters
 #include "macros.h"
 
+//for qq_analytic only, for now
+//#include "projection.h"
+
 struct module_state {
     PyObject *error;
 };
@@ -994,6 +997,16 @@ PyMODINIT_FUNC init_countpairs(void)
 #endif
 
 }
+
+// static void check_datatype(PyArrayObject *arr_obj, size_t *element_size)
+// {
+//     const int arr_type = PyArray_TYPE(arr_obj);
+//     if(arr_type == NPY_FLOAT) {
+//       *element_size = sizeof(float);
+//     } else {
+//       *element_size = sizeof(double);
+//     }
+// }
 
 // weights1_obj may be NULL, in which case it is ignored.
 // If it is not NULL, it will be checked alongside the positions

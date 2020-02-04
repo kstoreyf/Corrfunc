@@ -72,6 +72,7 @@ static PyObject *countpairs_countpairs_theta_mocks(PyObject *self, PyObject *arg
 static PyObject *countpairs_countspheres_vpf_mocks(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *countpairs_mocks_error_out(PyObject *module, const char *msg);
 
 static PyMethodDef module_methods[] = {
@@ -805,6 +806,7 @@ static PyMethodDef module_methods[] = {
     },
     {"convert_3d_proj_counts_to_amplitude"       ,(PyCFunction) countpairs_convert_3d_proj_counts_to_amplitude ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
     {"evaluate_xi"       ,(PyCFunction) countpairs_evaluate_xi ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
+    {"qq_analytic"       ,(PyCFunction) countpairs_qq_analytic ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -2675,5 +2677,127 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     }
     //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
     return Py_BuildValue("O", xiret);
+
+}
+
+
+
+static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    //Error-handling is global in python2 -> stored in struct module_state _struct declared at the top of this file
+#if PY_MAJOR_VERSION < 3
+    (void) self;
+    PyObject *module = NULL;//should not be used -> setting to NULL so any attempts to dereference will result in a crash.
+#else
+    //In python3, self is simply the module object that was returned earlier by init
+    PyObject *module = self;
+#endif
+
+    PyArrayObject *sbins_obj=NULL;
+
+    int nprojbins, nsbins, nd;
+    double rmin, rmax, volume;
+    char *proj_method_str = NULL, *projfn = NULL;
+
+    static char *kwlist[] = {
+        "rmin", 
+        "rmax", 
+        "nd",
+        "volume",
+        "nprojbins",
+        "nsbins", 
+        "sbins", 
+        "proj_type",
+        "projfn",
+        NULL
+    };
+
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "ddidiiO!s|s", kwlist,
+                                       &rmin,&rmax,
+                                       &nd,&volume,
+                                       &nprojbins,
+                                       &nsbins,
+                                       &PyArray_Type,&sbins_obj,
+                                       &proj_method_str,
+                                       &projfn
+                                       )
+
+        ) {
+
+        PyObject_Print(kwargs, stdout, 0);
+        fprintf(stdout, "\n");
+
+        char msg[1024];
+        int len=snprintf(msg, 1024,"ArgumentError: In qq_analytic> Could not parse the arguments. Input parameters are: \n");
+
+        /* How many keywords do we have? Subtract 1 because of the last NULL */
+        const size_t nitems = sizeof(kwlist)/sizeof(*kwlist) - 1;
+        int status = print_kwlist_into_msg(msg, 1024, len, kwlist, nitems);
+        if(status != EXIT_SUCCESS) {
+            fprintf(stderr,"Error message does not contain all of the keywords\n");
+        }
+        countpairs_mocks_error_out(module,msg);
+
+        Py_RETURN_NONE;
+    }
+
+    proj_method_t proj_method;
+    int pstatus = get_proj_method_by_name(proj_method_str, &proj_method);
+    if(pstatus != EXIT_SUCCESS){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: unknown proj_type %s!", __FUNCTION__, proj_method_str);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+
+    size_t element_size;
+    // not sure which to check here
+    check_datatype(sbins_obj, &element_size);
+
+     /* Interpret the input objects as numpy arrays. */
+    const int requirements = NPY_ARRAY_IN_ARRAY;
+    PyObject *sbins_array = NULL;
+    sbins_array = PyArray_FromArray(sbins_obj, NOTYPE_DESCR, requirements);
+
+    if (sbins_array == NULL) {
+        Py_XDECREF(sbins_array);
+        char msg[1024];
+        snprintf(msg, 1024, "TypeError: In %s: Could not convert input to arrays of allowed floating point types (doubles or floats). Are you passing numpy arrays?",
+                 __FUNCTION__);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+
+    /* Get pointers to the data as C-types. */
+    void *sbins=NULL;
+
+    sbins = PyArray_DATA((PyArrayObject *) sbins_array);
+
+    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS;
+
+    double qq[nprojbins*nprojbins];
+    for(int i=0;i<nprojbins*nprojbins;i++){
+        qq[i] = 0;
+    }
+
+    qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, qq, proj_method, element_size, projfn);
+
+    NPY_END_THREADS;
+
+    /* Clean up. */
+    Py_DECREF(sbins_array);
+
+    /* Build the output list */
+    PyObject *qqret = PyList_New(0);//create an empty list
+
+    for(int i=0;i<nprojbins*nprojbins;i++) {
+        PyObject *qqitem = NULL;
+        qqitem = Py_BuildValue("d", qq[i]);
+        PyList_Append(qqret, qqitem);
+        Py_XDECREF(qqitem);
+    }
+    //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
+    return Py_BuildValue("O", qqret);
 
 }

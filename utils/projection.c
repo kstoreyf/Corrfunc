@@ -52,3 +52,25 @@ int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
     }
 }
 
+
+
+int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
+        int nsbins, void *sbins, void *qq, proj_method_t proj_method, 
+        size_t element_size, char *projfn)
+{
+    if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
+        fprintf(stderr,"ERROR: In %s> Can only handle doubles or floats. Got an array of size = %zu\n",
+                __FUNCTION__, element_size);
+        return EXIT_FAILURE;
+    }
+
+    if(element_size == sizeof(float)) {
+        return qq_analytic_float((float) rmin, (float) rmax, nd, (float) volume,
+                    nprojbins, nsbins, (float *) sbins, (float *) qq,
+                    proj_method, projfn);
+    } else {
+        return qq_analytic_double((double) rmin, (double) rmax, nd, (double) volume,
+                    nprojbins, nsbins, (double *) sbins, (double *) qq,
+                    proj_method, projfn);
+    }
+}

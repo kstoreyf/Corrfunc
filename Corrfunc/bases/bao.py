@@ -9,24 +9,25 @@ def write_bases(rmin, rmax, saveto, ncont=1000, **kwargs):
     return nprojbins, saveto
 
 
-def bao_bases(s, cf_func, p1=1, p2=1, p3=1):
+def bao_bases(s, cf_func, dalpha, alpha_model):
     
-    b1 = p1 * 1.0/s**2
-    b2 = p2 * 1.0/s
-    b3 = p3 * np.ones(len(s))
+    b1 = 1.0/s**2
+    b2 = 0.1/s
+    b3 = 0.001*np.ones(len(s))
     
-    cf = cf_func(s)
+    cf = cf_func(s, alpha_model=alpha_model)
     b4 = cf
 
-    alpha = 1.001
-    dalpha = 1-alpha
-    dxi_dalpha = partial_derivative(cf, cf_func(alpha*s), dalpha)
-    b5 = dalpha*dxi_dalpha
+    alpha = dalpha/alpha_model + 1
+    #dalpha = alpha_model*alpha - alpha_model
+    cf_dalpha = cf_func(alpha*s, alpha_model=alpha_model)
+    dcf_dalpha = partial_derivative(cf, cf_dalpha, dalpha)
+    b5 = dalpha*dcf_dalpha
     
     return b1,b2,b3,b4,b5
 
 
-def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0):
+def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.1, alpha_model=1.0):
 
     if not cosmo_base:
         raise ValueError("Must pass cosmo_base!")
@@ -34,13 +35,16 @@ def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0):
     Plin = cosmology.LinearPower(cosmo_base, redshift, transfer='EisensteinHu')
     CF = cosmology.correlation.CorrelationFunction(Plin)
 
-    def cf_model(s):
-        alpha_model = 1.01
+    #dalpha = 0.01
+    #alpha_model = 1.02
+    print("dalpha: {}, alpha_model: {}".format(dalpha, alpha_model))
+
+    def cf_model(s, alpha_model):
         return CF(alpha_model*s)
 
     rcont = np.linspace(rmin, rmax, ncont)
     #bs = bao_bases(rcont, CF)
-    bs = bao_bases(rcont, cf_model)
+    bs = bao_bases(rcont, cf_model, dalpha, alpha_model)
 
     nbases = len(bs)    
     bases = np.empty((nbases+1, ncont))

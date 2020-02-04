@@ -12,7 +12,8 @@ from contextlib import contextmanager
 
 __all__ = ['convert_3d_counts_to_cf', 'convert_rp_pi_counts_to_wp',
            'translate_isa_string_to_enum', 'return_file_with_rbins',
-           'fix_ra_dec', 'fix_cz', 'compute_nbins', 'gridlink_sphere', ]
+           'fix_ra_dec', 'fix_cz', 'compute_nbins', 'gridlink_sphere', 
+           'compute_amps', 'evaluate_xi', 'qq_analytic', ]
 if sys.version_info[0] < 3:
     __all__ = [n.encode('ascii') for n in __all__]
 
@@ -1167,6 +1168,66 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=No
         xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, **kwargs)
 
     return np.array(xi)
+
+# may not need nsbins and sbins
+def qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, projfn=None):
+    '''
+    Evaluate the correlation function for the given amplitudes and s values.
+
+    # TODO: update docstring
+
+    Parameters
+    ----------
+    nprojbins : int
+       number of bins for projection
+
+    a : array-like, double
+       array of amplitudes produced by compute_amps
+
+    nsvals : int
+       number of s (separation) values at which to evaluate xi
+
+    svals : array-like, double
+       s (separation) values at which to evaluate xi
+
+    proj_type : string
+       projection method to use
+
+    projfn : string, default=None
+       filename of projection file if necessary
+
+    Returns
+    -------
+    xi: array-like, double
+        array of xi values, same shape as svals
+
+    '''
+    try:
+        from Corrfunc._countpairs_mocks import qq_analytic as \
+            eval_extn
+    except ImportError:
+        msg = "Could not import the C extension for computing QQ analytically."
+        raise ImportError(msg)
+
+    import numpy as np
+    from Corrfunc.utils import sys_pipes
+
+    if not proj_type:
+        msg = "Cannot pass a null project type to evaluate_xi"
+        raise ValueError(msg)
+
+    # Passing None parameters breaks the parsing code, so avoid this
+    kwargs = {}
+    for k in ['projfn']:
+        v = locals()[k]
+        if v is not None:
+            kwargs[k] = v
+
+    print('Evaluating xi (Corrfunc/utils)')
+    with sys_pipes():
+        qq = eval_extn(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, **kwargs)
+
+    return np.array(qq).reshape((nprojbins, nprojbins))
 
 
 if __name__ == '__main__':

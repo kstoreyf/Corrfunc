@@ -50,3 +50,5 @@ cov-int
 *.toc
 *.mk
 .vscode/*
+*.dat
+example*.py

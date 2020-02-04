@@ -18,3 +18,7 @@ int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
 int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals, int nsbins, 
           void *sbins, void *xi, proj_method_t proj_method, size_t element_size, char *projfn);
+
+int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
+        int nsbins, void *sbins, void *qq, proj_method_t proj_method, 
+        size_t element_size, char *projfn);

@@ -61,3 +61,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
             int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn);
 
 int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata);
+
+int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *qq, proj_method_t proj_method, char *projfn);
+
+DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr);

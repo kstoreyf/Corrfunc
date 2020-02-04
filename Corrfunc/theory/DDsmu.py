@@ -294,7 +294,10 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
             kwargs[k] = v
 
     integer_isa = translate_isa_string_to_enum(isa)
+    
+    #TODO: make sbinfile optional, may not need for proj
     sbinfile, delete_after_use = return_file_with_rbins(binfile)
+
     with sys_pipes():
         extn_results = DDsmu_extn(autocorr, nthreads,
                                   sbinfile,
