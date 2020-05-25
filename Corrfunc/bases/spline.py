@@ -13,8 +13,8 @@ def main():
 	bases = get_bases(rmin, rmax, nbins, order)
 
 
-def write_bases(rmin, rmax, nbins, order, saveto, ncont=300):
-	bases = get_bases(rmin, rmax, nbins, order, ncont=ncont)
+def write_bases(rmin, rmax, nbins, saveto, ncont=1000, **kwargs):
+	bases = get_bases(rmin, rmax, nbins, ncont=ncont, **kwargs)
 	np.savetxt(saveto, bases.T)
 	return saveto
 
@@ -33,7 +33,10 @@ def get_kvs(rmin, rmax, nbins, order):
         kvs[idx] = rmin+width*j + np.arange(0,nknots)*width                     
     return kvs
 
-def get_bases(rmin, rmax, nbins, order, ncont=300):
+def get_bases(rmin, rmax, nbins, order=None, ncont=1000):
+    if not order:
+        print("No order given, defaulting to 1 (linear)")
+    
     if nbins<order*2:
         # does it have to be 2*order + 1? seems fine for piecewise, but for higher orders?
         raise ValueError("nbins must be at least twice the order")

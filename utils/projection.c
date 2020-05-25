@@ -55,7 +55,7 @@ int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
 
 
 int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
-        int nsbins, void *sbins, void *qq, proj_method_t proj_method, 
+        int nsbins, void *sbins, void *rr, void *qq, proj_method_t proj_method, 
         size_t element_size, char *projfn)
 {
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
@@ -66,11 +66,11 @@ int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins,
 
     if(element_size == sizeof(float)) {
         return qq_analytic_float((float) rmin, (float) rmax, nd, (float) volume,
-                    nprojbins, nsbins, (float *) sbins, (float *) qq,
+                    nprojbins, nsbins, (float *) sbins, (float *) rr, (float *) qq,
                     proj_method, projfn);
     } else {
         return qq_analytic_double((double) rmin, (double) rmax, nd, (double) volume,
-                    nprojbins, nsbins, (double *) sbins, (double *) qq,
+                    nprojbins, nsbins, (double *) sbins, (double *) rr, (double *) qq,
                     proj_method, projfn);
     }
 }

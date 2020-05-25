@@ -32,6 +32,16 @@ typedef struct
     proj_method_t proj_method;
 } proj_struct_DOUBLE;
 
+typedef struct 
+{
+    //void *proj_func;
+    //proj_method_t proj_method;
+    proj_struct_DOUBLE *projdata;
+    int i;
+    int j;
+    int is_qq;
+} integration_params_DOUBLE;
+
 typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE, DOUBLE);
 
 //////////////////////////////////
@@ -62,6 +72,14 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
 
 int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata);
 
-int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *qq, proj_method_t proj_method, char *projfn);
+int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, char *projfn);
 
 DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr);
+
+DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p);
+
+DOUBLE testsimp_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p);
+
+DOUBLE adaptiveSimpsonsAux_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p, DOUBLE a, DOUBLE b, DOUBLE eps, DOUBLE whole, DOUBLE fa, DOUBLE fb, DOUBLE fm, int rec);
+
+DOUBLE adaptiveSimpsons_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p, DOUBLE a, DOUBLE b, DOUBLE epsilon, int maxRecDepth);

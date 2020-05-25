@@ -2776,12 +2776,17 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
+    double rr[nprojbins];
+    for(int i=0;i<nprojbins;i++){
+        rr[i] = 0;
+    }
+
     double qq[nprojbins*nprojbins];
     for(int i=0;i<nprojbins*nprojbins;i++){
         qq[i] = 0;
     }
 
-    qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, qq, proj_method, element_size, projfn);
+    qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, rr, qq, proj_method, element_size, projfn);
 
     NPY_END_THREADS;
 
@@ -2789,8 +2794,15 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
     Py_DECREF(sbins_array);
 
     /* Build the output list */
+    PyObject *rrret = PyList_New(0);//create an empty list
     PyObject *qqret = PyList_New(0);//create an empty list
 
+    for(int i=0;i<nprojbins;i++) {
+        PyObject *rritem = NULL;
+        rritem = Py_BuildValue("d", rr[i]);
+        PyList_Append(rrret, rritem);
+        Py_XDECREF(rritem);
+    }
     for(int i=0;i<nprojbins*nprojbins;i++) {
         PyObject *qqitem = NULL;
         qqitem = Py_BuildValue("d", qq[i]);
@@ -2798,6 +2810,7 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         Py_XDECREF(qqitem);
     }
     //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
-    return Py_BuildValue("O", qqret);
+    //return Py_BuildValue("O", rrret), Py_BuildValue("O", qqret);
+    return Py_BuildValue("(OO)", rrret, qqret);
 
 }

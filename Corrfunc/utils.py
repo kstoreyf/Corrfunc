@@ -1225,9 +1225,16 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, pro
 
     print('Evaluating xi (Corrfunc/utils)')
     with sys_pipes():
-        qq = eval_extn(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, **kwargs)
+        extn_results = eval_extn(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, **kwargs)
 
-    return np.array(qq).reshape((nprojbins, nprojbins))
+    if extn_results is None:
+        msg = "RuntimeError occurred"
+        raise RuntimeError(msg)
+    else:
+        rr, qq = extn_results
+
+    qq = np.array(qq).reshape((nprojbins, nprojbins))
+    return np.array(rr), qq 
 
 
 if __name__ == '__main__':

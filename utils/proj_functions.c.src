@@ -23,10 +23,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+#include <errno.h>
 
 #include <gsl/gsl_matrix_DOUBLE.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_interp.h>
+#include <gsl/gsl_integration.h>
 
 #ifndef MAXLEN
 #define MAXLEN 1000
@@ -59,10 +62,10 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
     // Assumes nsbins = nprojbins
     for(int p=0;p<proj->nprojbins;p++){
         // peaks are bin averages, for now - need to take square roots
-        double peak = 0.5*(proj->supp[p] + proj->supp[p+1]);
+        DOUBLE peak = 0.5*(proj->supp[p] + proj->supp[p+1]);
         // assumes bins in ascending order
-        double binwidth = proj->supp[p+1] - proj->supp[p];
-        double val = 1.0 - (1.0/binwidth) * FABS(s - peak);
+        DOUBLE binwidth = proj->supp[p+1] - proj->supp[p];
+        DOUBLE val = 1.0 - (1.0/binwidth) * FABS(s - peak);
         if (val < 0) {
             val = 0;
         }
@@ -73,12 +76,12 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
 
 void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) sqr_s;//to suppress the unused variable warning
-    double sigma = 3.0;
-    double amp = 1.0/(SQRT(2.0*M_PI)*sigma);
+    DOUBLE sigma = 3.0;
+    DOUBLE amp = 1.0/(SQRT(2.0*M_PI)*sigma);
     for(int p=0;p<proj->nprojbins;p++){
-        double rp = proj->supp[p];
+        DOUBLE rp = proj->supp[p];
         if (FABS(rp-s)<4.0*sigma) {
-            double gaussian = amp * exp( -0.5*( ((rp-s)/sigma)*((rp-s)/sigma)) );
+            DOUBLE gaussian = amp * exp( -0.5*( ((rp-s)/sigma)*((rp-s)/sigma)) );
             u[p] = gaussian;
         }
         else {
@@ -341,7 +344,7 @@ DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
 }
 
 
-int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *qq, proj_method_t proj_method, char *projfn){
+int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, char *projfn){
 
     printf("qq analytic\n");
 
@@ -365,41 +368,193 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
         supp_sqr[i] = sbins[i]*sbins[i];
     }
 
-    proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
-
     projdata->nsbins = nsbins;
     projdata->supp = sbins;
     projdata->supp_sqr = supp_sqr;
 
-    int nrfine = 100000;
-    DOUBLE dr;
-    DOUBLE rfine[nrfine];
-    dr = linspace_DOUBLE(rmin, rmax, nrfine, &rfine);
+    printf("pp\n");
+    //proj_func_t_DOUBLE *proj_func = get_proj_func_by_method_DOUBLE(proj_method);
+    printf("proj func\n");
+    printf("intp\n");
+    integration_params_DOUBLE *alpha = malloc(sizeof(integration_params_DOUBLE));
+    //integration_params_DOUBLE *alpha;
+    //integration_params_DOUBLE alpha;
+    printf("uh\n");
+    //alpha.proj_func = proj_func;
+    //alpha->proj_func = proj_func;
+    //alpha->proj_method = proj_
+    printf("here\n");
+    //alpha.projdata = projdata;
+    //alpha.i = 0;
+    //alpha.j = 0;
+    //alpha.is_qq = 0;
+     
+    alpha->projdata = projdata;
+    alpha->i = 0;
+    alpha->j = 0;
+    alpha->is_qq = 0;
+    printf("int params\n");
+    //DOUBLE fa1;
+    //proj_to_integrate_DOUBLE(0.0, alpha);
+    //printf("fa1 %f\n", fa1);
+    //printf("ptoint\n");
+    //gsl_function F1;
+    //F1.function = &proj_to_integrate_DOUBLE; 
+    //F1.params = &alpha;
+    //DOUBLE result, error;
+    //size_t limit = 100000;
+    //size_t nevals;
+    //gsl_integration_workspace *w = gsl_integration_workspace_alloc(100000);
+    //gsl_integration_cquad_workspace *w = gsl_integration_cquad_workspace_alloc(10000);
+
     DOUBLE prefac = 4*M_PI*nd*(nd-1)/volume;
-    DOUBLE integrand, integral;
-
-    for (int k=0; k<nrfine; k++){
-        //get basis function u for given value of s
-        DOUBLE u[nprojbins];
-        DOUBLE r = rfine[k];
-        DOUBLE r_sqr = r*r;
-        proj_func(projdata, u, r, r_sqr);
-		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
-
-        for (int i=0; i<nprojbins; i++){
-            for (int j=0; j<nprojbins; j++){
-                integrand = r_sqr * u[i] * u[j];
-                integral = integrand * dr;
-                qq[i*nprojbins+j] += integral;
-            }
+    for (int i=0; i<nprojbins; i++){
+        alpha->i = i;
+        alpha->is_qq = 0;
+        //printf("pre-test\n");
+        //printf("pi a: %p\n", alpha);
+        //printf("pi &a: %p\n", &alpha);
+        //testsimp_DOUBLE(proj_to_integrate_DOUBLE, alpha);
+        //printf("post-test\n");
+        DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, alpha, rmin, rmax, 1e-6, 100);
+        //printf("integrate = %f\n", integral);   // print the result
+        //perror("adaptiveSimpsons");                   // Was it successful? (depth=1 is too shallow)
+        //printf("(%d evaluations)\n", callcnt);;
+        //int status = gsl_integration_qag(&F1,
+        //             rmin, rmax,
+        //             1.0e-10, 1.0e-10, limit,
+        //             GSL_INTEG_GAUSS21,
+        //             w, &result, &error);
+        //printf("status: %i\n", status);
+        printf("rr %d: %f\n", i, integral);
+        //printf("nevals %d\n", nevals);
+        rr[i] = integral*prefac;
+        
+        for (int j=0; j<nprojbins; j++){
+            alpha->j = j;
+            alpha->is_qq = 1;
+            DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, alpha, rmin, rmax, 1e-6, 100);
+        //    gsl_integration_qags (&F1,
+        //                 rmin, rmax,
+        //                 0.0, 1e-7, 1000,
+        //                 GSL_INTEG_GAUSS15,
+        //                 w, &result, &error);
+           qq[i*nprojbins+j] = integral*prefac;
         }
     }
-    for (int i=0; i<nprojbins*nprojbins; i++){
-        qq[i] *= prefac;
-    }
+    //gsl_integration_workspace_free(w);
+    //gsl_integration_cquad_workspace_free(w);
+
     if (projfn!=NULL) {
       free(projdata->projbases);
     }
     free(projdata);
 	return EXIT_SUCCESS;
+}
+
+
+//DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, void (*proj_func)(, integration_params_DOUBLE *p) {  
+//}
+
+DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p) {
+    //printf("proj to int\n");
+    //printf("pi p: %p\n", p);
+    //printf("pi &p: %p\n", &p);
+    integration_params_DOUBLE *params = (integration_params_DOUBLE *)p;
+    //proj_func_t_DOUBLE proj_func = (proj_func_t_DOUBLE *)(params->proj_func); //bc stored as void
+    //proj_func_t_DOUBLE proj_func = *(params->proj_func);
+    //printf("pfunc\n");
+    proj_struct_DOUBLE *pdata = (params->projdata); 
+    //printf("got pdata\n");
+    proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(pdata->proj_method);
+    //printf("pdata\n");
+    int i = (params->i);
+    //printf("hum\n");
+    DOUBLE r_sqr = r*r;
+    DOUBLE integrand;
+    //printf("here\n");
+    //printf("nproj: %d\n", pdata->nprojbins);
+    DOUBLE u[pdata->nprojbins];
+    //printf("int\n");
+    //printf("%f\n", r_sqr);
+    proj_func(pdata, u, r, r_sqr);
+    //printf("%f\n", u[i]);
+    if (params->is_qq) { 
+        int j = (params->j);
+        integrand = r_sqr * u[i] * u[j]; 
+        //printf("%f\n", u[j]);
+    }
+    else { 
+        integrand = r_sqr * u[i]; 
+    }
+    //printf("integrand: %f\n", integrand); 
+    return integrand;
+}
+
+
+/** Adaptive Simpson's Rule, Recursive Core */
+DOUBLE adaptiveSimpsonsAux_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p, DOUBLE a, DOUBLE b, DOUBLE eps,
+                          DOUBLE whole, DOUBLE fa, DOUBLE fb, DOUBLE fm, int rec) {
+    //printf("epsilon: %e\n");
+    DOUBLE m   = (a + b)/2,  h   = (b - a)/2;
+    DOUBLE lm  = (a + m)/2,  rm  = (m + b)/2;
+    // serious numerical trouble: it won't converge
+    if ((eps/2 == eps) || (a == lm)) { errno = EDOM; return whole; }
+    DOUBLE flm = (*f)(lm, p), frm = (*f)(rm, p);
+    DOUBLE fl = (DOUBLE) flm;
+    DOUBLE left  = (h/6) * (fa + 4*flm + fm);
+    DOUBLE right = (h/6) * (fm + 4*frm + fb);
+    DOUBLE delta = left + right - whole;
+
+    if (rec <= 0 && errno != EDOM) errno = ERANGE;  // depth limit too shallow
+    // Lyness 1969 + Richardson extrapolation; see article
+    if (rec <= 0 || fabs(delta) <= 15*eps)
+        return left + right + (delta)/15;
+    return adaptiveSimpsonsAux_DOUBLE(f, p, a, m, eps/2, left,  fa, fm, flm, rec-1) +
+           adaptiveSimpsonsAux_DOUBLE(f, p, m, b, eps/2, right, fm, fb, frm, rec-1);
+}
+
+/** Adaptive Simpson's Rule Wrapper
+ *  (fills in cached function evaluations) */
+DOUBLE adaptiveSimpsons_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*),     // function ptr to integrate
+                       integration_params_DOUBLE *p,
+                       DOUBLE a, DOUBLE b,      // interval [a,b]
+                       DOUBLE epsilon,         // error tolerance
+                       int maxRecDepth) {     // recursion cap
+    errno = 0;
+    
+    DOUBLE h = b - a;
+    if (h == 0) return 0;
+
+    DOUBLE aa, bb;
+    DOUBLE total = 0.0;
+    DOUBLE hh = 5.0;// starting grid width
+    //for (int ii=0; ii<; ii++){
+    aa = a;
+    bb = aa+hh;
+    while (aa < b){
+        DOUBLE fa = (*f)(aa, p), fb = (*f)(bb, p), fm = (*f)((aa + bb)/2, p);
+        DOUBLE S = (hh/6)*(fa + 4*fm + fb);
+        if (bb > b){
+            bb = b;
+        }
+        total += adaptiveSimpsonsAux_DOUBLE(f, p, aa, bb, epsilon, S, fa, fb, fm, maxRecDepth);
+        //printf("aa bb total: %f %f %f\n", aa, bb, total);
+        aa = bb;
+        bb += hh;
+    }
+    //DOUBLE fa = (*f)(a, p), fb = (*f)(b, p), fm = (*f)((a + b)/2, p);
+    //DOUBLE S = (h/6)*(fa + 4*fm + fb);
+    return total;
+    //return adaptiveSimpsonsAux_DOUBLE(f, p, a, b, epsilon, S, fa, fb, fm, maxRecDepth);
+}
+
+DOUBLE testsimp_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p) {
+    printf("testsimp\n");
+    DOUBLE fa;
+    //printf("p: %p\n", p);
+    //printf("&p: %p\n", &p);
+    fa = (*f)(0.0, p);
+    printf("fa: %f\n", fa);
+    return 0;
 }
