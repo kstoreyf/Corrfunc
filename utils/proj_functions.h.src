@@ -34,8 +34,6 @@ typedef struct
 
 typedef struct 
 {
-    //void *proj_func;
-    //proj_method_t proj_method;
     proj_struct_DOUBLE *projdata;
     int i;
     int j;
@@ -77,8 +75,6 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
 DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr);
 
 DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p);
-
-DOUBLE testsimp_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p);
 
 DOUBLE adaptiveSimpsonsAux_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), integration_params_DOUBLE *p, DOUBLE a, DOUBLE b, DOUBLE eps, DOUBLE whole, DOUBLE fa, DOUBLE fb, DOUBLE fm, int rec);
 
