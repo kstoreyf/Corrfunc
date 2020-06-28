@@ -372,11 +372,15 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
     projdata->supp = sbins;
     projdata->supp_sqr = supp_sqr;
 
-    integration_params_DOUBLE *alpha = malloc(sizeof(integration_params_DOUBLE));
-    alpha->projdata = projdata;
-    alpha->i = 0;
-    alpha->j = 0;
-    alpha->is_qq = 0;
+    integration_params_DOUBLE *int_params = malloc(sizeof(integration_params_DOUBLE));
+    if(int_params == NULL){
+        free(int_params);
+        return EXIT_FAILURE;
+    }
+    int_params->projdata = projdata;
+    int_params->i = 0;
+    int_params->j = 0;
+    int_params->is_qq = 0;
     
     /* IF USING GSL INTEGRATION */
     // maybe should switch to this if need to do sub-division of integration region anyway (TODO)
@@ -390,21 +394,22 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
     
     DOUBLE prefac = 4*M_PI*nd*(nd-1)/volume;
     for (int i=0; i<nprojbins; i++){
-        alpha->i = i;
-        alpha->is_qq = 0;
-        DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, alpha, rmin, rmax, 1e-6, 100);
+        int_params->i = i;
+        int_params->is_qq = 0;
+        //DOUBLE integral = 1.0;
+        DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
         //int status = gsl_integration_qag(&F1,
         //             rmin, rmax,
         //             1.0e-10, 1.0e-10, limit,
         //             GSL_INTEG_GAUSS21,
         //             w, &result, &error);
-        printf("rr %d: %f\n", i, integral);
         rr[i] = integral*prefac;
         
         for (int j=0; j<nprojbins; j++){
-            alpha->j = j;
-            alpha->is_qq = 1;
-            DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, alpha, rmin, rmax, 1e-6, 100);
+            int_params->j = j;
+            int_params->is_qq = 1;
+            //DOUBLE integral = 1.0;
+            DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
         //    gsl_integration_qags (&F1,
         //                 rmin, rmax,
         //                 0.0, 1e-7, 1000,
@@ -419,6 +424,7 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
       free(projdata->projbases);
     }
     free(projdata);
+    free(int_params);
 	return EXIT_SUCCESS;
 }
 

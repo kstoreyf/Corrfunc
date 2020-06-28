@@ -2416,8 +2416,10 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         Py_RETURN_NONE; 
     }
 
+    // Projection only supported in fallback kernel for now!
     if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
-        printf("Applying projection requires fallback method, switching instruction set\n");
+        //THIS LINE BREAKS EVERYTHING IDK WHY i cannot figure out how to print a message here. giving up for now.
+        //fprintf(stdout, "Applying projection requires fallback method, switching instruction set\n");
         options.instruction_set = FALLBACK;
     }
     add_extra_options(&extra, proj_method, nprojbins, projfn);

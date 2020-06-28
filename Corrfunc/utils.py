@@ -1213,7 +1213,7 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, pro
     from Corrfunc.utils import sys_pipes
 
     if not proj_type:
-        msg = "Cannot pass a null project type to evaluate_xi"
+        msg = "Cannot pass a null project type to qq_analytic"
         raise ValueError(msg)
 
     # Passing None parameters breaks the parsing code, so avoid this
@@ -1223,7 +1223,7 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, pro
         if v is not None:
             kwargs[k] = v
 
-    print('Evaluating xi (Corrfunc/utils)')
+    print('Evaluating qq_analytic (Corrfunc/utils)')
     with sys_pipes():
         extn_results = eval_extn(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, **kwargs)
 
@@ -1235,7 +1235,7 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, pro
 
     qq = np.array(qq).reshape((nprojbins, nprojbins))
     return np.array(rr), qq 
-
+    #return np.ones(nprojbins), np.ones((nprojbins, nprojbins))
 
 if __name__ == '__main__':
     import doctest

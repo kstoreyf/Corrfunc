@@ -27,7 +27,7 @@ def bao_bases(s, cf_func, dalpha, alpha_model):
     return b1,b2,b3,b4,b5
 
 
-def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.1, alpha_model=1.0):
+def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.1, alpha_model=1.0, bias=1.0):
 
     if not cosmo_base:
         raise ValueError("Must pass cosmo_base!")
@@ -37,10 +37,10 @@ def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.1, a
 
     #dalpha = 0.01
     #alpha_model = 1.02
-    print("dalpha: {}, alpha_model: {}".format(dalpha, alpha_model))
+    print("bias: {}. dalpha: {}, alpha_model: {}".format(bias, dalpha, alpha_model))
 
     def cf_model(s, alpha_model):
-        return CF(alpha_model*s)
+        return bias * CF(alpha_model*s)
 
     rcont = np.linspace(rmin, rmax, ncont)
     #bs = bao_bases(rcont, CF)
