@@ -592,7 +592,6 @@ int countpairs_xi_DOUBLE(const int64_t ND, DOUBLE * restrict X, DOUBLE * restric
     // The RR term is the expected pair counts for a random particle set, all with the mean weight
     // The negative term is needed for autocorrelations
     const DOUBLE prefac_density=weightsum*(weightsum - weightsum/ND)/(boxsize*boxsize*boxsize);
-    printf("theoryxi check\n");
     DOUBLE rlow = 0.0 ;
     //The first bin contains junk
     for(int i=0;i<nbins;i++) {
@@ -618,8 +617,6 @@ int countpairs_xi_DOUBLE(const int64_t ND, DOUBLE * restrict X, DOUBLE * restric
             if(rlow <= 0.){
                 weightrandom += weight_sqr_sum;  // Bins that start at 0 include self-pairs
             }
-            printf("%f", weightrandom);
-            printf("\n");
             results->xi[i] = (weight0/weightrandom-1.0);
         } else {
             results->xi[i] = -2.0;//can not occur ->signals invalid

@@ -208,15 +208,6 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 	// Invert the matrix m
 	gsl_linalg_LU_invert(qq_mat, perm, qq_mat_inv);
 
-    // Print inverse QQ matrix
-    // printf("qqinv:\n");
-    // for(int i=0;i<nprojbins;i++){
-    //     for (int j=0; j<nprojbins; j++){
-    //         printf(" %f", gsl_matrix_get(qq_mat_inv, i, j));
-    //     }
-    //     printf("\n");
-    // }
-
     // Take inner product of qqinv * numerator, get amplitude vector
     // TODO: DOUBLE check
     for (int i=0; i<nprojbins; i++){
@@ -244,7 +235,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     /* Read in projection file if necessary */
     if (projfn != NULL) {
         read_projfile_DOUBLE(projfn, projdata);
-    } 
+    }
     
     // will need to generalize, projbins won't always be related to sbins
     DOUBLE supp_sqr[nsbins];
@@ -282,10 +273,9 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
 
 int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     FILE *projfile;
-    printf("Reading in projection file, %s...\n", projfn);
     projfile=fopen(projfn,"r");
     if( !projfile ){
-        printf("ERROR opening [%s]\n",projfn);
+        fprintf(stderr, "ERROR opening [%s]\n",projfn);
         return EXIT_FAILURE;
     }
     int nres = 0;
@@ -307,12 +297,12 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
 
     /* Check nprojbins same as number of bases in file nbases for general_r function */
     if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
-        printf("The value of nprojbins (%ld) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
+        fprintf(stderr, "The value of nprojbins (%ld) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
         return EXIT_FAILURE;
     }
     projdata->nres = nres;
     projdata->nbases = nbases;
-    projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1));
+    projdata->projbases = my_malloc(sizeof(*(projdata->projbases)), nres*(nbases+1)); //+1 to account for r column
     if(projdata->projbases == NULL){
         free(projdata->projbases);
         return EXIT_FAILURE;
@@ -330,7 +320,6 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
         }
     }
     fclose(projfile);
-    printf("Read in %d by %d basis data\n", nres, nbases+1);
     return EXIT_SUCCESS;
 }
 
@@ -345,8 +334,6 @@ DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
 
 
 int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, char *projfn){
-
-    printf("qq analytic\n");
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
@@ -382,49 +369,27 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
     int_params->j = 0;
     int_params->is_qq = 0;
     
-    /* IF USING GSL INTEGRATION */
-    // maybe should switch to this if need to do sub-division of integration region anyway (TODO)
-    //gsl_function F1;
-    //F1.function = &proj_to_integrate_DOUBLE; 
-    //F1.params = &alpha;
-    //DOUBLE result, error;
-    //size_t limit = 100000;
-    //size_t nevals;
-    //gsl_integration_workspace *w = gsl_integration_workspace_alloc(100000);
-    
     DOUBLE prefac = 4*M_PI*nd*(nd-1)/volume;
     for (int i=0; i<nprojbins; i++){
         int_params->i = i;
         int_params->is_qq = 0;
-        //DOUBLE integral = 1.0;
         DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
-        //int status = gsl_integration_qag(&F1,
-        //             rmin, rmax,
-        //             1.0e-10, 1.0e-10, limit,
-        //             GSL_INTEG_GAUSS21,
-        //             w, &result, &error);
         rr[i] = integral*prefac;
         
         for (int j=0; j<nprojbins; j++){
             int_params->j = j;
             int_params->is_qq = 1;
-            //DOUBLE integral = 1.0;
             DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
-        //    gsl_integration_qags (&F1,
-        //                 rmin, rmax,
-        //                 0.0, 1e-7, 1000,
-        //                 GSL_INTEG_GAUSS15,
-        //                 w, &result, &error);
            qq[i*nprojbins+j] = integral*prefac;
         }
     }
-    //gsl_integration_workspace_free(w);
 
     if (projfn!=NULL) {
       free(projdata->projbases);
     }
     free(projdata);
     free(int_params);
+    //do i also need to free int_params's pointer to projdata?
 	return EXIT_SUCCESS;
 }
 
@@ -438,6 +403,7 @@ DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p) {
     DOUBLE integrand;
     DOUBLE u[pdata->nprojbins];
     proj_func(pdata, u, r, r_sqr);
+
     if (params->is_qq) { 
         int j = (params->j);
         integrand = r_sqr * u[i] * u[j]; 

@@ -1163,7 +1163,7 @@ def evaluate_xi(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, projfn=No
         if v is not None:
             kwargs[k] = v
 
-    print('Evaluating xi (Corrfunc/utils)')
+    print('Evaluating xi (Corrfunc/utils.py)')
     with sys_pipes():
         xi = eval_extn(nprojbins, a, nsvals, svals, nsbins, sbins, proj_type, **kwargs)
 
@@ -1223,7 +1223,14 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, pro
         if v is not None:
             kwargs[k] = v
 
-    print('Evaluating qq_analytic (Corrfunc/utils)')
+    print('Evaluating qq_analytic (Corrfunc/utils.py)')
+    # TODO: proper way/place to typecheck and cast?
+    rmin = float(rmin)
+    rmax = float(rmax) #breaks if passed as int
+    nd = int(nd)
+    volume = float(volume)
+    nprojbins = int(nprojbins)
+    nsbins = int(nsbins)
     with sys_pipes():
         extn_results = eval_extn(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, proj_type, **kwargs)
 

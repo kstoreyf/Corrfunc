@@ -390,6 +390,12 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
             free_cellarray_DOUBLE(lattice2, totncells);
         }
         free(supp);
+        /* Projection */
+        if (projfn != NULL) {
+            free(projdata->projbases);
+        }
+        free(projdata);
+        /* End Projection */
         return EXIT_FAILURE;
     }
 
@@ -418,6 +424,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
        (need_weightavg && all_weightavg == NULL)) {
 //       (need_proj && all_projpairs == NULL) ||
 //       (need_tensor && all_projpairs_tensor == NULL)) {
+    // I am not sure why i commented these out! but think i had a reason...
         free_cellarray_DOUBLE(lattice1, totncells);
         if(autocorr == 0) {
             free_cellarray_DOUBLE(lattice2, totncells);
@@ -436,6 +443,12 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
             matrix_free((void**) all_projpairs_tensor, numthreads);
         }
         free(supp);
+        /* Projection */
+        if (projfn != NULL) {
+            free(projdata->projbases);
+        }
+        free(projdata);
+        /* End Projection */
         return EXIT_FAILURE;
     }
     /* End Projection */
@@ -828,6 +841,16 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                 fprintf(stderr,"ERROR: In %s> Bin index = %d must lie within range [0, %"PRId64") (possible int overflow)\n",
                         __FUNCTION__, index, totnbins);
                 // need to free things here? see countpairs_s_mu_mocks_impl.c.src
+                //trying but idk!!
+                free_results_s_mu(results);
+                free(supp);
+                /* Projection */
+                if (projfn != NULL) {
+                  free(projdata->projbases);
+                }
+                free(projdata);
+                /* End Projection */
+
                 return EXIT_FAILURE;
             }
 
