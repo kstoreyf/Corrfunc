@@ -19,8 +19,8 @@ else:
 if os.name != 'posix':
     sys.exit("Sorry, Windows is not supported")
 
-base_url = "https://github.com/manodeep/Corrfunc"
-projectname = 'Corrfunc'
+base_url = "https://github.com/kstoreyf/Corrfunc"
+projectname = 'Corrfunc-continuous'
 
 # global variables
 version = ''
@@ -528,14 +528,14 @@ def setup_packages():
     metadata = dict(
             name=projectname,
             version=version,
-            author='Manodeep Sinha',
-            author_email='manodeep@gmail.com',
-            maintainer='Manodeep Sinha',
-            maintainer_email='manodeep@gmail.com',
+            author='Kate Storey-Fisher',
+            author_email='kstoreyfisher@gmail.com',
+            maintainer='Kate Storey-Fisher',
+            maintainer_email='kstoreyfisher@gmail.com',
             url=base_url,
             download_url='{0}/archive/{1}-{2}.tar.gz'.format(
                     base_url, projectname, version),
-            description='Blazing fast correlation functions on the CPU',
+            description='A continuous-function estimator for 2-point statistics',
             long_description=long_description,
             classifiers=classifiers,
             license='MIT',
