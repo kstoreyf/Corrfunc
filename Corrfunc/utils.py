@@ -9,6 +9,7 @@ import sys
 from os.path import exists as file_exists
 import wurlitzer
 from contextlib import contextmanager
+import psutil # added to check verbose issue
 
 __all__ = ['convert_3d_counts_to_cf', 'convert_rp_pi_counts_to_wp',
            'translate_isa_string_to_enum', 'return_file_with_rbins',
@@ -1043,12 +1044,14 @@ def sys_pipes():
     '''
     kwargs = {'stdout':None if sys.stdout.isatty() else sys.stdout,
               'stderr':None if sys.stderr.isatty() else sys.stderr }
+
     # Redirection might break for any number of reasons, like
     # stdout/err already being closed/redirected.  We probably
     # prefer not to crash in that case and instead continue
     # without any redirection.
     try:
         with wurlitzer.pipes(**kwargs):
+            p = psutil.Process()
             yield
     except:
         yield
@@ -1106,7 +1109,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     import numpy as np
     from Corrfunc.utils import sys_pipes
 
-    print('Computing amplitudes (Corrfunc/utils)')
+    print('Computing amplitudes (Corrfunc/utils.py)')
     with sys_pipes():
         amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
     return np.array(amps)
