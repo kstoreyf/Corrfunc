@@ -19,7 +19,7 @@ CLINK ?=
 ## Set the python command (supply the full path to python you want to
 ## use, if different from directly calling `python` on the shell,
 ## as can be the case if python is set via an alias)
-PYTHON:=python
+PYTHON:=/home/users/ksf293/miniconda3/bin/python3
 
 ## If you leave this empty, it will be filled out
 ## as /path/to/PYTHON/python-config
@@ -38,10 +38,10 @@ OPT += -DUSE_OMP
 
 
 ### You should NOT edit below this line
-DISTNAME:=Corrfunc
-MAJOR:=2
-MINOR:=3
-PATCHLEVEL:=2
+DISTNAME:=smoothcorrfunc
+MAJOR:=0
+MINOR:=0
+PATCHLEVEL:=0
 VERSION:=$(MAJOR).$(MINOR).$(PATCHLEVEL)
 ABI_COMPAT_VERSION:=$(MAJOR).0
 # Whenever conda needs to be checked again

@@ -18,7 +18,7 @@ INCL  := avx512_calls.h avx2_calls.h avx_calls.h sse_calls.h defs.h defs.h funct
      proj_functions_double.h proj_functions_float.h proj_functions.h.src \
 	 proj_functions_double.c proj_functions_float.c proj_functions.c.src \
 	 projection.c projection.h \
-	 weight_defs_double.h weight_defs_float.h weight_defs.h.src
+	 weight_defs_double.h weight_defs_float.h weight_defs.h.src \
      cell_pair_float.h cell_pair_double.h cell_pair.h.src
 
 all: $(TARGETOBJS) Makefile $(ROOT_DIR)/common.mk $(ROOT_DIR)/theory.options $(ROOT_DIR)/mocks.options
