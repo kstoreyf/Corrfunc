@@ -40,7 +40,7 @@ OPT += -DUSE_OMP
 DISTNAME:=smoothcorrfunc
 MAJOR:=0
 MINOR:=0
-PATCHLEVEL:=0.dev1
+PATCHLEVEL:=1
 VERSION:=$(MAJOR).$(MINOR).$(PATCHLEVEL)
 ABI_COMPAT_VERSION:=$(MAJOR).0
 # Whenever conda needs to be checked again
