@@ -21,6 +21,7 @@ if os.name != 'posix':
 
 base_url = "https://github.com/kstoreyf/Corrfunc"
 projectname = 'smoothcorrfunc'
+change_python_path = False
 
 # global variables
 version = ''
@@ -215,7 +216,6 @@ def requirements_check():
             "edit 'common.mk' and define PYTHON (typically "\
             "just python) "
         raise AssertionError(msg)
-
     this_python = sys.executable
     python_script = "'from __future__ import print_function; "\
                     "import sys; print(sys.executable)'"
@@ -228,13 +228,15 @@ def requirements_check():
               "through the shell. Please report your python setup and file "\
               "an installation issue at {1}.".format(make_python, base_url)
         raise RuntimeError(msg)
-
+    
     get_full_python = strip_line(get_full_python, os.linesep)
-    if get_full_python != this_python:
+    # Added change_python_path boolean check to get pip installation to work - KSF 
+    if get_full_python != this_python and change_python_path:
         msg = "Looks like python specified in Makefile = {0} is different "\
               "from the invoked python instance = {1}.\nReplacing PYTHON "\
               "in 'common.mk' and recompiling *all* files".format(
                   get_full_python, this_python)
+        print("LOOKHERE")
         print(msg)
         key = "PYTHON"
         replacement = '\n{0}:={1}'.format(key, this_python)
