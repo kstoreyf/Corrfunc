@@ -465,6 +465,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
         }
     }
     /* Projection */
+    const int nprojbins = extra->nprojbins;
     DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
     if(need_proj && need_tensor){
         for(int i=0;i<nprojbins;i++) {
