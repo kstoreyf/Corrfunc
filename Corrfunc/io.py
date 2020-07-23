@@ -10,6 +10,7 @@ from __future__ import (absolute_import, division, print_function,
 from os.path import dirname, abspath, splitext, exists as file_exists,\
     join as pjoin
 import numpy as np
+import struct
 try:
     import pandas as pd
 except ImportError:
@@ -241,6 +242,33 @@ def read_ascii_catalog(filename, return_dtype=None):
     return x, y, z
 
 
+def read_fortran_catalog(filename, return_dtype=None):
+
+    if return_dtype is None:
+        return_dtype = np.float
+
+    with open(filename, mode='rb') as file: # b is important -> binary
+        fileContent = file.read()
+
+        nleading = 3*8+1*4
+        header = struct.unpack("dddi", fileContent[:nleading])
+        Lx, Ly, Lz, N = header
+        data = struct.unpack("f" * ((len(fileContent) -nleading) // 4), fileContent[nleading:])
+
+    data = np.array(data, dtype=return_dtype)
+    data = data.reshape((-1, 6))
+    x, y, z, *_ = data.T
+
+    return x, y, z
+
+
+def read_lognormal_catalog(n='3e-4'):
+
+    filedir = '../theory/tests/data'
+    filepath = pjoin(dirname(abspath(__file__)), filedir, f'cat_L750_n{n}_lognormal_rlz0.bin')
+    return read_fortran_catalog(filepath)
+
+
 def read_catalog(filebase=None, return_dtype=np.float):
     """
     Reads a galaxy/randoms catalog and returns 3 XYZ arrays.
@@ -276,7 +304,8 @@ def read_catalog(filebase=None, return_dtype=np.float):
         allowed_exts = {'.ff': read_fastfood_catalog,
                         '.txt': read_ascii_catalog,
                         '.dat': read_ascii_catalog,
-                        '.csv': read_ascii_catalog
+                        '.csv': read_ascii_catalog,
+                        '.bin': read_fortran_catalog
                         }
 
         for e in allowed_exts:
@@ -291,7 +320,12 @@ def read_catalog(filebase=None, return_dtype=np.float):
         # Likely an user-supplied value
         if file_exists(filebase):
             extension = splitext(filebase)[1]
-            f = read_fastfood_catalog if '.ff' in extension else read_ascii_catalog
+            if '.ff' in extension:
+                f = read_fastfood_catalog
+            elif '.bin' in extension:
+                f = read_fortran_catalog
+            else:
+                f = read_ascii_catalog
 
             # default return is double
             x, y, z = f(filebase, return_dtype)
