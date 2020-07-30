@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Routines to read galaxy catalogs from disk.
+Updated with lognormal scripts!
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -17,7 +18,7 @@ except ImportError:
     pd = None
 
 
-__all__ = ('read_fastfood_catalog', 'read_ascii_catalog', 'read_catalog')
+__all__ = ('read_fastfood_catalog', 'read_ascii_catalog', 'read_catalog', 'read_fortran_catalog', 'read_lognormal_catalog')
 
 
 def read_fastfood_catalog(filename, return_dtype=None, need_header=None):
