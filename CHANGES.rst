@@ -10,9 +10,42 @@ New features
 - conda installable package
 - GPU version
 
+2.3.4 (2019-07-21)
+==================
+This is a bug-fix release and contains general code quality improvements.
 
-2.3.2 (Upcoming)
-================
+
+Enhancements
+------------
+- A new helper routine to find the combination of (RA, DEC) refinements that produces fastest runtime in ``DDtheta_mocks`` [#216]
+- Further testing via GitHub Actions [#220]
+- Added Ubuntu-Xenial on Travis [#222]
+
+Bug fixes
+----------
+- Fixing docs build failure on Travis [#215]
+- Fixing compile failure on missing 'CC' in environment [#226]
+
+
+2.3.3 (2019-02-03)
+==================
+This is a bug-fix release and contains general code quality improvements.
+
+
+Enhancements
+------------
+
+
+
+Bug fixes
+----------
+- Installation does not require python(3)-config anymore [#209, #211]
+- Better handling of terminal colours for unknown terminals [#209]
+- Prevent incorrect calculations with periodic boundaries for large ratios of (zmax, Rmax) to Lbox [#210]
+
+
+2.3.2 (2019-12-24)
+===================
 This is a release for bug-fixes and general code quality improvements. Travis
 now also tests for ``python3.7``.
 
@@ -116,11 +149,11 @@ New features
 Enhancements
 ------------
 
-- Ctrl-C now aborts even within python extensions (cleans up memory too!, `#12 <https://github.com/manodeep/Corrfunc/issues/12>`_)
+- Ctrl-C now aborts even within python extensions (cleans up memory too!, `see issue #12 <https://github.com/manodeep/Corrfunc/issues/12>`_)
 - Significantly improved installation for python
 
   - compiler can now be specified within ``python setup.py install CC=yourcompiler``
-    `#31<https://github.com/manodeep/Corrfunc/issues/31>`_
+    `(see issue #31) <https://github.com/manodeep/Corrfunc/issues/31>`_
   - python via an alias is now solved `#52 <https://github.com/manodeep/Corrfunc/issues/52>`_
 
 

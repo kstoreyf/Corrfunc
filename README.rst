@@ -24,9 +24,9 @@ Original Corrfunc README
 
 |logo|
 
-|Release| |PyPI| |MIT licensed| |Travis Build| |RTD| |Codacy| |Issues|
+|Release| |PyPI| |MIT licensed| |Travis Build| |GitHub CI| |RTD| |Codacy| |Issues|
 
-|ASCL| |Paper I| |Paper II|
+|Paper I| |Paper II|
 
 Description
 ===========
@@ -83,16 +83,16 @@ Preferred Install Method
     $ git clone https://github.com/manodeep/Corrfunc/
     $ make
     $ make install
-    $ python setup.py install (--user)
+    $ python -m pip install . (--user)
     $ make tests
 
 Assuming you have ``gcc`` in your ``PATH``, ``make`` and
 ``make install`` should compile and install the C libraries + python
 extensions within the source directory. If you would like to install the
 python C extensions in your environment, then
-``python setup.py install (--user)`` should be sufficient. If you are primarily
+``python -m pip install . (--user)`` should be sufficient. If you are primarily
 interested in the ``python`` interface, you can condense all of the steps
-by using ``python setup.py install CC=yourcompiler (--user)`` after ``git clone``.
+by using ``python -m pip install . CC=yourcompiler (--user)`` after ``git clone``.
 
 Compilation Notes
 ------------------
@@ -103,7 +103,7 @@ Compilation Notes
 
 - Default compiler on MAC is set to ``clang``, if you want to specify a different compiler, you will have to call ``make CC=yourcompiler``,  ``make install CC=yourcompiler``, ``make tests CC=yourcompiler`` etc. If you want to permanently change the default compiler, then please edit the `common.mk <common.mk>`__ file in the base directory.
 
-- If you are directly using ``python setup.py install CC=yourcompiler (--user)``, please run a ``make distclean`` beforehand (especially if switching compilers)
+- If you are directly using ``python -m pip install . CC=yourcompiler (--user)``, please run a ``make distclean`` beforehand (especially if switching compilers)
 
 
 Alternate Install Method
@@ -460,11 +460,13 @@ LICENSE
 Corrfunc is released under the MIT license. Basically, do what you want
 with the code, including using it in commercial application.
 
-Project URL
-===========
+Project URLs
+============
 
--  documentation (http://corrfunc.rtfd.io/)
--  version control (https://github.com/manodeep/Corrfunc)
+-  Documentation (http://corrfunc.rtfd.io/)
+-  Source Repository (https://github.com/manodeep/Corrfunc)
+-  Entry in the Astrophysical Source Code Library (ASCL) |ASCL|
+-  Zenodo Releases |Zenodo|
 
 .. |logo| image:: https://github.com/manodeep/Corrfunc/blob/master/corrfunc_logo.png
     :target: https://github.com/manodeep/Corrfunc
@@ -478,12 +480,12 @@ Project URL
 .. |MIT licensed| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://raw.githubusercontent.com/manodeep/Corrfunc/master/LICENSE
    :alt: MIT License
-.. |ASCL| image:: https://img.shields.io/badge/ascl-1703.003-blue.svg?colorB=262255
-   :target: http://ascl.net/1703.003
-   :alt: ascl:1703.003
 .. |Travis Build| image:: https://travis-ci.org/manodeep/Corrfunc.svg?branch=master
    :target: https://travis-ci.org/manodeep/Corrfunc
    :alt: Build Status
+.. |GitHub CI| image:: https://github.com/manodeep/Corrfunc/workflows/GitHub%20CI/badge.svg
+   :target: https://github.com/manodeep/Corrfunc/actions
+   :alt: GitHub Actions Status
 .. |Issues| image:: https://img.shields.io/github/issues/manodeep/Corrfunc.svg
    :target: https://github.com/manodeep/Corrfunc/issues
    :alt: Open Issues
@@ -498,7 +500,12 @@ Project URL
 .. |Paper I| image:: https://img.shields.io/badge/arXiv-1911.03545-%23B31B1B
    :target: https://arxiv.org/abs/1911.03545
    :alt: Corrfunc Paper I
-
 .. |Paper II| image:: https://img.shields.io/badge/arXiv-1911.08275-%23B31B1B
    :target: https://arxiv.org/abs/1911.08275
    :alt: Corrfunc Paper II
+
+.. |ASCL| image:: https://img.shields.io/badge/ascl-1703.003-blue.svg?colorB=262255
+   :target: http://ascl.net/1703.003
+   :alt: ascl:1703.003
+.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3634195.svg
+   :target: https://doi.org/10.5281/zenodo.3634195
