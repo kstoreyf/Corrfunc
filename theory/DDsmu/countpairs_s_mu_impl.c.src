@@ -139,7 +139,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                            const int numthreads,
                            const int autocorr,
                            const char *sbinfile,
-                           const DOUBLE max_mu,
+                           const double max_mu,
                            const int nmu_bins,
                            results_countpairs_s_mu *results,
                            struct config_options *options,
@@ -220,10 +220,13 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     /***********************
      *initializing the  bins
      ************************/
-    DOUBLE *supp;
+    double *supp_double;
     int nsbin;
-    DOUBLE smin,smax;
-    setup_bins(sbinfile,&smin,&smax,&nsbin,&supp);
+    double smin,smax;
+    setup_bins(sbinfile,&smin,&smax,&nsbin,&supp_double);
+    // added this cast because setup_bins wants a double but my proj functions want DOUBLE
+    DOUBLE *supp = (DOUBLE*) supp_double;
+
     if( ! (smin >= 0.0 && smax > 0.0 && smin < smax && nsbin > 0)) {
         fprintf(stderr,"Error: Could not setup with R bins correctly. (rmin = %lf, rmax = %lf, with nbins = %d). Expected non-zero rmin/rmax with rmax > rmin and nbins >=1 \n",
                 smin, smax, nsbin);
