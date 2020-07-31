@@ -139,7 +139,7 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
                            const int numthreads,
                            const int autocorr,
                            const char *sbinfile,
-                           const double max_mu,
+                           const DOUBLE max_mu,
                            const int nmu_bins,
                            results_countpairs_s_mu *results,
                            struct config_options *options,
@@ -220,9 +220,9 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     /***********************
      *initializing the  bins
      ************************/
-    double *supp;
+    DOUBLE *supp;
     int nsbin;
-    double smin,smax;
+    DOUBLE smin,smax;
     setup_bins(sbinfile,&smin,&smax,&nsbin,&supp);
     if( ! (smin >= 0.0 && smax > 0.0 && smin < smax && nsbin > 0)) {
         fprintf(stderr,"Error: Could not setup with R bins correctly. (rmin = %lf, rmax = %lf, with nbins = %d). Expected non-zero rmin/rmax with rmax > rmin and nbins >=1 \n",
@@ -817,9 +817,9 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     results->mu_max = max_mu;//NOTE max_mu which is double and not mu_max (which might be float)
     results->mu_min = ZERO;
     results->npairs = my_malloc(sizeof(uint64_t), totnbins);
-    results->supp   = my_malloc(sizeof(double)  , nsbin);
-    results->savg  = my_malloc(sizeof(double)  , totnbins);
-    results->weightavg  = my_calloc(sizeof(double)  , totnbins);
+    results->supp   = my_malloc(sizeof(DOUBLE)  , nsbin);
+    results->savg  = my_malloc(sizeof(DOUBLE)  , totnbins);
+    results->weightavg  = my_calloc(sizeof(DOUBLE)  , totnbins);
     /* Projection */
     results->projpairs = my_malloc(sizeof(*(results->npairs)), nprojbins);
     results->projpairs_tensor = my_malloc(sizeof(*(results->npairs)), nprojbins*nprojbins);
