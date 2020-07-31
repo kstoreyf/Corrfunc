@@ -371,8 +371,13 @@ class BuildExtSubclass(build_ext):
 
             full_name = '{0}.so'.format(pjoin(ext_dir, ext.name))
             full_build_name = '{0}'.format(self.get_ext_fullpath(ext.name))
+            #pkg_sourcedir = '{0}'.format(pjoin(ext_dir, '../../Corrfunc'))
             pkg_sourcedir = '{0}'.format(pjoin(ext_dir, '../../Corrfunc'))
             pkg_in_srcdir = '{0}/{1}.so'.format(pkg_sourcedir, ext.name)
+            print("check ext")
+            print(ext_dir)
+            print(pkg_sourcedir)
+            print(pkg_in_srcdir)
 
             shutil.copyfile(full_name, full_build_name)
 
@@ -493,9 +498,9 @@ def setup_packages():
     # and put in lib/ and include/
     # This step must run after ``make install``
     dirs_patterns = {'theory/tests/data': ['*.ff', '*.txt',
-                                              '*.txt.gz', '*.dat'],
+                                              '*.txt.gz', '*.dat', '*.bin'],
                      'mocks/tests/data': ['*.ff', '*.txt',
-                                             '*.txt.gz', '*.dat'],
+                                             '*.txt.gz', '*.dat', '*.bin'],
                      'theory/tests': ['Mr19*', 'bins*', 'cmass*'],
                      'mocks/tests': ['Mr19*', 'bins*', 'angular_bins*'],
                      'include': ['count*.h'],
@@ -549,7 +554,8 @@ def setup_packages():
                       'surveys', 'galaxies'],
             provides=[projectname],
             packages=find_packages(),
-            ext_package=projectname,
+            #ext_package=projectname,
+            ext_package='Corrfunc', # ???
             ext_modules=extensions,
             package_data={'': data_files},
             include_package_data=True,
