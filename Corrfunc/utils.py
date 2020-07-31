@@ -9,7 +9,6 @@ import sys
 from os.path import exists as file_exists
 import wurlitzer
 from contextlib import contextmanager
-import psutil # added to check verbose issue
 
 __all__ = ['convert_3d_counts_to_cf', 'convert_rp_pi_counts_to_wp',
            'translate_isa_string_to_enum', 'return_file_with_rbins',
@@ -1051,7 +1050,6 @@ def sys_pipes():
     # without any redirection.
     try:
         with wurlitzer.pipes(**kwargs):
-            p = psutil.Process()
             yield
     except:
         yield
