@@ -371,7 +371,6 @@ class BuildExtSubclass(build_ext):
 
             full_name = '{0}.so'.format(pjoin(ext_dir, ext.name))
             full_build_name = '{0}'.format(self.get_ext_fullpath(ext.name))
-            #pkg_sourcedir = '{0}'.format(pjoin(ext_dir, '../../Corrfunc'))
             pkg_sourcedir = '{0}'.format(pjoin(ext_dir, '../../Corrfunc'))
             pkg_in_srcdir = '{0}/{1}.so'.format(pkg_sourcedir, ext.name)
             print("check ext")
@@ -555,7 +554,7 @@ def setup_packages():
             provides=[projectname],
             packages=find_packages(),
             #ext_package=projectname,
-            ext_package='Corrfunc', # ???
+            ext_package='Corrfunc', #needs to be Corrfunc to properly pip install smoothcorrfunc
             ext_modules=extensions,
             package_data={'': data_files},
             include_package_data=True,
@@ -565,7 +564,8 @@ def setup_packages():
             install_requires=['numpy>={0}.{1}'.format(min_np_major,
                                                       min_np_minor),
                               'future',
-                              'wurlitzer'],
+                              'wurlitzer',
+                              'scipy'], #for bases functions in smoothcorrfunc
             python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
             zip_safe=False,
             cmdclass={'build_ext': BuildExtSubclass})

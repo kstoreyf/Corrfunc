@@ -10,9 +10,9 @@ recursive-include io                 *.c *.h Makefile
 recursive-include utils              *.c *.h *.c.src *.h.src Makefile
 
 recursive-include theory/tests       Mr19_* cmass* bins
-recursive-include theory/tests/data  *.ff
+recursive-include theory/tests/data  *.ff *.bin
 recursive-include mocks/tests        bins angular_bins Mr19*
-recursive-include mocks/tests/data   *.txt *.dat
+recursive-include mocks/tests/data   *.txt *.dat *.bin
 
 exclude theory/tests/data/random_Zspace.ff
 exclude mocks/tests/data/Mr19_randoms_northonly.rdcz.ff
