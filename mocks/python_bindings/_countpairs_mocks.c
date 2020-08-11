@@ -2572,7 +2572,8 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
 
     PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *sbins_obj=NULL;
 
-    int nprojbins, nsvals, nsbins;
+    int nprojbins, nsvals;
+    int nsbins = NULL;
     char *proj_method_str = NULL, *projfn = NULL;
 
     static char *kwlist[] = {
@@ -2580,21 +2581,21 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         "amps",
         "nsvals",
         "svals",
+        "proj_type",
         "nsbins",
         "sbins",
-        "proj_type",
         "projfn",
         NULL
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!iO!s|s", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!s|iO!s", kwlist,
                                        &nprojbins,
                                        &PyArray_Type,&amps_obj,
                                        &nsvals,
                                        &PyArray_Type,&svals_obj,
+                                       &proj_method_str,
                                        &nsbins,
                                        &PyArray_Type,&sbins_obj,
-                                       &proj_method_str,
                                        &projfn
                                        )
 
@@ -2661,7 +2662,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     for(int i=0;i<nsvals;i++){
         xi[i] = 0;
     }
-    evaluate_xi(nprojbins, amps, nsvals, svals, nsbins, sbins, xi, proj_method, element_size, projfn);
+    evaluate_xi(nprojbins, amps, nsvals, svals, xi, proj_method, element_size, nsbins, sbins, projfn);
 
     NPY_END_THREADS;
 
@@ -2697,7 +2698,8 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
 
     PyArrayObject *sbins_obj=NULL;
 
-    int nprojbins, nsbins, nd;
+    int nprojbins, nd;
+    int nsbins = NULL;
     double rmin, rmax, volume;
     char *proj_method_str = NULL, *projfn = NULL;
 
@@ -2707,20 +2709,20 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         "nd",
         "volume",
         "nprojbins",
+        "proj_type",
         "nsbins", 
         "sbins", 
-        "proj_type",
         "projfn",
         NULL
     };
 
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "ddidiiO!s|s", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "ddidis|iO!s", kwlist,
                                        &rmin,&rmax,
                                        &nd,&volume,
                                        &nprojbins,
+                                       &proj_method_str,
                                        &nsbins,
                                        &PyArray_Type,&sbins_obj,
-                                       &proj_method_str,
                                        &projfn
                                        )
 
@@ -2788,7 +2790,7 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         qq[i] = 0;
     }
 
-    qq_analytic(rmin, rmax, nd, volume, nprojbins, nsbins, sbins, rr, qq, proj_method, element_size, projfn);
+    qq_analytic(rmin, rmax, nd, volume, nprojbins, rr, qq, proj_method, element_size, nsbins, sbins, projfn);
 
     NPY_END_THREADS;
 

@@ -46,15 +46,15 @@ typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE, D
 // Projection functions
 //////////////////////////////////
 
-void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
+void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
 
-void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
+void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
 
-void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
+void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
 
-void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
 
-void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
+void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s);
 
 //////////////////////////////////
 // Utility functions
@@ -66,11 +66,11 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps);
 
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
-            int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn);
+            DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn);
 
 int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata);
 
-int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, char *projfn);
+int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn);
 
 DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr);
 

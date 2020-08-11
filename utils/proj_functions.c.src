@@ -40,16 +40,16 @@
 //////////////////////////////////
 
 //
-void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) s;//to suppress the unused variable warning
 
     // nsbins is number of bins and not edges
     // supp_sqr has length nsbins+1, number of edges
-    for(int p=proj->nsbins-1; p>=0; p--){
+    for(int p=projdata->nsbins-1; p>=0; p--){
         u[p] = 0;
     }
-    for(int p=proj->nsbins-1; p>=0; p--){
-        if (sqr_s >= proj->supp_sqr[p] && sqr_s < proj->supp_sqr[p+1]){
+    for(int p=projdata->nsbins-1; p>=0; p--){
+        if (sqr_s >= projdata->supp_sqr[p] && sqr_s < projdata->supp_sqr[p+1]){
             u[p] = 1.0;
             break;
         }
@@ -57,14 +57,14 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE s
 }
 
 
-void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) sqr_s;//to suppress the unused variable warning
     // Assumes nsbins = nprojbins
-    for(int p=0;p<proj->nprojbins;p++){
+    for(int p=0;p<projdata->nprojbins;p++){
         // peaks are bin averages, for now - need to take square roots
-        DOUBLE peak = 0.5*(proj->supp[p] + proj->supp[p+1]);
+        DOUBLE peak = 0.5*(projdata->supp[p] + projdata->supp[p+1]);
         // assumes bins in ascending order
-        DOUBLE binwidth = proj->supp[p+1] - proj->supp[p];
+        DOUBLE binwidth = projdata->supp[p+1] - projdata->supp[p];
         DOUBLE val = 1.0 - (1.0/binwidth) * FABS(s - peak);
         if (val < 0) {
             val = 0;
@@ -74,12 +74,12 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
 }
 
 
-void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) sqr_s;//to suppress the unused variable warning
     DOUBLE sigma = 3.0;
     DOUBLE amp = 1.0/(SQRT(2.0*M_PI)*sigma);
-    for(int p=0;p<proj->nprojbins;p++){
-        DOUBLE rp = proj->supp[p];
+    for(int p=0;p<projdata->nprojbins;p++){
+        DOUBLE rp = projdata->supp[p];
         if (FABS(rp-s)<4.0*sigma) {
             DOUBLE gaussian = amp * exp( -0.5*( ((rp-s)/sigma)*((rp-s)/sigma)) );
             u[p] = gaussian;
@@ -91,9 +91,9 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s,
 }
 
 
-void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) sqr_s;//to suppress the unused variable warning
-    (void) proj;
+    (void) projdata;
 
     double gamma=2.7, s0=15.0;
     double powlaw = POW(s/s0, -gamma);
@@ -108,15 +108,15 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE
 }
 
 
-void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
     (void) sqr_s;//to suppress the unused variable warning
-    int nbases = proj->nbases;
-    int nres = proj->nres;
+    int nbases = projdata->nbases;
+    int nres = projdata->nres;
     DOUBLE sval;
     // TODO: somewhere check that r is in ascending order !! IMPORTANT !!
 
     /* if not in r range, return 0s */
-    if (s<proj->projbases[0] || s>=proj->projbases[(nres-1)*(nbases+1)]){
+    if (s<projdata->projbases[0] || s>=projdata->projbases[(nres-1)*(nbases+1)]){
       for (int j=0; j<nbases; j++){
         u[j] = 0;
       }
@@ -130,21 +130,21 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *proj, DOUBLE *u, DOUBLE s, DOUBL
     // nres-2 because nres-1 is max value, which would be caught by above case
     for (int i=nres-2; i>=0; i--){
       // get first colum of basis file, radii
-      sval = proj->projbases[i*(nbases+1)];
+      sval = projdata->projbases[i*(nbases+1)];
       // >= because looping backward
       if (s >= sval) {
         i0 = i; //index before insertion location
         i1 = i+1; //index after insertion location
         s0 = sval;
-        s1 = proj->projbases[i1*(nbases+1)];
+        s1 = projdata->projbases[i1*(nbases+1)];
         break;
       } 
     }
 
     for (int j=0; j<nbases; j++){
         // +1's because 0th column is sarr 
-        y0 = proj->projbases[i0*(nbases+1)+(j+1)];
-        y1 = proj->projbases[i1*(nbases+1)+(j+1)];
+        y0 = projdata->projbases[i0*(nbases+1)+(j+1)];
+        y1 = projdata->projbases[i1*(nbases+1)+(j+1)];
         u[j] = y0 + (s - s0)*(y1 - y0)/(s1 - s0); //linear interp
     }
 }
@@ -221,8 +221,8 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 }
 
 
-int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
-                      int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, char *projfn){
+int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
+                      int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, int nsvals, DOUBLE *svals, char *projfn){
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
@@ -231,25 +231,24 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
     }
     projdata->nprojbins = nprojbins;
 	projdata->proj_method = proj_method;
-
+    proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
     /* Read in projection file if necessary */
     if (projfn != NULL) {
         read_projfile_DOUBLE(projfn, projdata);
     }
     
-    // will need to generalize, projbins won't always be related to sbins
-    DOUBLE supp_sqr[nsbins];
-    //plus 1 because one more edge than number of bins
-    for (int i=0; i<nsbins+1; i++){
-        supp_sqr[i] = sbins[i]*sbins[i];
-    }
-
-    proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
-
-    projdata->nsbins = nsbins;
-    projdata->supp = sbins;
-    projdata->supp_sqr = supp_sqr;
-    // ns: number of s values at which to evaluate xi
+    // If nsbins given, add to projdata
+    if (nsbins != NULL) && (sbins !=NULL){
+        projdata->nsbins = nsbins;
+        projdata->supp = sbins;
+        DOUBLE supp_sqr[nsbins];
+        //plus 1 because one more edge than number of bins
+        for (int i=0; i<nsbins+1; i++){
+            supp_sqr[i] = sbins[i]*sbins[i];
+        }
+        projdata->supp_sqr = supp_sqr;
+    
+    // nsvals: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
         //get basis function u for given value of s
         DOUBLE u[nprojbins];
@@ -333,7 +332,7 @@ DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
 }
 
 
-int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, int nsbins, DOUBLE *sbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, char *projfn){
+int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
@@ -348,16 +347,17 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
         read_projfile_DOUBLE(projfn, projdata);
     } 
     
-    // will need to generalize, projbins won't always be related to sbins
-    DOUBLE supp_sqr[nsbins];
-    //plus 1 because one more edge than number of bins
-    for (int i=0; i<nsbins+1; i++){
-        supp_sqr[i] = sbins[i]*sbins[i];
+    // If nsbins given, add to projdata
+    if (nsbins != NULL) && (sbins !=NULL){
+        projdata->nsbins = nsbins;
+        projdata->supp = sbins;
+        DOUBLE supp_sqr[nsbins];
+        //plus 1 because one more edge than number of bins
+        for (int i=0; i<nsbins+1; i++){
+            supp_sqr[i] = sbins[i]*sbins[i];
+        }
+        projdata->supp_sqr = supp_sqr;
     }
-
-    projdata->nsbins = nsbins;
-    projdata->supp = sbins;
-    projdata->supp_sqr = supp_sqr;
 
     integration_params_DOUBLE *int_params = malloc(sizeof(integration_params_DOUBLE));
     if(int_params == NULL){
