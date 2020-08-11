@@ -34,7 +34,7 @@ def get_kvs(rmin, rmax, nbins, order):
     return kvs
 
 def get_bases(rmin, rmax, nbins, order=None, ncont=1000):
-    if not order:
+    if order is None:
         print("No order given, defaulting to 1 (linear)")
     
     if nbins<order*2:
