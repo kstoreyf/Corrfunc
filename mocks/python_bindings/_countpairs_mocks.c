@@ -2570,10 +2570,10 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     PyObject *module = self;
 #endif
 
-    PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *sbins_obj=NULL;
+    PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *rbins_obj=NULL;
 
     int nprojbins, nsvals;
-    int nsbins = NULL;
+    int nrbins = NULL;
     char *proj_method_str = NULL, *projfn = NULL;
 
     static char *kwlist[] = {
@@ -2582,8 +2582,8 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         "nsvals",
         "svals",
         "proj_type",
-        "nsbins",
-        "sbins",
+        "nrbins",
+        "rbins",
         "projfn",
         NULL
     };
@@ -2594,8 +2594,8 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
                                        &nsvals,
                                        &PyArray_Type,&svals_obj,
                                        &proj_method_str,
-                                       &nsbins,
-                                       &PyArray_Type,&sbins_obj,
+                                       &nrbins,
+                                       &PyArray_Type,&rbins_obj,
                                        &projfn
                                        )
 
@@ -2632,15 +2632,16 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
 
      /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
-    PyObject *amps_array = NULL, *svals_array = NULL, *sbins_array = NULL;
+    PyObject *amps_array = NULL, *svals_array = NULL, *rbins_array = NULL;
     amps_array = PyArray_FromArray(amps_obj, NOTYPE_DESCR, requirements);
     svals_array = PyArray_FromArray(svals_obj, NOTYPE_DESCR, requirements);
-    sbins_array = PyArray_FromArray(sbins_obj, NOTYPE_DESCR, requirements);
 
-    if (amps_array == NULL || svals_array == NULL || sbins_array == NULL) {
+    /* Get pointers to the data as C-types. */
+    void *amps=NULL, *svals=NULL, *rbins=NULL;
+
+    if (amps_array == NULL || svals_array == NULL) {
         Py_XDECREF(amps_array);
         Py_XDECREF(svals_array);
-        Py_XDECREF(sbins_array);
         char msg[1024];
         snprintf(msg, 1024, "TypeError: In %s: Could not convert input to arrays of allowed floating point types (doubles or floats). Are you passing numpy arrays?",
                  __FUNCTION__);
@@ -2648,12 +2649,16 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         Py_RETURN_NONE;
     }
 
-    /* Get pointers to the data as C-types. */
-    void *amps=NULL, *svals=NULL, *sbins=NULL;
-
     amps    = PyArray_DATA((PyArrayObject *) amps_array);
     svals   = PyArray_DATA((PyArrayObject *) svals_array);
-    sbins   = PyArray_DATA((PyArrayObject *) sbins_array);
+    
+    if (rbins_obj != NULL){
+        rbins_array = PyArray_FromArray(rbins_obj, NOTYPE_DESCR, requirements);
+        if (rbins_array == NULL){
+            Py_XDECREF(rbins_array);
+        }
+        rbins   = PyArray_DATA((PyArrayObject *) rbins_array);
+    }
 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
@@ -2662,12 +2667,15 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     for(int i=0;i<nsvals;i++){
         xi[i] = 0;
     }
-    evaluate_xi(nprojbins, amps, nsvals, svals, xi, proj_method, element_size, nsbins, sbins, projfn);
+    evaluate_xi(nprojbins, amps, nsvals, svals, xi, proj_method, element_size, nrbins, rbins, projfn);
 
     NPY_END_THREADS;
 
     /* Clean up. */
-    Py_DECREF(amps_array);Py_DECREF(svals_array);Py_DECREF(sbins_array);
+    Py_DECREF(amps_array);Py_DECREF(svals_array);
+    if (rbins_obj != NULL){
+        Py_DECREF(rbins_array);
+    }
 
     /* Build the output list */
     PyObject *xiret = PyList_New(0);//create an empty list
@@ -2696,10 +2704,10 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
     PyObject *module = self;
 #endif
 
-    PyArrayObject *sbins_obj=NULL;
+    PyArrayObject *rbins_obj=NULL;
 
     int nprojbins, nd;
-    int nsbins = NULL;
+    int nrbins = NULL;
     double rmin, rmax, volume;
     char *proj_method_str = NULL, *projfn = NULL;
 
@@ -2710,8 +2718,8 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         "volume",
         "nprojbins",
         "proj_type",
-        "nsbins", 
-        "sbins", 
+        "nrbins", 
+        "rbins", 
         "projfn",
         NULL
     };
@@ -2721,8 +2729,8 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
                                        &nd,&volume,
                                        &nprojbins,
                                        &proj_method_str,
-                                       &nsbins,
-                                       &PyArray_Type,&sbins_obj,
+                                       &nrbins,
+                                       &PyArray_Type,&rbins_obj,
                                        &projfn
                                        )
 
@@ -2756,26 +2764,37 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
 
     size_t element_size;
     // not sure which to check here
-    check_datatype(sbins_obj, &element_size);
-
-     /* Interpret the input objects as numpy arrays. */
-    const int requirements = NPY_ARRAY_IN_ARRAY;
-    PyObject *sbins_array = NULL;
-    sbins_array = PyArray_FromArray(sbins_obj, NOTYPE_DESCR, requirements);
-
-    if (sbins_array == NULL) {
-        Py_XDECREF(sbins_array);
-        char msg[1024];
-        snprintf(msg, 1024, "TypeError: In %s: Could not convert input to arrays of allowed floating point types (doubles or floats). Are you passing numpy arrays?",
-                 __FUNCTION__);
-        countpairs_mocks_error_out(module, msg);
-        Py_RETURN_NONE;
-    }
-
     /* Get pointers to the data as C-types. */
-    void *sbins=NULL;
+    void *rbins=NULL;
+    PyObject *rbins_array = NULL;
+    if (rbins_obj != NULL) {
+        check_datatype(rbins_obj, &element_size);
 
-    sbins = PyArray_DATA((PyArrayObject *) sbins_array);
+        /* Interpret the input objects as numpy arrays. */
+        const int requirements = NPY_ARRAY_IN_ARRAY;
+        
+        rbins_array = PyArray_FromArray(rbins_obj, NOTYPE_DESCR, requirements);
+        if (rbins_array == NULL) {
+            Py_XDECREF(rbins_array);
+            char msg[1024];
+            snprintf(msg, 1024, "TypeError: In %s: Could not convert input to arrays of allowed floating point types (doubles or floats). Are you passing numpy arrays?",
+                    __FUNCTION__);
+            countpairs_mocks_error_out(module, msg);
+            Py_RETURN_NONE;
+        }
+
+        rbins = PyArray_DATA((PyArrayObject *) rbins_array);
+    }
+    else {
+        rbins = NULL;
+        //const int arr_type = PyObj_TYPE(rmax);
+        // if(type(rmax) == NPY_FLOAT) {
+        // element_size = sizeof(float);
+        // } else {
+        // element_size = sizeof(double);
+        // }
+        element_size = sizeof(double);
+    }
 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
@@ -2790,13 +2809,14 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         qq[i] = 0;
     }
 
-    qq_analytic(rmin, rmax, nd, volume, nprojbins, rr, qq, proj_method, element_size, nsbins, sbins, projfn);
+    qq_analytic(rmin, rmax, nd, volume, nprojbins, rr, qq, proj_method, element_size, nrbins, rbins, projfn);
 
     NPY_END_THREADS;
 
     /* Clean up. */
-    Py_DECREF(sbins_array);
-
+    if (rbins_obj != NULL){
+        Py_DECREF(rbins_array);
+    }
     /* Build the output list */
     PyObject *rrret = PyList_New(0);//create an empty list
     PyObject *qqret = PyList_New(0);//create an empty list

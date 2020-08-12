@@ -1157,9 +1157,9 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
     nprojbins = len(amps)
     nrvals = len(rvals)
     if rbins is not None:
-        nrbins = len(rbins)
+        nrbins = len(rbins)-1
     else:
-        nrbins = None
+        nrbins = -1
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
     for k in ['projfn', 'nrbins', 'rbins']:
@@ -1233,7 +1233,10 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn
     nd = int(nd)
     volume = float(volume)
     nprojbins = int(nprojbins)
-    nrbins = len(rbins)
+    if rbins is not None:
+        nrbins = len(rbins)-1
+    else:
+        nrbins = -1
 
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}

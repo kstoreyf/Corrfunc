@@ -16,9 +16,9 @@ extern "C" {
 int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
             void *dd, void *dr, void *rd, void *rr, void *qq, void *amps, size_t element_size);
 
-int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals, int nsbins, 
-          void *sbins, void *xi, proj_method_t proj_method, size_t element_size, char *projfn);
+int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals, void *xi, proj_method_t proj_method, size_t element_size, int nsbins, 
+          void *sbins, char *projfn);
 
 int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
-        int nsbins, void *sbins, void *rr, void *qq, proj_method_t proj_method, 
-        size_t element_size, char *projfn);
+        void *rr, void *qq, proj_method_t proj_method, 
+        size_t element_size, int nsbins, void *sbins,  char *projfn);

@@ -238,15 +238,14 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
     }
     
     // If nsbins given, add to projdata
-    if (nsbins != NULL) && (sbins !=NULL){
-        projdata->nsbins = nsbins;
-        projdata->supp = sbins;
-        DOUBLE supp_sqr[nsbins];
-        //plus 1 because one more edge than number of bins
-        for (int i=0; i<nsbins+1; i++){
-            supp_sqr[i] = sbins[i]*sbins[i];
-        }
-        projdata->supp_sqr = supp_sqr;
+    projdata->nsbins = nsbins;
+    projdata->supp = sbins;
+    DOUBLE supp_sqr[nsbins];
+    //plus 1 because one more edge than number of bins
+    for (int i=0; i<nsbins+1; i++){
+        supp_sqr[i] = sbins[i]*sbins[i];
+    }
+    projdata->supp_sqr = supp_sqr;
     
     // nsvals: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
@@ -333,7 +332,6 @@ DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
 
 
 int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
-
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
         free(projdata);
@@ -346,25 +344,23 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
     if (projfn != NULL) {
         read_projfile_DOUBLE(projfn, projdata);
     } 
-    
-    // If nsbins given, add to projdata
-    if (nsbins != NULL) && (sbins !=NULL){
-        projdata->nsbins = nsbins;
-        projdata->supp = sbins;
-        DOUBLE supp_sqr[nsbins];
-        //plus 1 because one more edge than number of bins
-        for (int i=0; i<nsbins+1; i++){
-            supp_sqr[i] = sbins[i]*sbins[i];
-        }
-        projdata->supp_sqr = supp_sqr;
-    }
-
     integration_params_DOUBLE *int_params = malloc(sizeof(integration_params_DOUBLE));
     if(int_params == NULL){
         free(int_params);
         return EXIT_FAILURE;
     }
+    projdata->nsbins = nsbins;
+    projdata->supp = sbins;
+    DOUBLE supp_sqr[nsbins];
+    //plus 1 because one more edge than number of bins
+    //if nsbins=-1, means none needed; this loop just won't run
+    for (int i=0; i<nsbins+1; i++){
+        supp_sqr[i] = sbins[i]*sbins[i];
+    }
+    projdata->supp_sqr = supp_sqr;
+
     int_params->projdata = projdata;
+
     int_params->i = 0;
     int_params->j = 0;
     int_params->is_qq = 0;
@@ -375,7 +371,6 @@ int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npro
         int_params->is_qq = 0;
         DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
         rr[i] = integral*prefac;
-        
         for (int j=0; j<nprojbins; j++){
             int_params->j = j;
             int_params->is_qq = 1;
@@ -403,7 +398,6 @@ DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p) {
     DOUBLE integrand;
     DOUBLE u[pdata->nprojbins];
     proj_func(pdata, u, r, r_sqr);
-
     if (params->is_qq) { 
         int j = (params->j);
         integrand = r_sqr * u[i] * u[j]; 
