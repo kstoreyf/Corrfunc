@@ -1154,6 +1154,7 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
         msg = "Cannot pass a null project type to evaluate_xi"
         raise ValueError(msg)
 
+    # Will need these in C code, easier to calculate here and pass
     nprojbins = len(amps)
     nrvals = len(rvals)
     if rbins is not None:

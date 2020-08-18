@@ -48,9 +48,12 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUB
     for(int p=projdata->nsbins-1; p>=0; p--){
         u[p] = 0;
     }
+    //printf("top %f %f %f\n", sqr_s, projdata->supp_sqr[0], projdata->supp_sqr[1]);
     for(int p=projdata->nsbins-1; p>=0; p--){
+        
         if (sqr_s >= projdata->supp_sqr[p] && sqr_s < projdata->supp_sqr[p+1]){
             u[p] = 1.0;
+            //printf("u[p] %f\n", u[p]);
             break;
         }
     }
@@ -222,7 +225,7 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
 
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
-                      int nsbins, DOUBLE *sbins, DOUBLE *xi, proj_method_t proj_method, int nsvals, DOUBLE *svals, char *projfn){
+                      int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
@@ -246,15 +249,13 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
         supp_sqr[i] = sbins[i]*sbins[i];
     }
     projdata->supp_sqr = supp_sqr;
-    
     // nsvals: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
         //get basis function u for given value of s
         DOUBLE u[nprojbins];
         DOUBLE sqr_s = svals[i]*svals[i];
-
         proj_func(projdata, u, svals[i], sqr_s);
-		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length ns_toeval) */
+		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length nsvals) */
         DOUBLE xival = 0;
         for (int j=0; j<nprojbins; j++){
             xival += amps[j]*u[j];
