@@ -1,8 +1,6 @@
 import numpy as np
 from nbodykit.lab import cosmology
 
-from utils import partial_derivative
-
 
 def write_bases(rmin, rmax, saveto, ncont=300, **kwargs):
     bases = get_bases(rmin, rmax, ncont=ncont, **kwargs)
@@ -25,8 +23,6 @@ def get_bases(rmin, rmax, ncont=300, params=None, cosmo_base=None, redshift=0):
     xi_base = CF(rcont)
     bases[1,:] = xi_base
 
-    cosmo_derivs = []
-    ds = []
     for i in range(len(params)):
         param = params[i]
         cosmo_dict = dict(cosmo_base)
