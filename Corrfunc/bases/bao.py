@@ -18,7 +18,7 @@ def bao_bases(s, cf_func, dalpha, alpha_model):
     cf = cf_func(s, alpha_model=alpha_model)
     b4 = cf
 
-    alpha = dalpha/alpha_model + 1
+    alpha = dalpha/alpha_model + 13
     #dalpha = alpha_model*alpha - alpha_model
     cf_dalpha = cf_func(alpha*s, alpha_model=alpha_model)
     dcf_dalpha = partial_derivative(cf, cf_dalpha, dalpha)

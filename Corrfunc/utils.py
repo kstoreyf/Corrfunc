@@ -1056,45 +1056,47 @@ def sys_pipes():
 
 
 def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
+    #TODO: make second dataset parameters optional
+
     '''
-    Evaluate the correlation function for the given amplitudes and s values.
+    Compute the amplitude vector for the continuous correlation function from the component vectors (a.k.a. pair counts in a given basis).
 
     Parameters
     ----------
     nprojbins : int
-       number of bins for projection
+       Number of basis functions
 
     nd1 : int
-       number of particles in data1
+       Number of particles in data catalog 1
 
     nd2 : int
-       number of particles in data2
+       Number of particles in data catalog 2
 
     nr1 : int
-       number of particles in random1
+       Number of particles in random1
 
     nr2 : int
-       number of particles in random2
+       Number of particles in random2
 
     dd: array-like, double
-       projection vector for data-data cross-correlation
+       Component vector for data-data cross-correlation
 
     dr: array-like, double
-       projection vector for data-random cross-correlation
+       Component vector for data-random cross-correlation
 
     rd: array-like, double
-       projection vector for random-data cross-correlation
+       Component vector for random-data cross-correlation
 
     rr: array-like, double
-       projection vector for random-random cross-correlation
+       Component vector for random-random cross-correlation
 
     qq: array-like, double
-       projection tensor for random-random cross-correlation
+       Component tensor for random-random cross-correlation
 
     Returns
     -------
     amps: array-like, double
-        array of amplitude values, with length nprojbins
+        Vector of amplitudes, with length nprojbins
 
     '''
     try:
@@ -1115,29 +1117,29 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
 
 def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
     '''
-    Evaluate the correlation function for the given amplitudes and s values.
+    Evaluate the correlation function for the given amplitudes and separation values.
 
     Parameters
     ----------
     amps : array-like, double
-       array of amplitudes produced by compute_amps
+       Vector of amplitudes, e.g. that returned by compute_amps
 
     rvals : array-like, double
-       r (separation) values at which to evaluate xi
+       Array of radial separation values at which to evaluate the correlation function
 
     proj_type : string
-       projection method to use
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
 
     rbins : array-like, double, default=None
-        bin edges for tophat or piecewise bases
+        Bin edges for tophat or piecewise bases (or custom basis)
 
     projfn : string, default=None
-       filename of projection file if necessary
+       Filename of projection file; necessary for proj_type='generalr'
 
     Returns
     -------
     xi: array-like, double
-        array of xi values, same shape as svals
+        Vector of xi values, same shape as rvals
 
     '''
     try:
@@ -1178,40 +1180,38 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
 # may not need nsbins and sbins
 def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn=None):
     '''
-    Evaluate the correlation function for the given amplitudes and s values.
-
-    # TODO: update docstring
+    Compute the QQ tensor analytically for a periodic box, for the given set of basis functions.
 
     Parameters
     ----------
     rmin : double
-        minimum r-value for integration 
+        Minimum r-value for integration 
 
     rmax : double
-        maximum r-value for integration 
+        Maximum r-value for integration 
 
     nd : int
-        number of data points
+        Number of points in data catalog
 
     volume : double
-        volume of data cube
+        Volume of data cube, in the same units as the r-values (cubed)
     
     nprojbins : int
-       number of bins for projection
+       Number of basis functions
 
     proj_type : string
-       projection method to use
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
 
     rbins : array-like, double, default=None
-       rbin edges for tophat or piecewise projections
+       Edges of r-bins for tophat or piecewise projections
 
     projfn : string, default=None
-       filename of projection file if necessary
+       Filename of projection file if necessary
 
     Returns
     -------
     qq: array-like, double
-        array of qq values, with length nprojbins
+        Tensor of QQ values, with size (nprojbins, nprojbins) 
 
     '''
     try:

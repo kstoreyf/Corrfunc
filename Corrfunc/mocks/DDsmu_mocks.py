@@ -222,6 +222,15 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
     weight_type: string, optional (default None)
         The type of weighting to apply.  One of ["pair_product", None].
 
+    proj_type : string (default None)
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
+
+    nprojbins : int (default None)
+       Number of basis functions; necessary if projection method is defined
+
+    projfn : string (default None)
+       Filename of projection file; necessary for proj_type='generalr'
+
     Returns
     --------
 
@@ -238,6 +247,12 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
     api_time: float, optional
         Only returned if ``c_api_timer`` is set.  ``api_time`` measures only
         the time spent within the C library and ignores all python overhead.
+
+    proj : array-like, double, optional
+        Only returned if proj_type is not None. An array of length nprojbins of the computed component values (e.g. pair counts for the tophat basis)
+
+    projt : array-like, double, optional
+        Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length nprojbins*nprojbins, with the computed component values (e.g. pair counts for the tophat basis)
     """
     try:
         from Corrfunc._countpairs_mocks import countpairs_s_mu_mocks as\
