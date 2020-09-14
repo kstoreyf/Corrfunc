@@ -6,12 +6,11 @@ Smoothcorrfunc
 Introduction
 ************
 
-Smoothcorrfunc is a generalized estimator of the two-point correlation function for cosmology. [short description]
+Smoothcorrfunc is a generalized estimator of the two-point correlation function (2pcf) for cosmology. The 2pcf is the most important statistic for the analysis of large-scale structure; it measures the strength of clustering (e.g. of galaxies) as a function of separation. Smoothcorrfunc replaces the standard binning in separation with a projection of galaxy pair counts onto any set of basis functions. The choice of basis functions can preserve more information for improved bias and variance properties, include other galaxy information, and be specific to the science use case.
 
-The source code is publicly available at https://github.com/kstoreyf/Corrfunc.
+The source code is publicly available at https://github.com/kstoreyf/Corrfunc. The paper is forthcoming.
 
-This implementation is built on top of the Corrfunc_ package [cite]. As such, all of the Corrfunc functionality is accessible through Smoothcorrfunc. Here we only document the new and updated functionality of Smoothcorrfunc; for full Corrfunc usage, see https://corrfunc.readthedocs.io.
-
+This implementation of the Smoothcorrfunc estimator is built on top of the Corrfunc_ package [cite]. As such, all of the Corrfunc functionality is accessible through Smoothcorrfunc. Here we only document the new and updated functionality of Smoothcorrfunc; for full Corrfunc usage, see https://corrfunc.readthedocs.io.
 
 .. _Corrfunc: https://github.com/kstoreyf/Corrfunc
 
@@ -23,7 +22,7 @@ Basic Usage
 
 Here we demonstrate the basic usage of the estimator by computing a typical correlation function with tophat bins, but in a continuous basis.
 
-Load in a data catalog and generate a random catalog::
+Load in a data catalog (in a periodic cube) and generate a random catalog::
 
     boxsize = 750.0
     x, y, z = read_lognormal_catalog(n='3e-4')
@@ -68,6 +67,11 @@ From the component vectors, compute the amplitudes, and evaluate the correlation
 Demo notebooks
 **************
 
+.. toctree::
+   :maxdepth: 1
+
+   example_theory.nblink
+
 
 *************
 API Reference
@@ -80,14 +84,12 @@ API Reference
    api/smoothmodules
     
 
-
 *********************
 License and Credits
 *********************
 
-.. .. toctree::
-..    :maxdepth: 1
+.. toctree::
+   :maxdepth: 1
 
-..    development/contributors
-..    development/citing_corrfunc
+   development/smoothdev
 
