@@ -1,0 +1,741 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corrfunc.mocks.DDtheta_mocks &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../Corrfunc.html" accesskey="U">Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc.mocks.DDtheta_mocks</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Corrfunc.mocks.DDtheta_mocks</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python wrapper around the C extension for the angular correlation function</span>
+<span class="sd">:math:`\\omega(\\theta)`. Corresponding C routines are in</span>
+<span class="sd">``mocks/DDtheta_mocks/``, while the python interface is</span>
+<span class="sd">:py:mod:`Corrfunc.mocks.DDtheta_mocks`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Manodeep Sinha&#39;</span><span class="p">,</span> <span class="s1">&#39;Kris Akira Stern&#39;</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;DDtheta_mocks&#39;</span><span class="p">,</span> <span class="s1">&#39;find_fastest_DDtheta_mocks_bin_refs&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DDtheta_mocks"><a class="viewcode-back" href="../../../api/Corrfunc.mocks.html#Corrfunc.mocks.DDtheta_mocks">[docs]</a><span class="k">def</span> <span class="nf">DDtheta_mocks</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">binfile</span><span class="p">,</span>
+                  <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">weights1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">RA2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">DEC2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">link_in_dec</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_in_ra</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_thetaavg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">fast_acos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ra_refine_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">dec_refine_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_cells_per_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                  <span class="n">copy_particles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_min_sep_opt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">c_api_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">isa</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;fastest&#39;</span><span class="p">,</span> <span class="n">weight_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to compute the angular correlation function for points on</span>
+<span class="sd">    the sky (i.e., mock catalogs or observed galaxies).</span>
+
+<span class="sd">    Returns a numpy structured array containing the pair counts for the</span>
+<span class="sd">    specified angular bins.</span>
+
+<span class="sd">    If ``weights`` are provided, the resulting pair counts are weighted.  The</span>
+<span class="sd">    weighting scheme depends on ``weight_type``.</span>
+
+
+<span class="sd">    .. note:: This module only returns pair counts and not the actual</span>
+<span class="sd">       correlation function :math:`\\omega(\theta)`. See</span>
+<span class="sd">       :py:mod:`Corrfunc.utils.convert_3d_counts_to_cf` for computing</span>
+<span class="sd">       :math:`\\omega(\theta)` from the pair counts returned.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+
+<span class="sd">    autocorr : boolean, required</span>
+<span class="sd">        Boolean flag for auto/cross-correlation. If autocorr is set to 1,</span>
+<span class="sd">        then the second set of particle positions are not required.</span>
+
+<span class="sd">    nthreads : integer</span>
+<span class="sd">        Number of threads to use.</span>
+
+<span class="sd">    binfile: string or an list/array of floats. Units: degrees.</span>
+<span class="sd">        For string input: filename specifying the ``theta`` bins for</span>
+<span class="sd">        ``DDtheta_mocks``. The file should contain white-space separated values</span>
+<span class="sd">        of (thetamin, thetamax)  for each ``theta`` wanted. The bins need to be</span>
+<span class="sd">        contiguous and sorted in increasing order (smallest bins come first).</span>
+
+<span class="sd">        For array-like input: A sequence of ``theta`` values that provides the</span>
+<span class="sd">        bin-edges. For example,</span>
+<span class="sd">        ``np.logspace(np.log10(0.1), np.log10(10.0), 15)`` is a valid</span>
+<span class="sd">        input specifying **14** (logarithmic) bins between 0.1 and 10.0</span>
+<span class="sd">        degrees. This array does not need to be sorted.</span>
+
+<span class="sd">    RA1 : array-like, real (float/double)</span>
+<span class="sd">        The array of Right Ascensions for the first set of points. RA&#39;s</span>
+<span class="sd">        are expected to be in [0.0, 360.0], but the code will try to fix cases</span>
+<span class="sd">        where the RA&#39;s are in [-180, 180.0]. For peace of mind, always supply</span>
+<span class="sd">        RA&#39;s in [0.0, 360.0].</span>
+
+<span class="sd">        Calculations are done in the precision of the supplied arrays.</span>
+
+<span class="sd">    DEC1 : array-like, real (float/double)</span>
+<span class="sd">        Array of Declinations for the first set of points. DEC&#39;s are expected</span>
+<span class="sd">        to be in the [-90.0, 90.0], but the code will try to fix cases where</span>
+<span class="sd">        the DEC&#39;s are in [0.0, 180.0]. Again, for peace of mind, always supply</span>
+<span class="sd">        DEC&#39;s in [-90.0, 90.0].</span>
+<span class="sd">        Must be of same precision type as RA1.</span>
+
+<span class="sd">    weights1 : array_like, real (float/double), optional</span>
+<span class="sd">        A scalar, or an array of weights of shape (n_weights, n_positions) or</span>
+<span class="sd">        (n_positions,). `weight_type` specifies how these weights are used;</span>
+<span class="sd">        results are returned in the `weightavg` field.  If only one of weights1</span>
+<span class="sd">        and weights2 is specified, the other will be set to uniform weights.</span>
+
+<span class="sd">    RA2 : array-like, real (float/double)</span>
+<span class="sd">        The array of Right Ascensions for the second set of points. RA&#39;s</span>
+<span class="sd">        are expected to be in [0.0, 360.0], but the code will try to fix cases</span>
+<span class="sd">        where the RA&#39;s are in [-180, 180.0]. For peace of mind, always supply</span>
+<span class="sd">        RA&#39;s in [0.0, 360.0].</span>
+<span class="sd">        Must be of same precision type as RA1/DEC1.</span>
+
+<span class="sd">    DEC2 : array-like, real (float/double)</span>
+<span class="sd">        Array of Declinations for the second set of points. DEC&#39;s are expected</span>
+<span class="sd">        to be in the [-90.0, 90.0], but the code will try to fix cases where</span>
+<span class="sd">        the DEC&#39;s are in [0.0, 180.0]. Again, for peace of mind, always supply</span>
+<span class="sd">        DEC&#39;s in [-90.0, 90.0].</span>
+<span class="sd">        Must be of same precision type as RA1/DEC1.</span>
+
+<span class="sd">    weights2 : array-like, real (float/double), optional</span>
+<span class="sd">        Same as weights1, but for the second set of positions</span>
+
+<span class="sd">    link_in_dec : boolean (default True)</span>
+<span class="sd">        Boolean flag to create lattice in Declination. Code runs faster with</span>
+<span class="sd">        this option. However, if the angular separations are too small, then</span>
+<span class="sd">        linking in declination might produce incorrect results. When running</span>
+<span class="sd">        for the first time, check your results by comparing with the output</span>
+<span class="sd">        of the code for ``link_in_dec=False`` and ``link_in_ra=False``.</span>
+
+<span class="sd">    link_in_ra : boolean (default True)</span>
+<span class="sd">        Boolean flag to create lattice in Right Ascension. Setting this option</span>
+<span class="sd">        implies ``link_in_dec=True``. Similar considerations as ``link_in_dec``</span>
+<span class="sd">        described above.</span>
+
+<span class="sd">        If you disable both ``link_in_dec`` and ``link_in_ra``, then</span>
+<span class="sd">        the code reduces to a brute-force pair counter. No lattices are created</span>
+<span class="sd">        at all. For very small angular separations, the brute-force method</span>
+<span class="sd">        might be the most numerically stable method.</span>
+
+<span class="sd">    verbose : boolean (default false)</span>
+<span class="sd">        Boolean flag to control output of informational messages</span>
+
+<span class="sd">    output_thetaavg : boolean (default false)</span>
+<span class="sd">        Boolean flag to output the average ``\theta`` for each bin. Code will</span>
+<span class="sd">        run slower if you set this flag.</span>
+
+<span class="sd">        If you are calculating in single-precision, ``thetaavg`` will</span>
+<span class="sd">        suffer from numerical loss of precision and can not be trusted. If you</span>
+<span class="sd">        need accurate ``thetaavg`` values, then pass in double precision arrays</span>
+<span class="sd">        for ``RA/DEC``.</span>
+
+<span class="sd">        Code will run significantly slower if you enable this option.</span>
+<span class="sd">        Use the keyword ``fast_acos`` if you can tolerate some loss of</span>
+<span class="sd">        precision.</span>
+
+<span class="sd">    fast_acos : boolean (default false)</span>
+<span class="sd">        Flag to use numerical approximation for the ``arccos`` - gives better</span>
+<span class="sd">        performance at the expense of some precision. Relevant only if</span>
+<span class="sd">        ``output_thetaavg==True``.</span>
+
+<span class="sd">        Developers: Two versions already coded up in ``utils/fast_acos.h``,</span>
+<span class="sd">        so you can choose the version you want. There are also notes on how</span>
+<span class="sd">        to implement faster (and less accurate) functions, particularly</span>
+<span class="sd">        relevant if you know your ``theta`` range is limited. If you implement</span>
+<span class="sd">        a new version, then you will have to reinstall the entire Corrfunc</span>
+<span class="sd">        package.</span>
+
+<span class="sd">        Note: Tests will fail if you run the tests with``fast_acos=True``.</span>
+
+<span class="sd">    (radec)_refine_factor : integer, default is (2,2); typically within [1-5]</span>
+<span class="sd">        Controls the refinement on the cell sizes. Can have up to a 20% impact</span>
+<span class="sd">        on runtime.</span>
+
+<span class="sd">        Only two refine factors are to be specified and these</span>
+<span class="sd">        correspond to ``ra`` and ``dec`` (rather, than the usual three of</span>
+<span class="sd">        ``(xyz)bin_refine_factor`` for all other correlation functions).</span>
+
+<span class="sd">    max_cells_per_dim : integer, default is 100, typical values in [50-300]</span>
+<span class="sd">        Controls the maximum number of cells per dimension. Total number of</span>
+<span class="sd">        cells can be up to (max_cells_per_dim)^2. Only increase if ``thetamax``</span>
+<span class="sd">        is too small relative to the boxsize (and increasing helps the</span>
+<span class="sd">        runtime).</span>
+
+<span class="sd">    copy_particles: boolean (default True)</span>
+<span class="sd">        Boolean flag to make a copy of the particle positions</span>
+<span class="sd">        If set to False, the particles will be re-ordered in-place</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+
+<span class="sd">    enable_min_sep_opt: boolean (default true)</span>
+<span class="sd">        Boolean flag to allow optimizations based on min. separation between</span>
+<span class="sd">        pairs of cells. Here to allow for comparison studies.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+
+<span class="sd">    c_api_timer : boolean (default false)</span>
+<span class="sd">        Boolean flag to measure actual time spent in the C libraries. Here</span>
+<span class="sd">        to allow for benchmarking and scaling studies.</span>
+
+<span class="sd">    isa: string, case-insensitive (default ``fastest``)</span>
+<span class="sd">        Controls the runtime dispatch for the instruction set to use. Options</span>
+<span class="sd">        are: [``fastest``, ``avx512f``, ``avx``, ``sse42``, ``fallback``]</span>
+
+<span class="sd">        Setting isa to ``fastest`` will pick the fastest available instruction</span>
+<span class="sd">        set on the current computer. However, if you set ``isa`` to, say,</span>
+<span class="sd">        ``avx`` and ``avx`` is not available on the computer, then the code</span>
+<span class="sd">        will revert to using ``fallback`` (even though ``sse42`` might be</span>
+<span class="sd">        available).</span>
+
+<span class="sd">        Unless you are benchmarking the different instruction sets, you should</span>
+<span class="sd">        always leave ``isa`` to the default value. And if you *are*</span>
+<span class="sd">        benchmarking, then the string supplied here gets translated into an</span>
+<span class="sd">        ``enum`` for the instruction set defined in ``utils/defs.h``.</span>
+
+<span class="sd">    weight_type : string, optional (default None)</span>
+<span class="sd">        The type of weighting to apply.  One of [&quot;pair_product&quot;, None].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    results : Numpy structured array</span>
+<span class="sd">        A numpy structured array containing [thetamin, thetamax, thetaavg,</span>
+<span class="sd">        npairs, weightavg] for each angular bin specified in the ``binfile``.</span>
+<span class="sd">        If ``output_thetaavg`` is not set then ``thetavg`` will be set to 0.0</span>
+<span class="sd">        for all bins; similarly for ``weightavg``. ``npairs`` contains the</span>
+<span class="sd">        number of pairs in that bin.</span>
+
+<span class="sd">    api_time : float, optional</span>
+<span class="sd">        Only returned if ``c_api_timer`` is set.  ``api_time`` measures only</span>
+<span class="sd">        the time spent within the C library and ignores all python overhead.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &gt;&gt;&gt; from __future__ import print_function</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; import time</span>
+<span class="sd">    &gt;&gt;&gt; from math import pi</span>
+<span class="sd">    &gt;&gt;&gt; from os.path import dirname, abspath, join as pjoin</span>
+<span class="sd">    &gt;&gt;&gt; import Corrfunc</span>
+<span class="sd">    &gt;&gt;&gt; from Corrfunc.mocks.DDtheta_mocks import DDtheta_mocks</span>
+<span class="sd">    &gt;&gt;&gt; binfile = pjoin(dirname(abspath(Corrfunc.__file__)),</span>
+<span class="sd">    ...                 &quot;../mocks/tests/&quot;, &quot;angular_bins&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; N = 100000</span>
+<span class="sd">    &gt;&gt;&gt; nthreads = 4</span>
+<span class="sd">    &gt;&gt;&gt; seed = 42</span>
+<span class="sd">    &gt;&gt;&gt; np.random.seed(seed)</span>
+<span class="sd">    &gt;&gt;&gt; RA = np.random.uniform(0.0, 2.0*pi, N)*180.0/pi</span>
+<span class="sd">    &gt;&gt;&gt; cos_theta = np.random.uniform(-1.0, 1.0, N)</span>
+<span class="sd">    &gt;&gt;&gt; DEC = 90.0 - np.arccos(cos_theta)*180.0/pi</span>
+<span class="sd">    &gt;&gt;&gt; weights = np.ones_like(RA)</span>
+<span class="sd">    &gt;&gt;&gt; autocorr = 1</span>
+<span class="sd">    &gt;&gt;&gt; for isa in [&#39;AVX&#39;, &#39;SSE42&#39;, &#39;FALLBACK&#39;]:</span>
+<span class="sd">    ...     for link_in_dec in [False, True]:</span>
+<span class="sd">    ...         for link_in_ra in [False, True]:</span>
+<span class="sd">    ...             results = DDtheta_mocks(autocorr, nthreads, binfile,</span>
+<span class="sd">    ...                         RA, DEC, output_thetaavg=True,</span>
+<span class="sd">    ...                         weights1=weights, weight_type=&#39;pair_product&#39;,</span>
+<span class="sd">    ...                         link_in_dec=link_in_dec, link_in_ra=link_in_ra,</span>
+<span class="sd">    ...                         isa=isa, verbose=True)</span>
+<span class="sd">    &gt;&gt;&gt; for r in results:</span>
+<span class="sd">    ...    print(&quot;{0:10.6f} {1:10.6f} {2:10.6f} {3:10d} {4:10.6f}&quot;.</span>
+<span class="sd">    ...                         format(r[&#39;thetamin&#39;], r[&#39;thetamax&#39;],</span>
+<span class="sd">    ...                         r[&#39;thetaavg&#39;], r[&#39;npairs&#39;], r[&#39;weightavg&#39;]))</span>
+<span class="sd">    ...                         # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      0.010000   0.014125   0.012272         62   1.000000</span>
+<span class="sd">      0.014125   0.019953   0.016978        172   1.000000</span>
+<span class="sd">      0.019953   0.028184   0.024380        298   1.000000</span>
+<span class="sd">      0.028184   0.039811   0.034321        598   1.000000</span>
+<span class="sd">      0.039811   0.056234   0.048535       1164   1.000000</span>
+<span class="sd">      0.056234   0.079433   0.068385       2438   1.000000</span>
+<span class="sd">      0.079433   0.112202   0.096631       4658   1.000000</span>
+<span class="sd">      0.112202   0.158489   0.136834       9414   1.000000</span>
+<span class="sd">      0.158489   0.223872   0.192967      19098   1.000000</span>
+<span class="sd">      0.223872   0.316228   0.272673      37848   1.000000</span>
+<span class="sd">      0.316228   0.446684   0.385344      75520   1.000000</span>
+<span class="sd">      0.446684   0.630957   0.543973     150938   1.000000</span>
+<span class="sd">      0.630957   0.891251   0.768406     301854   1.000000</span>
+<span class="sd">      0.891251   1.258925   1.085273     599896   1.000000</span>
+<span class="sd">      1.258925   1.778279   1.533461    1200238   1.000000</span>
+<span class="sd">      1.778279   2.511886   2.166009    2396338   1.000000</span>
+<span class="sd">      2.511886   3.548134   3.059159    4775162   1.000000</span>
+<span class="sd">      3.548134   5.011872   4.321445    9532582   1.000000</span>
+<span class="sd">      5.011872   7.079458   6.104214   19001930   1.000000</span>
+<span class="sd">      7.079458  10.000000   8.622400   37842502   1.000000</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">Corrfunc._countpairs_mocks</span> <span class="kn">import</span> <span class="n">countpairs_theta_mocks</span> <span class="k">as</span>\
+            <span class="n">DDtheta_mocks_extn</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Could not import the C extension for the angular &quot;</span>\
+              <span class="s2">&quot;correlation function for mocks.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">translate_isa_string_to_enum</span><span class="p">,</span> <span class="n">fix_ra_dec</span><span class="p">,</span>\
+        <span class="n">return_file_with_rbins</span><span class="p">,</span> <span class="n">convert_to_native_endian</span><span class="p">,</span>\
+        <span class="n">sys_pipes</span><span class="p">,</span> <span class="n">process_weights</span>
+    <span class="kn">from</span> <span class="nn">future.utils</span> <span class="kn">import</span> <span class="n">bytes_to_native_str</span>
+
+    <span class="k">if</span> <span class="n">autocorr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">RA2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">DEC2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Must pass valid arrays for RA2/DEC2 for &quot;</span>\
+                  <span class="s2">&quot;computing cross-correlation&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">RA2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">DEC2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">weights1</span><span class="p">,</span> <span class="n">weights2</span> <span class="o">=</span> <span class="n">process_weights</span><span class="p">(</span><span class="n">weights1</span><span class="p">,</span> <span class="n">weights2</span><span class="p">,</span>
+                                         <span class="n">RA1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">weight_type</span><span class="p">,</span> <span class="n">autocorr</span><span class="p">)</span>
+
+    <span class="c1"># Ensure all input arrays are native endian</span>
+    <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">weights1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span> <span class="n">weights2</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">convert_to_native_endian</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span>
+            <span class="p">[</span><span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">weights1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span> <span class="n">weights2</span><span class="p">]]</span>
+
+    <span class="n">fix_ra_dec</span><span class="p">(</span><span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">autocorr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">fix_ra_dec</span><span class="p">(</span><span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">link_in_ra</span><span class="p">:</span>
+        <span class="n">link_in_dec</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Passing None parameters breaks the parsing code, so avoid this</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;weights1&#39;</span><span class="p">,</span> <span class="s1">&#39;weights2&#39;</span><span class="p">,</span> <span class="s1">&#39;weight_type&#39;</span><span class="p">,</span> <span class="s1">&#39;RA2&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC2&#39;</span><span class="p">]:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">integer_isa</span> <span class="o">=</span> <span class="n">translate_isa_string_to_enum</span><span class="p">(</span><span class="n">isa</span><span class="p">)</span>
+    <span class="n">rbinfile</span><span class="p">,</span> <span class="n">delete_after_use</span> <span class="o">=</span> <span class="n">return_file_with_rbins</span><span class="p">(</span><span class="n">binfile</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">sys_pipes</span><span class="p">():</span>
+        <span class="n">extn_results</span> <span class="o">=</span> <span class="n">DDtheta_mocks_extn</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbinfile</span><span class="p">,</span>
+                                          <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span>
+                                          <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                          <span class="n">link_in_dec</span><span class="o">=</span><span class="n">link_in_dec</span><span class="p">,</span>
+                                          <span class="n">link_in_ra</span><span class="o">=</span><span class="n">link_in_ra</span><span class="p">,</span>
+                                          <span class="n">output_thetaavg</span><span class="o">=</span><span class="n">output_thetaavg</span><span class="p">,</span>
+                                          <span class="n">fast_acos</span><span class="o">=</span><span class="n">fast_acos</span><span class="p">,</span>
+                                          <span class="n">ra_refine_factor</span><span class="o">=</span><span class="n">ra_refine_factor</span><span class="p">,</span>
+                                          <span class="n">dec_refine_factor</span><span class="o">=</span><span class="n">dec_refine_factor</span><span class="p">,</span>
+                                          <span class="n">max_cells_per_dim</span><span class="o">=</span><span class="n">max_cells_per_dim</span><span class="p">,</span>
+                                          <span class="n">copy_particles</span><span class="o">=</span><span class="n">copy_particles</span><span class="p">,</span>
+                                          <span class="n">enable_min_sep_opt</span><span class="o">=</span><span class="n">enable_min_sep_opt</span><span class="p">,</span>
+                                          <span class="n">c_api_timer</span><span class="o">=</span><span class="n">c_api_timer</span><span class="p">,</span>
+                                          <span class="n">isa</span><span class="o">=</span><span class="n">integer_isa</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extn_results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;RuntimeError occurred&quot;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extn_results</span><span class="p">,</span> <span class="n">api_time</span> <span class="o">=</span> <span class="n">extn_results</span>
+
+    <span class="k">if</span> <span class="n">delete_after_use</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rbinfile</span><span class="p">)</span>
+
+    <span class="n">results_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;thetamin&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;thetamax&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;thetaavg&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;npairs&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;weightavg&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)])</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">extn_results</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">results_dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">c_api_timer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">results</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">api_time</span></div>
+
+
+<span class="k">def</span> <span class="nf">find_fastest_DDtheta_mocks_bin_refs</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">binfile</span><span class="p">,</span>
+                                        <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">RA2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">DEC2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                        <span class="n">link_in_dec</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_in_ra</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_thetaavg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                        <span class="n">max_cells_per_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                        <span class="n">isa</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;fastest&#39;</span><span class="p">,</span>
+                                        <span class="n">maxbinref</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                        <span class="n">return_runtimes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    autocorr : boolean, required</span>
+<span class="sd">        Boolean flag for auto/cross-correlation. If autocorr is set to 1,</span>
+<span class="sd">        then the second set of particle positions are not required.</span>
+
+<span class="sd">    nthreads : integer</span>
+<span class="sd">        Number of threads to use.</span>
+
+<span class="sd">    binfile: string or an list/array of floats. Units: degrees.</span>
+<span class="sd">        For string input: filename specifying the ``theta`` bins for</span>
+<span class="sd">        ``DDtheta_mocks``. The file should contain white-space separated values</span>
+<span class="sd">        of (thetamin, thetamax)  for each ``theta`` wanted. The bins need to be</span>
+<span class="sd">        contiguous and sorted in increasing order (smallest bins come first).</span>
+
+<span class="sd">        For array-like input: A sequence of ``theta`` values that provides the</span>
+<span class="sd">        bin-edges. For example,</span>
+<span class="sd">        ``np.logspace(np.log10(0.1), np.log10(10.0), 15)`` is a valid</span>
+<span class="sd">        input specifying **14** (logarithmic) bins between 0.1 and 10.0</span>
+<span class="sd">        degrees. This array does not need to be sorted.</span>
+
+<span class="sd">    RA1 : array-like, real (float/double)</span>
+<span class="sd">        The array of Right Ascensions for the first set of points. RA1&#39;s</span>
+<span class="sd">        are expected to be in [0.0, 360.0], but the code will try to fix cases</span>
+<span class="sd">        where the RA1&#39;s are in [-180, 180.0]. For peace of mind, always supply</span>
+<span class="sd">        RA1&#39;s in [0.0, 360.0].</span>
+
+<span class="sd">        Calculations are done in the precision of the supplied arrays.</span>
+
+<span class="sd">    DEC1 : array-like, real (float/double)</span>
+<span class="sd">        Array of Declinations for the first set of points. DEC1&#39;s are expected</span>
+<span class="sd">        to be in the [-90.0, 90.0], but the code will try to fix cases where</span>
+<span class="sd">        the DEC1&#39;s are in [0.0, 180.0]. Again, for peace of mind, always supply</span>
+<span class="sd">        DEC1&#39;s in [-90.0, 90.0].</span>
+<span class="sd">        Must be of same precision type as RA1.</span>
+
+<span class="sd">    RA2 : array-like, real (float/double)</span>
+<span class="sd">        The array of Right Ascensions for the second set of points. RA2&#39;s</span>
+<span class="sd">        are expected to be in [0.0, 360.0], but the code will try to fix cases</span>
+<span class="sd">        where the RA2&#39;s are in [-180, 180.0]. For peace of mind, always supply</span>
+<span class="sd">        RA2&#39;s in [0.0, 360.0].</span>
+<span class="sd">        Must be of same precision type as RA1/DEC1.</span>
+
+<span class="sd">    DEC2 : array-like, real (float/double)</span>
+<span class="sd">        Array of Declinations for the second set of points. DEC2&#39;s are expected</span>
+<span class="sd">        to be in the [-90.0, 90.0], but the code will try to fix cases where</span>
+<span class="sd">        the DEC2&#39;s are in [0.0, 180.0]. Again, for peace of mind, always supply</span>
+<span class="sd">        DEC2&#39;s in [-90.0, 90.0].</span>
+<span class="sd">        Must be of same precision type as RA1/DEC1.</span>
+
+<span class="sd">    verbose : boolean (default false)</span>
+<span class="sd">        Boolean flag to control output of informational messages</span>
+
+<span class="sd">    output_thetaavg : boolean (default false)</span>
+<span class="sd">        Boolean flag to output the average ``\theta`` for each bin. Code will</span>
+<span class="sd">        run slower if you set this flag.</span>
+
+<span class="sd">        If you are calculating in single-precision, ``thetaavg`` will</span>
+<span class="sd">        suffer from numerical loss of precision and can not be trusted. If you</span>
+<span class="sd">        need accurate ``thetaavg`` values, then pass in double precision arrays</span>
+<span class="sd">        for ``RA/DEC``.</span>
+
+<span class="sd">    isa: string, case-insensitive (default ``fastest``)</span>
+<span class="sd">        Controls the runtime dispatch for the instruction set to use. Options</span>
+<span class="sd">        are: [``fastest``, ``avx512f``, ``avx``, ``sse42``, ``fallback``]</span>
+
+<span class="sd">        Setting isa to ``fastest`` will pick the fastest available instruction</span>
+<span class="sd">        set on the current computer. However, if you set ``isa`` to, say,</span>
+<span class="sd">        ``avx`` and ``avx`` is not available on the computer, then the code</span>
+<span class="sd">        will revert to using ``fallback`` (even though ``sse42`` might be</span>
+<span class="sd">        available).</span>
+
+<span class="sd">        Unless you are benchmarking the different instruction sets, you should</span>
+<span class="sd">        always leave ``isa`` to the default value. And if you *are*</span>
+<span class="sd">        benchmarking, then the string supplied here gets translated into an</span>
+<span class="sd">        ``enum`` for the instruction set defined in ``utils/defs.h``.</span>
+
+<span class="sd">    max_cells_per_dim: integer, default is 100, typical values in [50-300]</span>
+<span class="sd">        Controls the maximum number of cells per dimension. Total number of</span>
+<span class="sd">        cells can be up to (max_cells_per_dim)^2. Only increase if ``rpmax`` is</span>
+<span class="sd">        too small relative to the boxsize (and increasing helps the runtime).</span>
+
+<span class="sd">    maxbinref: integer (default 3)</span>
+<span class="sd">        The maximum ``bin refine factor`` to use along each dimension.</span>
+
+<span class="sd">        Runtime of module scales as ``maxbinref^2``, so change the value of</span>
+<span class="sd">        ``maxbinref`` with caution.</span>
+
+<span class="sd">        Note that ``max_cells_per_dim`` might need to be increased</span>
+<span class="sd">        to accommodate really large ``maxbinref``.</span>
+
+<span class="sd">    nrepeats: integer (default 3)</span>
+<span class="sd">        Number of times to repeat the timing for an individual run. Accounts</span>
+<span class="sd">        for the dispersion in runtimes on computers with multiple user</span>
+<span class="sd">        processes.</span>
+
+<span class="sd">    return_runtimes: boolean (default ``false``)</span>
+<span class="sd">        If set, also returns the array of runtimes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    (nRA, nDEC) : tuple of integers</span>
+<span class="sd">        The combination of ``bin refine factors`` along each dimension that</span>
+<span class="sd">        produces the fastest code.</span>
+
+<span class="sd">    runtimes : numpy structured array</span>
+
+<span class="sd">        Only returned if ``return_runtimes`` is set, then the return value</span>
+<span class="sd">        is a tuple containing ((nRA, nDEC), runtimes). ``runtimes`` is a</span>
+<span class="sd">        ``numpy`` structured array containing the fields, [``nRA``, ``nDEC``,</span>
+<span class="sd">        ``avg_runtime``, ``sigma_time``]. Here, ``avg_runtime`` is the</span>
+<span class="sd">        average time, measured over ``nrepeats`` invocations, spent in</span>
+<span class="sd">        the python extension. ``sigma_time`` is the dispersion of the</span>
+<span class="sd">        run times across those ``nrepeats`` invocations.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from __future__ import print_function</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; import time</span>
+<span class="sd">    &gt;&gt;&gt; from math import pi</span>
+<span class="sd">    &gt;&gt;&gt; from os.path import dirname, abspath, join as pjoin</span>
+<span class="sd">    &gt;&gt;&gt; import Corrfunc</span>
+<span class="sd">    &gt;&gt;&gt; from Corrfunc.mocks.DDtheta_mocks \</span>
+<span class="sd">        import find_fastest_DDtheta_mocks_bin_refs</span>
+<span class="sd">    &gt;&gt;&gt; binfile = pjoin(dirname(abspath(Corrfunc.__file__)),</span>
+<span class="sd">    ...                 &quot;../mocks/tests/&quot;, &quot;angular_bins&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; N = 100000</span>
+<span class="sd">    &gt;&gt;&gt; nthreads = 4</span>
+<span class="sd">    &gt;&gt;&gt; seed = 42</span>
+<span class="sd">    &gt;&gt;&gt; np.random.seed(seed)</span>
+<span class="sd">    &gt;&gt;&gt; RA1 = np.random.uniform(0.0, 2.0*pi, N)*180.0/pi</span>
+<span class="sd">    &gt;&gt;&gt; cos_theta = np.random.uniform(-1.0, 1.0, N)</span>
+<span class="sd">    &gt;&gt;&gt; DEC1 = 90.0 - np.arccos(cos_theta)*180.0/pi</span>
+<span class="sd">    &gt;&gt;&gt; autocorr = 1</span>
+<span class="sd">    &gt;&gt;&gt; best, _ = find_fastest_DDtheta_mocks_bin_refs(autocorr, nthreads,\</span>
+<span class="sd">    ...                                               binfile, RA1, DEC1,\</span>
+<span class="sd">    ...                                               return_runtimes=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(best) # doctest:+SKIP</span>
+<span class="sd">    (2, 1)</span>
+
+<span class="sd">    .. note:: Since the result might change depending on the computer,</span>
+<span class="sd">    doctest is skipped for this function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">weights1</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">weights2</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">weight_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">Corrfunc._countpairs_mocks</span> <span class="kn">import</span> <span class="n">countpairs_theta_mocks</span> <span class="k">as</span>\
+            <span class="n">DDtheta_mocks_extn</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Could not import the C extension for the angular &quot;</span>\
+              <span class="s2">&quot;correlation function for mocks.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">translate_isa_string_to_enum</span><span class="p">,</span> <span class="n">fix_ra_dec</span><span class="p">,</span>\
+        <span class="n">return_file_with_rbins</span><span class="p">,</span> <span class="n">convert_to_native_endian</span><span class="p">,</span> <span class="n">process_weights</span>
+    <span class="kn">from</span> <span class="nn">future.utils</span> <span class="kn">import</span> <span class="n">bytes_to_native_str</span>
+    <span class="kn">import</span> <span class="nn">itertools</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+
+    <span class="n">weights1</span><span class="p">,</span> <span class="n">weights2</span> <span class="o">=</span> <span class="n">process_weights</span><span class="p">(</span><span class="n">weights1</span><span class="p">,</span> <span class="n">weights2</span><span class="p">,</span> <span class="n">RA1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span>
+                                         <span class="n">weight_type</span><span class="p">,</span> <span class="n">autocorr</span><span class="p">)</span>
+
+    <span class="c1"># Ensure all input arrays are native endian</span>
+    <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">weights1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span> <span class="n">weights2</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">convert_to_native_endian</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span>
+        <span class="p">[</span><span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">weights1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span> <span class="n">weights2</span><span class="p">]]</span>
+
+    <span class="n">fix_ra_dec</span><span class="p">(</span><span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">autocorr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">fix_ra_dec</span><span class="p">(</span><span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">)</span>
+
+    <span class="c1"># Passing None parameters breaks the parsing code, so avoid this</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;weights1&#39;</span><span class="p">,</span> <span class="s1">&#39;weights2&#39;</span><span class="p">,</span> <span class="s1">&#39;weight_type&#39;</span><span class="p">,</span> <span class="s1">&#39;RA2&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC2&#39;</span><span class="p">]:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">integer_isa</span> <span class="o">=</span> <span class="n">translate_isa_string_to_enum</span><span class="p">(</span><span class="n">isa</span><span class="p">)</span>
+    <span class="n">rbinfile</span><span class="p">,</span> <span class="n">delete_after_use</span> <span class="o">=</span> <span class="n">return_file_with_rbins</span><span class="p">(</span><span class="n">binfile</span><span class="p">)</span>
+    <span class="n">bin_refs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxbinref</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">link_in_ra</span><span class="p">:</span>
+        <span class="n">bin_ref_perms</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">bin_refs</span><span class="p">,</span> <span class="n">bin_refs</span><span class="p">)</span>
+        <span class="n">nperms</span> <span class="o">=</span> <span class="n">maxbinref</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bin_ref_perms</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">binref</span><span class="p">)</span> <span class="k">for</span> <span class="n">binref</span> <span class="ow">in</span> <span class="n">bin_refs</span><span class="p">]</span>
+        <span class="n">nperms</span> <span class="o">=</span> <span class="n">maxbinref</span>
+
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;nRA&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span>
+                      <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;nDEC&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span>
+                      <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;avg_time&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                      <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;sigma_time&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)])</span>
+    <span class="n">all_runtimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nperms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">all_runtimes</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="k">if</span> <span class="n">autocorr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">RA2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">DEC2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Must pass valid arrays for RA2/DEC2 for &quot;</span>\
+                  <span class="s2">&quot;computing cross-correlation.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">RA2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">DEC2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">link_in_ra</span><span class="p">:</span>
+        <span class="n">link_in_dec</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">link_in_dec</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Error: Brute-force calculation without any gridding &quot;</span> \
+              <span class="s2">&quot;is forced, as link_in_dec and link_in_ra are both set &quot;</span> \
+              <span class="s2">&quot;to False. Please set at least one of link_in_dec, link_in_ra=True &quot;</span> \
+              <span class="s2">&quot;to enable gridding along DEC or along both RA and DEC.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">link_in_ra</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;INFO: Since ``link_in_ra`` is not set, only gridding in declination &quot;</span> \
+              <span class="s2">&quot;Checking with refinements in declination ranging from [1, </span><span class="si">{}</span><span class="s2">] and a &quot;</span> \
+              <span class="s2">&quot;maximum of </span><span class="si">{}</span><span class="s2"> bins&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">maxbinref</span><span class="p">,</span> <span class="n">max_cells_per_dim</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="p">(</span><span class="n">nRA</span><span class="p">,</span> <span class="n">nDEC</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bin_ref_perms</span><span class="p">):</span>
+        <span class="n">total_runtime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">total_sqr_runtime</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrepeats</span><span class="p">):</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="n">extn_results</span> <span class="o">=</span> <span class="n">DDtheta_mocks_extn</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbinfile</span><span class="p">,</span>
+                                              <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span>
+                                              <span class="n">link_in_dec</span><span class="o">=</span><span class="n">link_in_dec</span><span class="p">,</span>
+                                              <span class="n">link_in_ra</span><span class="o">=</span><span class="n">link_in_ra</span><span class="p">,</span>
+                                              <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                              <span class="n">output_thetaavg</span><span class="o">=</span><span class="n">output_thetaavg</span><span class="p">,</span>
+                                              <span class="n">ra_refine_factor</span><span class="o">=</span><span class="n">nRA</span><span class="p">,</span>
+                                              <span class="n">dec_refine_factor</span><span class="o">=</span><span class="n">nDEC</span><span class="p">,</span>
+                                              <span class="n">max_cells_per_dim</span><span class="o">=</span><span class="n">max_cells_per_dim</span><span class="p">,</span>
+                                              <span class="n">isa</span><span class="o">=</span><span class="n">integer_isa</span><span class="p">)</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">extn_results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;RuntimeError occurred with perms = (</span><span class="si">{0}</span><span class="s2">, </span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span>\
+                    <span class="nb">format</span><span class="p">(</span><span class="n">nRA</span><span class="p">,</span> <span class="n">nDEC</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="n">dt</span> <span class="o">=</span> <span class="p">(</span><span class="n">t1</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span>
+            <span class="n">total_runtime</span> <span class="o">+=</span> <span class="n">dt</span>
+            <span class="n">total_sqr_runtime</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">dt</span>
+
+        <span class="n">avg_runtime</span> <span class="o">=</span> <span class="n">total_runtime</span> <span class="o">/</span> <span class="n">nrepeats</span>
+
+        <span class="c1"># variance = E(X^2) - E^2(X)</span>
+        <span class="c1"># disp = sqrt(variance)</span>
+        <span class="n">runtime_disp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">total_sqr_runtime</span> <span class="o">/</span> <span class="n">nrepeats</span> <span class="o">-</span>
+                               <span class="n">avg_runtime</span> <span class="o">*</span> <span class="n">avg_runtime</span><span class="p">)</span>
+
+        <span class="n">all_runtimes</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;nRA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nRA</span>
+        <span class="n">all_runtimes</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;nDEC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nDEC</span>
+        <span class="n">all_runtimes</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;avg_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_runtime</span>
+        <span class="n">all_runtimes</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;sigma_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">runtime_disp</span>
+
+    <span class="k">if</span> <span class="n">delete_after_use</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rbinfile</span><span class="p">)</span>
+
+    <span class="n">all_runtimes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;avg_time&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_time&#39;</span><span class="p">))</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_runtimes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nRA&#39;</span><span class="p">],</span>
+               <span class="n">all_runtimes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nDEC&#39;</span><span class="p">])</span>
+
+    <span class="n">optional_returns</span> <span class="o">=</span> <span class="n">return_runtimes</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">optional_returns</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">results</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">(</span><span class="n">results</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="n">return_runtimes</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="p">(</span><span class="n">all_runtimes</span><span class="p">,)</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../Corrfunc.html" >Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc.mocks.DDtheta_mocks</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

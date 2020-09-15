@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Using the static library interface in Corrfunc &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using the command-line interface in Corrfunc" href="commandline-interface.html" />
+    <link rel="prev" title="Using the python extensions in Corrfunc" href="python-interface.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="commandline-interface.html" title="Using the command-line interface in Corrfunc"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="python-interface.html" title="Using the python extensions in Corrfunc"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="quickstart.html" accesskey="U">Getting started with Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Using the static library interface in Corrfunc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-the-static-library-interface-in-corrfunc">
+<span id="staticlibrary-interface"></span><h1>Using the static library interface in Corrfunc<a class="headerlink" href="#using-the-static-library-interface-in-corrfunc" title="Permalink to this headline">¶</a></h1>
+<p>This guide assumes that you already followed the <a class="reference internal" href="install.html#step-by-step-install"><span class="std std-ref">Package Installation</span></a>
+section of the documentation to get the package and its dependencies set
+up on your machine. This guide also assumes some familiarity with C coding.</p>
+<p>This concepts in this guide are implemented in the files
+<code class="docutils literal notranslate"><span class="pre">theory/examples/run_correlations.c</span></code> and
+<code class="docutils literal notranslate"><span class="pre">mocks/examples/run_correlations_mocks.c</span></code> for simulations and mock
+catalogs respectively.</p>
+<p>The basic principle of using the static libraries has the following steps:</p>
+<ul class="simple">
+<li><p>Include the appropriate header to get the correct function signature (at
+compile time)</p></li>
+<li><p>In your code, include call with clustering function with appropriate parameters</p></li>
+<li><p>Compile your code with <code class="docutils literal notranslate"><span class="pre">-I</span> <span class="pre">&lt;/path/to/Corrfunc/include&gt;</span></code> flags. If you have
+installed Corrfunc via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, then use
+<code class="docutils literal notranslate"><span class="pre">os.path.join(os.path.dirname(Corrfunc.__file__),</span> <span class="pre">../include/)</span></code> as the
+include header.</p></li>
+<li><p>Link your code with the appropriate static library. Look in the
+<code class="docutils literal notranslate"><span class="pre">examples/Makefile</span></code> for the linker flags.</p></li>
+<li><p>Run your code</p></li>
+</ul>
+<div class="section" id="worked-out-example-c-code-for-clustering-statistics-in-simulation-boxes">
+<h2>Worked out example C code for clustering statistics in simulation boxes<a class="headerlink" href="#worked-out-example-c-code-for-clustering-statistics-in-simulation-boxes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="common-setup-code-for-the-simulation-c-routines">
+<h3>Common setup code for the simulation C routines<a class="headerlink" href="#common-setup-code-for-the-simulation-c-routines" title="Permalink to this headline">¶</a></h3>
+<p>In this code section, we will setup the arrays and the overall common inputs
+required by the C static libraries.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;io.h&quot;</span><span class="cp"></span>
+
+<span class="k">const</span> <span class="kt">char</span> <span class="n">file</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;theory/tests/data/gals_Mr19.ff&quot;</span><span class="p">};</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="n">fileformat</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;f&quot;</span><span class="p">};</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="n">binfile</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;theory/tests/bins&quot;</span><span class="p">};</span>
+<span class="k">const</span> <span class="kt">double</span> <span class="n">boxsize</span><span class="o">=</span><span class="mf">420.0</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">double</span> <span class="n">pimax</span><span class="o">=</span><span class="mf">40.0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">autocorr</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">nthreads</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+
+<span class="kt">double</span> <span class="o">*</span><span class="n">x1</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">y1</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">z1</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">x2</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">y2</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">z2</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int64_t</span> <span class="n">ND1</span> <span class="o">=</span> <span class="n">read_positions</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">fileformat</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">x1</span><span class="p">),</span><span class="mi">3</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">x1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">y1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">z1</span><span class="p">);</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">x1</span><span class="p">;</span>
+<span class="n">y2</span> <span class="o">=</span> <span class="n">y1</span><span class="p">;</span>
+<span class="n">z2</span> <span class="o">=</span> <span class="n">z1</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int64_t</span> <span class="n">ND2</span> <span class="o">=</span> <span class="n">ND1</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">config_options</span> <span class="n">options</span> <span class="o">=</span> <span class="n">get_config_options</span><span class="p">();</span>
+<span class="n">options</span><span class="p">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">options</span><span class="p">.</span><span class="n">need_avg_sep</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">options</span><span class="p">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">options</span><span class="p">.</span><span class="n">float_type</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">x1</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-2-d-projected-auto-correlation-theory-wp-libcountpairs-wp-a">
+<h3>Calculating 2-D projected auto-correlation (<code class="docutils literal notranslate"><span class="pre">theory/wp/libcountpairs_wp.a</span></code>)<a class="headerlink" href="#calculating-2-d-projected-auto-correlation-theory-wp-libcountpairs-wp-a" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can directly compute the projected auto-correlation function,
+<span class="math notranslate nohighlight">\(w_p(r_p)\)</span>. This calculation sets periodic boundary conditions. Randoms
+are calculated analytically based on the supplied boxsize. The projected
+separation, <span class="math notranslate nohighlight">\(r_p\)</span> is calculated in the X-Y plane while the line-of-sight
+separation, <span class="math notranslate nohighlight">\(\pi\)</span> is calculated in the Z plane. Only pairs with
+<span class="math notranslate nohighlight">\(\pi\)</span> separation less than <span class="math notranslate nohighlight">\(\pi_{max}\)</span> are counted.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span> <span class="cp">#include</span> <span class="cpf">&quot;countpairs_wp.h&quot;</span><span class="cp"></span>
+
+ <span class="n">results_countpairs_wp</span> <span class="n">results</span><span class="p">;</span>
+ <span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="n">countpairs_wp</span><span class="p">(</span><span class="n">ND1</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">z1</span><span class="p">,</span>
+                            <span class="n">boxsize</span><span class="p">,</span>
+                            <span class="n">nthreads</span><span class="p">,</span>
+                            <span class="n">binfile</span><span class="p">,</span>
+                            <span class="n">pimax</span><span class="p">,</span>
+                            <span class="o">&amp;</span><span class="n">results</span><span class="p">,</span>
+                            <span class="o">&amp;</span><span class="n">options</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+ <span class="k">if</span><span class="p">(</span><span class="n">status</span> <span class="o">!=</span> <span class="n">EXIT_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">&quot;Runtime error occurred while using wp static library</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+     <span class="k">return</span> <span class="n">status</span><span class="p">;</span>
+ <span class="p">}</span>
+
+ <span class="kt">double</span> <span class="n">rlow</span><span class="o">=</span><span class="n">results</span><span class="p">.</span><span class="n">rupp</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+ <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">results</span><span class="p">.</span><span class="n">nbin</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">&quot;%e</span><span class="se">\t</span><span class="s">%e</span><span class="se">\t</span><span class="s">%e</span><span class="se">\t</span><span class="s">%e</span><span class="se">\t</span><span class="s">%12&quot;</span><span class="n">PRIu64</span><span class="s">&quot; </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+                    <span class="n">results</span><span class="p">.</span><span class="n">wp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">results</span><span class="p">.</span><span class="n">rpavg</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">rlow</span><span class="p">,</span><span class="n">results</span><span class="p">.</span><span class="n">rupp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">results</span><span class="p">.</span><span class="n">npairs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+     <span class="n">rlow</span><span class="o">=</span><span class="n">results</span><span class="p">.</span><span class="n">rupp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is the generic pattern for using all of the correlation function. Look in
+<code class="docutils literal notranslate"><span class="pre">theory/examples/run_correlations.c</span></code> for details on how to use all of the available
+static libraries.</p>
+</div>
+</div>
+<div class="section" id="worked-out-example-c-code-for-clustering-statistics-in-mock-catalogs">
+<h2>Worked out example C code for clustering statistics in mock catalogs<a class="headerlink" href="#worked-out-example-c-code-for-clustering-statistics-in-mock-catalogs" title="Permalink to this headline">¶</a></h2>
+<p>Corrfunc can calculate pair counts for mock catalogs. The input positions are
+expected to be <code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Ascension</span></code>, <code class="docutils literal notranslate"><span class="pre">Declination</span></code> and <code class="docutils literal notranslate"><span class="pre">CZ</span></code> (speed of light
+times redshift, in <code class="docutils literal notranslate"><span class="pre">Mpc/h</span></code>). Cosmology has to be specified since <code class="docutils literal notranslate"><span class="pre">CZ</span></code> needs
+to be converted into co-moving distance. If you want to calculate in arbitrary
+cosmology, then you have two options:</p>
+<ul class="simple">
+<li><p>convert <code class="docutils literal notranslate"><span class="pre">CZ</span></code> into co-moving distance, and then pass the converted array while setting <code class="docutils literal notranslate"><span class="pre">config_option.is_comoving_dist=1</span></code>.</p></li>
+<li><p>Add another cosmology in <code class="docutils literal notranslate"><span class="pre">utils/cosmology_params.c</span></code> in the function
+<code class="docutils literal notranslate"><span class="pre">init_cosmology</span></code>. Then, recompile the <code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks</span></code> and pass
+<code class="docutils literal notranslate"><span class="pre">cosmology=integer_for_newcosmology</span></code> into the relevant functions.</p></li>
+</ul>
+<div class="section" id="common-setup-code-for-the-mocks-c-routines">
+<h3>Common setup code for the mocks C routines<a class="headerlink" href="#common-setup-code-for-the-mocks-c-routines" title="Permalink to this headline">¶</a></h3>
+<p>In this code section, we will setup the arrays and the overall common inputs
+required by the C static libraries.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;io.h&quot;   //for read_positions function</span><span class="cp"></span>
+
+<span class="k">const</span> <span class="kt">char</span> <span class="n">file</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;mocks/tests/data/Mr19_mock_northonly.rdcz.dat&quot;</span><span class="p">};</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="n">fileformat</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;a&quot;</span><span class="p">};</span>     <span class="c1">// ascii format</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="n">binfile</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;mocks/tests/bins&quot;</span><span class="p">};</span>
+<span class="k">const</span> <span class="kt">double</span> <span class="n">pimax</span><span class="o">=</span><span class="mf">40.0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">autocorr</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">nthreads</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">cosmology</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>  <span class="c1">// 1-&gt;LasDamas cosmology, 2-&gt;Planck</span>
+
+<span class="c1">// This computes in double-precision. Change to float for computing in float</span>
+<span class="kt">double</span> <span class="o">*</span><span class="n">ra1</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">dec1</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">cz1</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">ra2</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">dec2</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">cz2</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+
+<span class="c1">//Read-in the data</span>
+<span class="k">const</span> <span class="kt">int64_t</span> <span class="n">ND1</span> <span class="o">=</span> <span class="n">read_positions</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">fileformat</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ra1</span><span class="p">),</span><span class="mi">3</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ra1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dec1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cz1</span><span class="p">);</span>
+
+<span class="n">ra2</span> <span class="o">=</span> <span class="n">ra1</span><span class="p">;</span>
+<span class="n">dec2</span> <span class="o">=</span> <span class="n">dec1</span><span class="p">;</span>
+<span class="n">cz2</span> <span class="o">=</span> <span class="n">cz1</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int64_t</span> <span class="n">ND2</span> <span class="o">=</span> <span class="n">ND1</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">config_options</span> <span class="n">options</span> <span class="o">=</span> <span class="n">get_config_options</span><span class="p">();</span>
+<span class="n">options</span><span class="p">.</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">options</span><span class="p">.</span><span class="n">periodic</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">options</span><span class="p">.</span><span class="n">need_avg_sep</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">options</span><span class="p">.</span><span class="n">float_type</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ra1</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-2-d-pair-counts-mocks-ddrppi-mocks-libcountpairs-rp-pi-mocks-a">
+<h3>Calculating 2-D pair counts (<code class="docutils literal notranslate"><span class="pre">mocks/DDrppi_mocks/libcountpairs_rp_pi_mocks.a</span></code>)<a class="headerlink" href="#calculating-2-d-pair-counts-mocks-ddrppi-mocks-libcountpairs-rp-pi-mocks-a" title="Permalink to this headline">¶</a></h3>
+<p>Here is a code snippet demonstrating how to calculate <span class="math notranslate nohighlight">\(DD(r_p, \pi)\)</span> for
+mock catalogs. The projected separation, <span class="math notranslate nohighlight">\(r_p\)</span> and line of sight
+separation, <span class="math notranslate nohighlight">\(\pi\)</span> are calculated using the following equations from <a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...571..172Z">Zehavi et
+al 2002</a>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{s} &amp;= \mathbf{v_1} - \mathbf{v_2}, \\
+\mathbf{l} &amp;= \frac{1}{2}\left(\mathbf{v_1} + \mathbf{v_2}\right), \\
+\pi &amp;= \left(\mathbf{s} \cdot \mathbf{l}\right)/\Vert\mathbf{l}\Vert, \\
+r_p^2 &amp;= \mathbf{s} \cdot \mathbf{s} - \pi^2\end{split}\]</div>
+<p>where, <span class="math notranslate nohighlight">\(\mathbf{v_1}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v_2}\)</span> are the vectors for the
+two points under consideration. Here is the C code for calling <code class="docutils literal notranslate"><span class="pre">DDrppi_mocks</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;countpairs_rp_pi_mocks.h&quot;</span><span class="cp"></span>
+
+<span class="n">results_countpairs_mocks</span> <span class="n">results</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="n">countpairs_mocks</span><span class="p">(</span><span class="n">ND1</span><span class="p">,</span><span class="n">ra1</span><span class="p">,</span><span class="n">dec1</span><span class="p">,</span><span class="n">cz1</span><span class="p">,</span>
+                              <span class="n">ND2</span><span class="p">,</span><span class="n">ra2</span><span class="p">,</span><span class="n">dec2</span><span class="p">,</span><span class="n">cz2</span><span class="p">,</span>
+                              <span class="n">nthreads</span><span class="p">,</span>
+                              <span class="n">autocorr</span><span class="p">,</span>
+                              <span class="n">binfile</span><span class="p">,</span>
+                              <span class="n">pimax</span><span class="p">,</span>
+                              <span class="n">cosmology</span><span class="p">,</span>
+                              <span class="o">&amp;</span><span class="n">results</span><span class="p">,</span>
+                              <span class="o">&amp;</span><span class="n">options</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="k">const</span> <span class="kt">double</span> <span class="n">dpi</span> <span class="o">=</span> <span class="n">pimax</span><span class="o">/</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">results</span><span class="p">.</span><span class="n">npibin</span> <span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">npibin</span> <span class="o">=</span> <span class="n">results</span><span class="p">.</span><span class="n">npibin</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">results</span><span class="p">.</span><span class="n">nbin</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="kt">double</span> <span class="n">logrp</span> <span class="o">=</span> <span class="n">LOG10</span><span class="p">(</span><span class="n">results</span><span class="p">.</span><span class="n">rupp</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">npibin</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">npibin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">j</span><span class="p">;</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">&quot;%10&quot;</span><span class="n">PRIu64</span><span class="s">&quot; %20.8lf %20.8lf  %20.8lf </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">results</span><span class="p">.</span><span class="n">npairs</span><span class="p">[</span><span class="n">index</span><span class="p">],</span><span class="n">results</span><span class="p">.</span><span class="n">rpavg</span><span class="p">[</span><span class="n">index</span><span class="p">],</span><span class="n">logrp</span><span class="p">,(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dpi</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is the generic pattern for using all of the correlation function. Look in
+<code class="docutils literal notranslate"><span class="pre">mocks/examples/run_correlations_mocks.c</span></code> for details on how to use all of the available
+static libraries.</p>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using the static library interface in Corrfunc</a><ul>
+<li><a class="reference internal" href="#worked-out-example-c-code-for-clustering-statistics-in-simulation-boxes">Worked out example C code for clustering statistics in simulation boxes</a><ul>
+<li><a class="reference internal" href="#common-setup-code-for-the-simulation-c-routines">Common setup code for the simulation C routines</a></li>
+<li><a class="reference internal" href="#calculating-2-d-projected-auto-correlation-theory-wp-libcountpairs-wp-a">Calculating 2-D projected auto-correlation (<code class="docutils literal notranslate"><span class="pre">theory/wp/libcountpairs_wp.a</span></code>)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#worked-out-example-c-code-for-clustering-statistics-in-mock-catalogs">Worked out example C code for clustering statistics in mock catalogs</a><ul>
+<li><a class="reference internal" href="#common-setup-code-for-the-mocks-c-routines">Common setup code for the mocks C routines</a></li>
+<li><a class="reference internal" href="#calculating-2-d-pair-counts-mocks-ddrppi-mocks-libcountpairs-rp-pi-mocks-a">Calculating 2-D pair counts (<code class="docutils literal notranslate"><span class="pre">mocks/DDrppi_mocks/libcountpairs_rp_pi_mocks.a</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="python-interface.html"
+                        title="previous chapter">Using the python extensions in Corrfunc</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="commandline-interface.html"
+                        title="next chapter">Using the command-line interface in Corrfunc</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/staticlibrary-interface.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="commandline-interface.html" title="Using the command-line interface in Corrfunc"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="python-interface.html" title="Using the python extensions in Corrfunc"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="quickstart.html" >Getting started with Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Using the static library interface in Corrfunc</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

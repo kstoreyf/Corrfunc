@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corrfunc.io &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../Corrfunc.html" accesskey="U">Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc.io</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Corrfunc.io</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Routines to read galaxy catalogs from disk.</span>
+<span class="sd">Updated with lognormal scripts!</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">splitext</span><span class="p">,</span> <span class="n">exists</span> <span class="k">as</span> <span class="n">file_exists</span><span class="p">,</span>\
+    <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">pd</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;read_fastfood_catalog&#39;</span><span class="p">,</span> <span class="s1">&#39;read_ascii_catalog&#39;</span><span class="p">,</span> <span class="s1">&#39;read_catalog&#39;</span><span class="p">,</span> <span class="s1">&#39;read_fortran_catalog&#39;</span><span class="p">,</span> <span class="s1">&#39;read_lognormal_catalog&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="read_fastfood_catalog"><a class="viewcode-back" href="../../api/Corrfunc.html#Corrfunc.io.read_fastfood_catalog">[docs]</a><span class="k">def</span> <span class="nf">read_fastfood_catalog</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">return_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">need_header</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read a galaxy catalog from a fast-food binary file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    filename: string</span>
+<span class="sd">        Filename containing the galaxy positions</span>
+
+<span class="sd">    return_dtype: numpy dtype for returned arrays. Default ``numpy.float``</span>
+<span class="sd">        Specifies the datatype for the returned arrays. Must be in</span>
+<span class="sd">        {np.float, np.float32}</span>
+
+<span class="sd">    need_header: boolean, default None.</span>
+<span class="sd">        Returns the header found in the fast-food file in addition to the</span>
+<span class="sd">        X/Y/Z arrays.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    X, Y, Z: numpy arrays</span>
+<span class="sd">        Returns the triplet of X/Y/Z positions as separate numpy arrays.</span>
+
+<span class="sd">        If need_header is set, then the header is also returned</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from os.path import dirname, abspath, join as pjoin</span>
+<span class="sd">    &gt;&gt;&gt; import Corrfunc</span>
+<span class="sd">    &gt;&gt;&gt; from Corrfunc.io import read_fastfood_catalog</span>
+<span class="sd">    &gt;&gt;&gt; filename = pjoin(dirname(abspath(Corrfunc.__file__)),</span>
+<span class="sd">    ...                  &quot;../theory/tests/data/&quot;,</span>
+<span class="sd">    ...                  &quot;gals_Mr19.ff&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; X, Y, Z = read_fastfood_catalog(filename)</span>
+<span class="sd">    &gt;&gt;&gt; N = 20</span>
+<span class="sd">    &gt;&gt;&gt; for x,y,z in zip(X[0:N], Y[0:N], Z[0:]):</span>
+<span class="sd">    ...     print(&quot;{0:10.5f} {1:10.5f} {2:10.5f}&quot;.format(x, y, z))</span>
+<span class="sd">    ...     # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">    419.94550    1.96340    0.01610</span>
+<span class="sd">    419.88272    1.79736    0.11960</span>
+<span class="sd">    0.32880   10.63620    4.16550</span>
+<span class="sd">    0.15314   10.68723    4.06529</span>
+<span class="sd">    0.46400    8.91150    6.97090</span>
+<span class="sd">    6.30690    9.77090    8.61080</span>
+<span class="sd">    5.87160    9.65870    9.29810</span>
+<span class="sd">    8.06210    0.42350    4.89410</span>
+<span class="sd">    11.92830    4.38660    4.54410</span>
+<span class="sd">    11.95543    4.32622    4.51485</span>
+<span class="sd">    11.65676    4.34665    4.53181</span>
+<span class="sd">    11.75739    4.26262    4.31666</span>
+<span class="sd">    11.81329    4.27530    4.49183</span>
+<span class="sd">    11.80406    4.54737    4.26824</span>
+<span class="sd">    12.61570    4.14470    3.70140</span>
+<span class="sd">    13.23640    4.34750    5.26450</span>
+<span class="sd">    13.19833    4.33196    5.29435</span>
+<span class="sd">    13.21249    4.35695    5.37418</span>
+<span class="sd">    13.06805    4.24275    5.35126</span>
+<span class="sd">    13.19693    4.37618    5.28772</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">return_dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">return_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+
+    <span class="k">if</span> <span class="n">return_dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">]:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Return data-type must be set and a valid numpy float&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Could not find file = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">struct</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">future.utils</span> <span class="kn">import</span> <span class="n">bytes_to_native_str</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">Please run python -m pip install Corrfunc before using &quot;</span>
+              <span class="s2">&quot;the &#39;Corrfunc&#39; package</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">skip1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idat</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@iiiii&#39;</span><span class="p">),</span>
+                             <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">20</span><span class="p">))[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">skip2</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">skip1</span> <span class="o">==</span> <span class="mi">20</span> <span class="ow">and</span> <span class="n">skip2</span> <span class="o">==</span> <span class="mi">20</span><span class="p">,</span>\
+            <span class="s2">&quot;fast-food file seems to be incorrect (reading idat)&quot;</span>
+        <span class="n">ngal</span> <span class="o">=</span> <span class="n">idat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">need_header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># now read fdat</span>
+            <span class="n">skip1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">fdat</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@fffffffff&#39;</span><span class="p">),</span>
+                                 <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">36</span><span class="p">))[</span><span class="mi">0</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span>
+            <span class="n">skip2</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">skip1</span> <span class="o">==</span> <span class="mi">36</span> <span class="ow">and</span> <span class="n">skip2</span> <span class="o">==</span> <span class="mi">36</span><span class="p">,</span>\
+                <span class="s2">&quot;fast-food file seems to be incorrect (reading fdat )&quot;</span>
+
+            <span class="n">skip1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">znow</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@f&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">skip2</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">skip1</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">skip2</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span>\
+                <span class="s2">&quot;fast-food file seems to be incorrect (reading redshift)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fdat_bytes</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">36</span> <span class="o">+</span> <span class="mi">4</span>
+            <span class="n">znow_bytes</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span>
+            <span class="c1"># seek over the fdat + znow fields + padding bytes</span>
+            <span class="c1"># from current position</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">fdat_bytes</span> <span class="o">+</span> <span class="n">znow_bytes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># read the padding bytes for the x-positions</span>
+        <span class="n">skip1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">skip1</span> <span class="o">==</span> <span class="n">ngal</span> <span class="o">*</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">skip1</span> <span class="o">==</span> <span class="n">ngal</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span> \
+            <span class="s2">&quot;fast-food file seems to be corrupt (padding bytes)&quot;</span>
+
+        <span class="c1"># seek back 4 bytes from current position</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="s1">&#39;xyz&#39;</span><span class="p">:</span>
+            <span class="n">skip1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">skip1</span> <span class="o">==</span> <span class="n">ngal</span> <span class="o">*</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">skip1</span> <span class="o">==</span> <span class="n">ngal</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span> \
+                <span class="s2">&quot;fast-food file seems to be corrupt (padding bytes a)&quot;</span>
+            <span class="c1"># the next division must be the integer division</span>
+            <span class="n">input_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span> <span class="k">if</span> <span class="n">skip1</span> <span class="o">//</span> <span class="n">ngal</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">input_dtype</span><span class="p">,</span> <span class="n">ngal</span><span class="p">)</span>
+            <span class="n">skip2</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;@i&#39;</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">return_dtype</span> <span class="o">==</span> <span class="n">input_dtype</span><span class="p">:</span>
+                <span class="n">pos</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pos</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">return_dtype</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">array</span><span class="p">]</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">need_header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">idat</span><span class="p">,</span> <span class="n">fdat</span><span class="p">,</span> <span class="n">znow</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span></div>
+
+
+<div class="viewcode-block" id="read_ascii_catalog"><a class="viewcode-back" href="../../api/Corrfunc.html#Corrfunc.io.read_ascii_catalog">[docs]</a><span class="k">def</span> <span class="nf">read_ascii_catalog</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">return_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read a galaxy catalog from an ascii file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    filename: string</span>
+<span class="sd">        Filename containing the galaxy positions</span>
+
+<span class="sd">    return_dtype: numpy dtype for returned arrays. Default ``numpy.float``</span>
+<span class="sd">        Specifies the datatype for the returned arrays. Must be in</span>
+<span class="sd">        {np.float, np.float32}</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    X, Y, Z: numpy arrays</span>
+<span class="sd">        Returns the triplet of X/Y/Z positions as separate numpy arrays.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from __future__ import print_function</span>
+<span class="sd">    &gt;&gt;&gt; from os.path import dirname, abspath, join as pjoin</span>
+<span class="sd">    &gt;&gt;&gt; import Corrfunc</span>
+<span class="sd">    &gt;&gt;&gt; from Corrfunc.io import read_ascii_catalog</span>
+<span class="sd">    &gt;&gt;&gt; filename = pjoin(dirname(abspath(Corrfunc.__file__)),</span>
+<span class="sd">    ...                 &quot;../mocks/tests/data/&quot;, &quot;Mr19_mock_northonly.rdcz.dat&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ra, dec, cz = read_ascii_catalog(filename)</span>
+<span class="sd">    &gt;&gt;&gt; N = 20</span>
+<span class="sd">    &gt;&gt;&gt; for r,d,c in zip(ra[0:N], dec[0:N], cz[0:]):</span>
+<span class="sd">    ...     print(&quot;{0:10.5f} {1:10.5f} {2:10.5f}&quot;.format(r, d, c))</span>
+<span class="sd">    ...     # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">    178.45087   67.01112 19905.28514</span>
+<span class="sd">    178.83495   67.72519 19824.02285</span>
+<span class="sd">    179.50132   67.67628 19831.21553</span>
+<span class="sd">    182.75497   67.13004 19659.79825</span>
+<span class="sd">    186.29853   68.64099 20030.64412</span>
+<span class="sd">    186.32346   68.65879 19763.38137</span>
+<span class="sd">    187.36173   68.15151 19942.66996</span>
+<span class="sd">    187.20613   68.56189 19996.36607</span>
+<span class="sd">    185.56358   67.97724 19729.32308</span>
+<span class="sd">    183.27930   67.11318 19609.71345</span>
+<span class="sd">    183.86498   67.82823 19500.44130</span>
+<span class="sd">    184.07771   67.43429 19440.53790</span>
+<span class="sd">    185.13370   67.15382 19390.60304</span>
+<span class="sd">    189.15907   68.28252 19858.85853</span>
+<span class="sd">    190.12209   68.55062 20044.29744</span>
+<span class="sd">    193.65245   68.36878 19445.62469</span>
+<span class="sd">    194.93514   68.34870 19158.93155</span>
+<span class="sd">    180.36897   67.50058 18671.40780</span>
+<span class="sd">    179.63278   67.51318 18657.59191</span>
+<span class="sd">    180.75742   67.95530 18586.88913</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">return_dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">return_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Could not find file = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># check if pandas is available - much faster to read in the data</span>
+    <span class="c1"># using pandas</span>
+    <span class="k">if</span> <span class="n">pd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">return_dtype</span><span class="p">,</span>
+                                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">return_dtype</span><span class="p">,</span>
+                                <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">return_dtype</span><span class="p">},</span>
+                         <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">return_dtype</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">return_dtype</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">return_dtype</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">return_dtype</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span></div>
+
+
+<div class="viewcode-block" id="read_fortran_catalog"><a class="viewcode-back" href="../../api/Corrfunc.html#Corrfunc.io.read_fortran_catalog">[docs]</a><span class="k">def</span> <span class="nf">read_fortran_catalog</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">return_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">return_dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">return_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span> <span class="c1"># b is important -&gt; binary</span>
+        <span class="n">fileContent</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">nleading</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="o">*</span><span class="mi">4</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;dddi&quot;</span><span class="p">,</span> <span class="n">fileContent</span><span class="p">[:</span><span class="n">nleading</span><span class="p">])</span>
+        <span class="n">Lx</span><span class="p">,</span> <span class="n">Ly</span><span class="p">,</span> <span class="n">Lz</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">header</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span> <span class="o">*</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">fileContent</span><span class="p">)</span> <span class="o">-</span><span class="n">nleading</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">),</span> <span class="n">fileContent</span><span class="p">[</span><span class="n">nleading</span><span class="p">:])</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">return_dtype</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span></div>
+
+
+<div class="viewcode-block" id="read_lognormal_catalog"><a class="viewcode-back" href="../../api/Corrfunc.html#Corrfunc.io.read_lognormal_catalog">[docs]</a><span class="k">def</span> <span class="nf">read_lognormal_catalog</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="s1">&#39;3e-4&#39;</span><span class="p">):</span>
+
+    <span class="n">filedir</span> <span class="o">=</span> <span class="s1">&#39;../theory/tests/data&#39;</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="n">filedir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cat_L750_n</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">_lognormal_rlz0.bin&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">read_fortran_catalog</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read_catalog"><a class="viewcode-back" href="../../api/Corrfunc.html#Corrfunc.io.read_catalog">[docs]</a><span class="k">def</span> <span class="nf">read_catalog</span><span class="p">(</span><span class="n">filebase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads a galaxy/randoms catalog and returns 3 XYZ arrays.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+
+<span class="sd">    filebase: string (optional)</span>
+<span class="sd">        The fully qualified path to the file. If omitted, reads the</span>
+<span class="sd">        theory galaxy catalog under ../theory/tests/data/</span>
+
+<span class="sd">    return_dtype: numpy dtype for returned arrays. Default ``numpy.float``</span>
+<span class="sd">        Specifies the datatype for the returned arrays. Must be in</span>
+<span class="sd">        {np.float, np.float32}</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    ``x y z`` - Unpacked numpy arrays compatible with the installed</span>
+<span class="sd">    version of ``Corrfunc``.</span>
+
+
+<span class="sd">    .. note:: If the filename is omitted, then first the fast-food file</span>
+<span class="sd">        is searched for, and then the ascii file. End-users should always</span>
+<span class="sd">        supply the full filename.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">filebase</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+                         <span class="s2">&quot;../theory/tests/data/&quot;</span><span class="p">,</span> <span class="s2">&quot;gals_Mr19&quot;</span><span class="p">)</span>
+        <span class="n">allowed_exts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;.ff&#39;</span><span class="p">:</span> <span class="n">read_fastfood_catalog</span><span class="p">,</span>
+                        <span class="s1">&#39;.txt&#39;</span><span class="p">:</span> <span class="n">read_ascii_catalog</span><span class="p">,</span>
+                        <span class="s1">&#39;.dat&#39;</span><span class="p">:</span> <span class="n">read_ascii_catalog</span><span class="p">,</span>
+                        <span class="s1">&#39;.csv&#39;</span><span class="p">:</span> <span class="n">read_ascii_catalog</span><span class="p">,</span>
+                        <span class="s1">&#39;.bin&#39;</span><span class="p">:</span> <span class="n">read_fortran_catalog</span>
+                        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">allowed_exts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="n">e</span><span class="p">):</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">allowed_exts</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="n">e</span><span class="p">,</span> <span class="n">return_dtype</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span>
+
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Could not locate </span><span class="si">{0}</span><span class="s2"> with any of these extensions </span><span class="se">\</span>
+<span class="s2">        = </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allowed_exts</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Likely an user-supplied value</span>
+        <span class="k">if</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">filebase</span><span class="p">):</span>
+            <span class="n">extension</span> <span class="o">=</span> <span class="n">splitext</span><span class="p">(</span><span class="n">filebase</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;.ff&#39;</span> <span class="ow">in</span> <span class="n">extension</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">read_fastfood_catalog</span>
+            <span class="k">elif</span> <span class="s1">&#39;.bin&#39;</span> <span class="ow">in</span> <span class="n">extension</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">read_fortran_catalog</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">read_ascii_catalog</span>
+
+            <span class="c1"># default return is double</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">filebase</span><span class="p">,</span> <span class="n">return_dtype</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span>
+
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Could not locate file </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filebase</span><span class="p">))</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../Corrfunc.html" >Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc.io</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

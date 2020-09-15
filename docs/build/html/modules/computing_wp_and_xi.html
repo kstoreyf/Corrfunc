@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Directly Computing \(\xi(r)\) and \(wp(rp)\) &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Detailed API for Clustering Statistics on Simulations" href="theory_functions.html" />
+    <link rel="prev" title="Converting \((r_p, \pi)\) pairs into a projected correlation function" href="converting_rp_pi_counts.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="theory_functions.html" title="Detailed API for Clustering Statistics on Simulations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="converting_rp_pi_counts.html" title="Converting \((r_p, \pi)\) pairs into a projected correlation function"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Directly Computing <span class="math notranslate nohighlight">\(\xi(r)\)</span> and <span class="math notranslate nohighlight">\(wp(rp)\)</span></a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="directly-computing-xi-r-and-wp-rp">
+<span id="computing-wp-and-xi"></span><h1>Directly Computing <span class="math notranslate nohighlight">\(\xi(r)\)</span> and <span class="math notranslate nohighlight">\(wp(rp)\)</span><a class="headerlink" href="#directly-computing-xi-r-and-wp-rp" title="Permalink to this headline">¶</a></h1>
+<p>For a periodic cosmological box, the 3-d auto correlation, <span class="math notranslate nohighlight">\(\xi(r)\)</span>, and
+the projected auto correlation function, <span class="math notranslate nohighlight">\(wp(rp)\)</span>, can be directly computed
+using the Natural Estimator. The relevant python wrappers are present in
+<a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.xi" title="Corrfunc.theory.xi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code></a> and <a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.wp" title="Corrfunc.theory.wp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.wp</span></code></a>.  See <a class="reference internal" href="rr_autocorrelations.html#rr-autocorrelations"><span class="std std-ref">Notes on the Random-Random Term in Autocorrelations</span></a>
+for details on how the Natural Estimator is computed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory.wp</span> <span class="kn">import</span> <span class="n">wp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory.xi</span> <span class="kn">import</span> <span class="n">xi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_catalog</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boxsize</span> <span class="o">=</span> <span class="mf">420.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nthreads</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pimax</span> <span class="o">=</span> <span class="mf">40.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbins</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># Note the + 1 to nbins</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wp_counts</span> <span class="o">=</span> <span class="n">wp</span><span class="p">(</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xi_counts</span> <span class="o">=</span> <span class="n">xi</span><span class="p">(</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the complete reference here <a class="reference internal" href="../api/Corrfunc.html#module-Corrfunc" title="Corrfunc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc</span></code></a>.</p>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="converting_rp_pi_counts.html"
+                        title="previous chapter">Converting <span class="math notranslate nohighlight">\((r_p, \pi)\)</span> pairs into a projected correlation function</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="theory_functions.html"
+                        title="next chapter">Detailed API for Clustering Statistics on Simulations</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/computing_wp_and_xi.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="theory_functions.html" title="Detailed API for Clustering Statistics on Simulations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="converting_rp_pi_counts.html" title="Converting \((r_p, \pi)\) pairs into a projected correlation function"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Directly Computing <span class="math notranslate nohighlight">\(\xi(r)\)</span> and <span class="math notranslate nohighlight">\(wp(rp)\)</span></a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

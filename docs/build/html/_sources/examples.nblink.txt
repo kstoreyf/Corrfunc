@@ -1,0 +1,4 @@
+{
+        "path": "../../examples/example_bao_theory.ipynb", 
+        "path": "../../example_theory.ipynb"
+}

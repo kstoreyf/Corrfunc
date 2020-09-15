@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computing Weighted Correlation Functions &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Implementing Custom Weight Functions" href="custom_weighting.html" />
+    <link rel="prev" title="Detailed API for Clustering Statistics on Mock Catalogs" href="mock_functions.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="custom_weighting.html" title="Implementing Custom Weight Functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mock_functions.html" title="Detailed API for Clustering Statistics on Mock Catalogs"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Computing Weighted Correlation Functions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="computing-weighted-correlation-functions">
+<span id="weighted-correlations"></span><h1>Computing Weighted Correlation Functions<a class="headerlink" href="#computing-weighted-correlation-functions" title="Permalink to this headline">¶</a></h1>
+<p>Every clustering statistic in <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> accepts an array
+of weights that can be used to compute weighted correlation
+functions. The API reference for each clustering statistic
+(<a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.xi" title="Corrfunc.theory.xi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code></a>, <a class="reference internal" href="../api/Corrfunc.mocks.html#Corrfunc.mocks.DDrppi_mocks" title="Corrfunc.mocks.DDrppi_mocks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDrppi_mocks</span></code></a>,
+etc.) contains examples of how to do this.  The interface is standard across functions: the
+inputs are a <code class="docutils literal notranslate"><span class="pre">weights</span></code> array and a <code class="docutils literal notranslate"><span class="pre">weight_type</span></code> string
+that specifies how to use the “point weights” to compute a “pair weight”.
+Currently, the only supported <code class="docutils literal notranslate"><span class="pre">weight_type</span></code> is <code class="docutils literal notranslate"><span class="pre">pair_product</span></code>,
+in which the pair weight is the product of the point weights
+(but see <a class="reference internal" href="custom_weighting.html#custom-weighting"><span class="std std-ref">Implementing Custom Weight Functions</span></a> for how to write your own
+function).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">weight_type</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> (or <code class="docutils literal notranslate"><span class="pre">weights1</span></code> and <code class="docutils literal notranslate"><span class="pre">weights2</span></code>
+for cross-correlations) are given, the mean pair weight in a
+separation bin will be given in the <code class="docutils literal notranslate"><span class="pre">weightavg</span></code> field of the
+output.  This field is 0.0 if weights are disabled.</p>
+<p>Pair counts (i.e. the <code class="docutils literal notranslate"><span class="pre">npairs</span></code> field in the <code class="docutils literal notranslate"><span class="pre">results</span></code> array)
+are never affected by weights.  For theory functions like
+<a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.xi" title="Corrfunc.theory.xi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code></a> and <a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.wp" title="Corrfunc.theory.wp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.wp</span></code></a>
+that actually return a clustering statistic, the statistic is weighted.
+For <code class="docutils literal notranslate"><span class="pre">pair_product</span></code>, the distribution used to compute the
+expected bin weight from an unclustered particle set (the <code class="docutils literal notranslate"><span class="pre">RR</span></code> term)
+is taken to be a spatially uniform particle set where every particle
+has the mean weight.  See <a class="reference internal" href="rr_autocorrelations.html#weighted-rr"><span class="std std-ref">RR in Weighted Clustering Statistics</span></a> for more discussion.</p>
+<p>Running with weights incurrs a modest performance hit (around
+20%, similar to enabling <code class="docutils literal notranslate"><span class="pre">ravg</span></code>).  Weights are supported for
+all instruction sets (SSE, AVX, and fallback).</p>
+<p>Consider the following simple example adapted from the <a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.xi" title="Corrfunc.theory.xi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code></a>
+docstring, in which we assign a weight of 0.5 to every particle and get
+the expected average pair weight of 0.25 (last column of the output).
+Note that <code class="docutils literal notranslate"><span class="pre">xi</span></code> (fourth column) is also weighted, but the case of uniform
+weights is equivalent to the unweighted case.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Corrfunc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory.xi</span> <span class="kn">import</span> <span class="n">xi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binfile</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span>
+<span class="gp">... </span>                <span class="s2">&quot;../theory/tests/&quot;</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">100000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boxsize</span> <span class="o">=</span> <span class="mf">420.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nthreads</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">xi</span><span class="p">(</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">binfile</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">weight_type</span><span class="o">=</span><span class="s1">&#39;pair_product&#39;</span><span class="p">,</span> <span class="n">output_ravg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:10.6f}</span><span class="s2"> </span><span class="si">{1:10.6f}</span><span class="s2"> </span><span class="si">{2:10.6f}</span><span class="s2"> </span><span class="si">{3:10.6f}</span><span class="s2"> </span><span class="si">{4:10d}</span><span class="s2"> </span><span class="si">{5:10.6f}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;rmin&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;rmax&#39;</span><span class="p">],</span>
+<span class="gp">... </span>                        <span class="n">r</span><span class="p">[</span><span class="s1">&#39;ravg&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;xi&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;npairs&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;weightavg&#39;</span><span class="p">]))</span>
+<span class="gp">... </span>                  
+<span class="go">      0.167536   0.238755   0.226592  -0.205733          4   0.250000</span>
+<span class="go">      0.238755   0.340251   0.289277  -0.176729         12   0.250000</span>
+<span class="go">      0.340251   0.484892   0.426819  -0.051829         40   0.250000</span>
+<span class="go">      0.484892   0.691021   0.596187  -0.131853        106   0.250000</span>
+<span class="go">      0.691021   0.984777   0.850100  -0.049207        336   0.250000</span>
+<span class="go">      0.984777   1.403410   1.225112   0.028543       1052   0.250000</span>
+<span class="go">      1.403410   2.000000   1.737153   0.011403       2994   0.250000</span>
+<span class="go">      2.000000   2.850200   2.474588   0.005405       8614   0.250000</span>
+<span class="go">      2.850200   4.061840   3.532018  -0.014098      24448   0.250000</span>
+<span class="go">      4.061840   5.788530   5.022241  -0.010784      70996   0.250000</span>
+<span class="go">      5.788530   8.249250   7.160648  -0.001588     207392   0.250000</span>
+<span class="go">      8.249250  11.756000  10.207213  -0.000323     601002   0.250000</span>
+<span class="go">     11.756000  16.753600  14.541171   0.000007    1740084   0.250000</span>
+<span class="go">     16.753600  23.875500  20.728773  -0.001595    5028058   0.250000</span>
+</pre></div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mock_functions.html"
+                        title="previous chapter">Detailed API for Clustering Statistics on Mock Catalogs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="custom_weighting.html"
+                        title="next chapter">Implementing Custom Weight Functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/weighted_correlations.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="custom_weighting.html" title="Implementing Custom Weight Functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mock_functions.html" title="Detailed API for Clustering Statistics on Mock Catalogs"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Computing Weighted Correlation Functions</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

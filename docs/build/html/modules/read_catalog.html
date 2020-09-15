@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reading Catalogs for Corrfunc &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fast-food binary format" href="fast_food_binary.html" />
+    <link rel="prev" title="Typical Tasks for Computing Correlation Functions" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fast_food_binary.html" title="Fast-food binary format"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Typical Tasks for Computing Correlation Functions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Reading Catalogs for Corrfunc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="reading-catalogs-for-corrfunc">
+<span id="read-catalog"></span><h1>Reading Catalogs for Corrfunc<a class="headerlink" href="#reading-catalogs-for-corrfunc" title="Permalink to this headline">¶</a></h1>
+<p>All of the <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> routines require some sort of
+position arrays, X/Y/Z, as input. These arrays are
+expected to be 1-D arrays of type <code class="docutils literal notranslate"><span class="pre">np.array</span></code>. If
+you already have have the required <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays,
+then you can just pass them straight to <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code>.
+If you need to read the arrays in from disk, then read
+on. For the command-line interface, the input files can only
+be in ASCII or fast-food format (for description of fast-food
+binaries, see <a class="reference internal" href="fast_food_binary.html#fast-food-binary"><span class="std std-ref">Fast-food binary format</span></a>).</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fast_food_binary.html">Fast-food binary format</a></li>
+</ul>
+</div>
+<div class="section" id="reading-from-ascii-files">
+<h2>Reading from ASCII files<a class="headerlink" href="#reading-from-ascii-files" title="Permalink to this headline">¶</a></h2>
+<p>This is the most straight forward way – you need an ASCII
+file with columns X/Y/Z (white-space separated).</p>
+<div class="section" id="using-numpy-genfromtxt">
+<h3>Using <code class="docutils literal notranslate"><span class="pre">numpy.genfromtxt</span></code><a class="headerlink" href="#using-numpy-genfromtxt" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">fname</span> <span class="o">=</span> <span class="s2">&quot;myfile_containing_xyz_columns.dat&quot;</span>
+
+<span class="c1"># For double precision calculations</span>
+<span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span>  <span class="c1">## change to np.float32 for single precision</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.read_catalog</span></code> uses this exact code-snippet to read in ASCII files in python.</p>
+</div>
+</div>
+</div>
+<div class="section" id="reading-from-fast-food-files">
+<h2>Reading from fast-food files<a class="headerlink" href="#reading-from-fast-food-files" title="Permalink to this headline">¶</a></h2>
+<p>If you are using the command-line interface, then the code will <strong>have</strong> to
+read the arrays from files. While <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> natively supports both
+ASCII and fast-food formats (for description of fast-food binaries, see
+<a class="reference internal" href="fast_food_binary.html#fast-food-binary"><span class="std std-ref">Fast-food binary format</span></a>), the following python utility is intended to
+read both these types of files.</p>
+<div class="section" id="using-utility-corrfunc-io-read-catalog">
+<h3>Using utility: <a class="reference internal" href="../api/Corrfunc.html#Corrfunc.io.read_catalog" title="Corrfunc.io.read_catalog"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.io.read_catalog</span></code></a><a class="headerlink" href="#using-utility-corrfunc-io-read-catalog" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="../api/Corrfunc.html#Corrfunc.io.read_catalog" title="Corrfunc.io.read_catalog"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.io.read_catalog</span></code></a> can directly read ASCII files or fast-food binary
+files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_catalog</span>
+
+<span class="c1"># Read the standard theory catalog (on a box)</span>
+<span class="c1"># supplied with Corrfunc</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">()</span>
+
+<span class="c1"># Read some other format -&gt; have to specify</span>
+<span class="c1"># filename</span>
+<span class="n">fname</span> <span class="o">=</span> <span class="s2">&quot;myfile_containing_xyz_columns.dat&quot;</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Reading Catalogs for Corrfunc</a><ul>
+<li><a class="reference internal" href="#reading-from-ascii-files">Reading from ASCII files</a><ul>
+<li><a class="reference internal" href="#using-numpy-genfromtxt">Using <code class="docutils literal notranslate"><span class="pre">numpy.genfromtxt</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reading-from-fast-food-files">Reading from fast-food files</a><ul>
+<li><a class="reference internal" href="#using-utility-corrfunc-io-read-catalog">Using utility: <code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.io.read_catalog</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Typical Tasks for Computing Correlation Functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="fast_food_binary.html"
+                        title="next chapter">Fast-food binary format</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/read_catalog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fast_food_binary.html" title="Fast-food binary format"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Typical Tasks for Computing Correlation Functions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Reading Catalogs for Corrfunc</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

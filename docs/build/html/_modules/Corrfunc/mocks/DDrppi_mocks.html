@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corrfunc.mocks.DDrppi_mocks &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../../../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../Corrfunc.html" accesskey="U">Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc.mocks.DDrppi_mocks</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Corrfunc.mocks.DDrppi_mocks</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python wrapper around the C extension for the pair counter in</span>
+<span class="sd">``mocks/DDrppi_mocks/``. This python wrapper is</span>
+<span class="sd">:py:mod:`Corrfunc.mocks.DDrppi_mocks`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Manodeep Sinha&#39;</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;DDrppi_mocks&#39;</span><span class="p">,</span> <span class="p">)</span>
+
+
+<div class="viewcode-block" id="DDrppi_mocks"><a class="viewcode-back" href="../../../api/Corrfunc.mocks.html#Corrfunc.mocks.DDrppi_mocks">[docs]</a><span class="k">def</span> <span class="nf">DDrppi_mocks</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">cosmology</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">binfile</span><span class="p">,</span>
+                 <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">CZ1</span><span class="p">,</span> <span class="n">weights1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">RA2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">DEC2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">CZ2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">is_comoving_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_rpavg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">fast_divide_and_NR_steps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">xbin_refine_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ybin_refine_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">zbin_refine_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cells_per_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">copy_particles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_min_sep_opt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">c_api_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">isa</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;fastest&#39;</span><span class="p">,</span> <span class="n">weight_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the 2-D pair-counts corresponding to the projected correlation</span>
+<span class="sd">    function, :math:`\\xi(r_p, \pi)`. Pairs which are separated by less</span>
+<span class="sd">    than the ``rp`` bins (specified in ``binfile``) in the</span>
+<span class="sd">    X-Y plane, and less than ``pimax`` in the Z-dimension are</span>
+<span class="sd">    counted. The input positions are expected to be on-sky co-ordinates.</span>
+<span class="sd">    This module is suitable for calculating correlation functions for mock</span>
+<span class="sd">    catalogs.</span>
+
+<span class="sd">    If ``weights`` are provided, the resulting pair counts are weighted.  The</span>
+<span class="sd">    weighting scheme depends on ``weight_type``.</span>
+
+<span class="sd">    Returns a numpy structured array containing the pair counts for the</span>
+<span class="sd">    specified bins.</span>
+
+
+<span class="sd">    .. note:: that this module only returns pair counts and not the actual</span>
+<span class="sd">       correlation function :math:`\\xi(r_p, \pi)` or :math:`wp(r_p)`. See the</span>
+<span class="sd">       utilities :py:mod:`Corrfunc.utils.convert_3d_counts_to_cf` and</span>
+<span class="sd">       :py:mod:`Corrfunc.utils.convert_rp_pi_counts_to_wp` for computing</span>
+<span class="sd">       :math:`\\xi(r_p, \pi)` and :math:`wp(r_p)` respectively from the</span>
+<span class="sd">       pair counts.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+
+<span class="sd">    autocorr : boolean, required</span>
+<span class="sd">        Boolean flag for auto/cross-correlation. If autocorr is set to 1,</span>
+<span class="sd">        then the second set of particle positions are not required.</span>
+
+<span class="sd">    cosmology : integer, required</span>
+<span class="sd">        Integer choice for setting cosmology. Valid values are 1-&gt;LasDamas</span>
+<span class="sd">        cosmology and 2-&gt;Planck cosmology. If you need arbitrary cosmology,</span>
+<span class="sd">        easiest way is to convert the ``CZ`` values into co-moving distance,</span>
+<span class="sd">        based on your preferred cosmology. Set ``is_comoving_dist=True``, to</span>
+<span class="sd">        indicate that the co-moving distance conversion has already been done.</span>
+
+<span class="sd">        Choices:</span>
+<span class="sd">                 1. LasDamas cosmology. :math:`\\Omega_m=0.25`, :math:`\\Omega_\Lambda=0.75`</span>
+<span class="sd">                 2. Planck   cosmology. :math:`\\Omega_m=0.302`, :math:`\\Omega_\Lambda=0.698`</span>
+
+<span class="sd">        To setup a new cosmology, add an entry to the function,</span>
+<span class="sd">        ``init_cosmology`` in ``ROOT/utils/cosmology_params.c`` and re-install</span>
+<span class="sd">        the entire package.</span>
+
+<span class="sd">    nthreads : integer</span>
+<span class="sd">        The number of OpenMP threads to use. Has no effect if OpenMP was not</span>
+<span class="sd">        enabled during library compilation.</span>
+
+<span class="sd">    pimax : double</span>
+<span class="sd">        A double-precision value for the maximum separation along</span>
+<span class="sd">        the Z-dimension.</span>
+
+<span class="sd">        Distances along the :math:`\\pi` direction are binned with unit</span>
+<span class="sd">        depth. For instance, if ``pimax=40``, then 40 bins will be created</span>
+<span class="sd">        along the ``pi`` direction. Only pairs with ``0 &lt;= dz &lt; pimax``</span>
+<span class="sd">        are counted (no equality).</span>
+
+<span class="sd">    binfile: string or an list/array of floats</span>
+<span class="sd">        For string input: filename specifying the ``rp`` bins for</span>
+<span class="sd">        ``DDrppi_mocks``. The file should contain white-space separated values</span>
+<span class="sd">        of (rpmin, rpmax)  for each ``rp`` wanted. The bins need to be</span>
+<span class="sd">        contiguous and sorted in increasing order (smallest bins come first).</span>
+
+<span class="sd">        For array-like input: A sequence of ``rp`` values that provides the</span>
+<span class="sd">        bin-edges. For example,</span>
+<span class="sd">        ``np.logspace(np.log10(0.1), np.log10(10.0), 15)`` is a valid</span>
+<span class="sd">        input specifying **14** (logarithmic) bins between 0.1 and 10.0. This</span>
+<span class="sd">        array does not need to be sorted.</span>
+
+<span class="sd">    RA1 : array-like, real (float/double)</span>
+<span class="sd">        The array of Right Ascensions for the first set of points. RA&#39;s</span>
+<span class="sd">        are expected to be in [0.0, 360.0], but the code will try to fix cases</span>
+<span class="sd">        where the RA&#39;s are in [-180, 180.0]. For peace of mind, always supply</span>
+<span class="sd">        RA&#39;s in [0.0, 360.0].</span>
+
+<span class="sd">        Calculations are done in the precision of the supplied arrays.</span>
+
+<span class="sd">    DEC1 : array-like, real (float/double)</span>
+<span class="sd">        Array of Declinations for the first set of points. DEC&#39;s are expected</span>
+<span class="sd">        to be in the [-90.0, 90.0], but the code will try to fix cases where</span>
+<span class="sd">        the DEC&#39;s are in [0.0, 180.0]. Again, for peace of mind, always supply</span>
+<span class="sd">        DEC&#39;s in [-90.0, 90.0].</span>
+
+<span class="sd">        Must be of same precision type as RA1.</span>
+
+<span class="sd">    CZ1 : array-like, real (float/double)</span>
+<span class="sd">        Array of (Speed Of Light * Redshift) values for the first set of</span>
+<span class="sd">        points. Code will try to detect cases where ``redshifts`` have been</span>
+<span class="sd">        passed and multiply the entire array with the ``speed of light``.</span>
+
+<span class="sd">        If is_comoving_dist is set, then ``CZ1`` is interpreted as the</span>
+<span class="sd">        co-moving distance, rather than `cz`.</span>
+
+<span class="sd">    weights1 : array_like, real (float/double), optional</span>
+<span class="sd">        A scalar, or an array of weights of shape (n_weights, n_positions) or (n_positions,).</span>
+<span class="sd">        `weight_type` specifies how these weights are used; results are returned</span>
+<span class="sd">        in the `weightavg` field.  If only one of weights1 and weights2 is</span>
+<span class="sd">        specified, the other will be set to uniform weights.</span>
+
+<span class="sd">    RA2 : array-like, real (float/double)</span>
+<span class="sd">        The array of Right Ascensions for the second set of points. RA&#39;s</span>
+<span class="sd">        are expected to be in [0.0, 360.0], but the code will try to fix cases</span>
+<span class="sd">        where the RA&#39;s are in [-180, 180.0]. For peace of mind, always supply</span>
+<span class="sd">        RA&#39;s in [0.0, 360.0].</span>
+
+<span class="sd">        Must be of same precision type as RA1/DEC1/CZ1.</span>
+
+<span class="sd">    DEC2 : array-like, real (float/double)</span>
+<span class="sd">        Array of Declinations for the second set of points. DEC&#39;s are expected</span>
+<span class="sd">        to be in the [-90.0, 90.0], but the code will try to fix cases where</span>
+<span class="sd">        the DEC&#39;s are in [0.0, 180.0]. Again, for peace of mind, always supply</span>
+<span class="sd">        DEC&#39;s in [-90.0, 90.0].</span>
+
+<span class="sd">        Must be of same precision type as RA1/DEC1/CZ1.</span>
+
+<span class="sd">    CZ2 : array-like, real (float/double)</span>
+<span class="sd">        Array of (Speed Of Light * Redshift) values for the second set of</span>
+<span class="sd">        points. Code will try to detect cases where ``redshifts`` have been</span>
+<span class="sd">        passed and multiply the entire array with the ``speed of light``.</span>
+
+<span class="sd">        If is_comoving_dist is set, then ``CZ2`` is interpreted as the</span>
+<span class="sd">        co-moving distance, rather than `cz`.</span>
+
+<span class="sd">        Must be of same precision type as RA1/DEC1/CZ1.</span>
+
+<span class="sd">    weights2 : array-like, real (float/double), optional</span>
+<span class="sd">        Same as weights1, but for the second set of positions</span>
+
+<span class="sd">    is_comoving_dist : boolean (default false)</span>
+<span class="sd">        Boolean flag to indicate that ``cz`` values have already been</span>
+<span class="sd">        converted into co-moving distances. This flag allows arbitrary</span>
+<span class="sd">        cosmologies to be used in ``Corrfunc``.</span>
+
+<span class="sd">    verbose : boolean (default false)</span>
+<span class="sd">        Boolean flag to control output of informational messages</span>
+
+<span class="sd">    output_rpavg : boolean (default false)</span>
+<span class="sd">        Boolean flag to output the average ``rp`` for each bin. Code will</span>
+<span class="sd">        run slower if you set this flag.</span>
+
+<span class="sd">        If you are calculating in single-precision, ``rpavg`` will suffer</span>
+<span class="sd">        suffer from numerical loss of precision and can not be trusted. If</span>
+<span class="sd">        you need accurate ``rpavg`` values, then pass in double precision</span>
+<span class="sd">        arrays for the particle positions.</span>
+
+<span class="sd">    fast_divide_and_NR_steps: integer (default 0)</span>
+<span class="sd">        Replaces the division in ``AVX`` implementation with an approximate</span>
+<span class="sd">        reciprocal, followed by ``fast_divide_and_NR_steps`` of Newton-Raphson.</span>
+<span class="sd">        Can improve runtime by ~15-20% on older computers. Value of 0 uses</span>
+<span class="sd">        the standard division operation.</span>
+
+<span class="sd">    (xyz)bin_refine_factor : integer, default is (2,2,1); typically within [1-3]</span>
+<span class="sd">        Controls the refinement on the cell sizes. Can have up to a 20% impact</span>
+<span class="sd">        on runtime.</span>
+
+<span class="sd">    max_cells_per_dim: integer, default is 100, typical values in [50-300]</span>
+<span class="sd">        Controls the maximum number of cells per dimension. Total number of</span>
+<span class="sd">        cells can be up to (max_cells_per_dim)^3. Only increase if ``rpmax`` is</span>
+<span class="sd">        too small relative to the boxsize (and increasing helps the runtime).</span>
+
+<span class="sd">    copy_particles: boolean (default True)</span>
+<span class="sd">        Boolean flag to make a copy of the particle positions</span>
+<span class="sd">        If set to False, the particles will be re-ordered in-place</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+
+<span class="sd">    enable_min_sep_opt: boolean (default true)</span>
+<span class="sd">       Boolean flag to allow optimizations based on min. separation between</span>
+<span class="sd">       pairs of cells. Here to allow for comparison studies.</span>
+
+<span class="sd">       .. versionadded:: 2.3.0</span>
+
+<span class="sd">    c_api_timer : boolean (default false)</span>
+<span class="sd">        Boolean flag to measure actual time spent in the C libraries. Here</span>
+<span class="sd">        to allow for benchmarking and scaling studies.</span>
+
+<span class="sd">    isa: string, case-insensitive (default ``fastest``)</span>
+<span class="sd">       Controls the runtime dispatch for the instruction set to use. Possible</span>
+<span class="sd">       options are: [``fastest``, ``avx512f``, ``avx``, ``sse42``, ``fallback``]</span>
+
+<span class="sd">       Setting isa to ``fastest`` will pick the fastest available instruction</span>
+<span class="sd">       set on the current computer. However, if you set ``isa`` to, say,</span>
+<span class="sd">       ``avx`` and ``avx`` is not available on the computer, then the code will</span>
+<span class="sd">       revert to using ``fallback`` (even though ``sse42`` might be available).</span>
+
+<span class="sd">       Unless you are benchmarking the different instruction sets, you should</span>
+<span class="sd">       always leave ``isa`` to the default value. And if you *are*</span>
+<span class="sd">       benchmarking, then the string supplied here gets translated into an</span>
+<span class="sd">       ``enum`` for the instruction set defined in ``utils/defs.h``.</span>
+
+<span class="sd">    weight_type : string, optional (default None)</span>
+<span class="sd">        The type of weighting to apply.  One of [&quot;pair_product&quot;, None].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    results : Numpy structured array</span>
+
+<span class="sd">        A numpy structured array containing [rpmin, rpmax, rpavg, pimax,</span>
+<span class="sd">        npairs, weightavg] for each radial bin specified in the ``binfile``.</span>
+<span class="sd">        If ``output_ravg`` is not set, then ``rpavg`` will be set to 0.0 for</span>
+<span class="sd">        all bins; similarly for ``weightavg``. ``npairs`` contains the number</span>
+<span class="sd">        of pairs in that bin and can be used to compute the actual</span>
+<span class="sd">        :math:`\\xi(r_p, \pi)` or :math:`wp(rp)` by combining with</span>
+<span class="sd">        (DR, RR) counts.</span>
+
+<span class="sd">    api_time : float, optional</span>
+<span class="sd">        Only returned if ``c_api_timer`` is set.  ``api_time`` measures only</span>
+<span class="sd">        the time spent within the C library and ignores all python overhead.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    &gt;&gt;&gt; from __future__ import print_function</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from os.path import dirname, abspath, join as pjoin</span>
+<span class="sd">    &gt;&gt;&gt; import Corrfunc</span>
+<span class="sd">    &gt;&gt;&gt; from Corrfunc.mocks.DDrppi_mocks import DDrppi_mocks</span>
+<span class="sd">    &gt;&gt;&gt; import math</span>
+<span class="sd">    &gt;&gt;&gt; binfile = pjoin(dirname(abspath(Corrfunc.__file__)),</span>
+<span class="sd">    ...                 &quot;../mocks/tests/&quot;, &quot;bins&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; N = 100000</span>
+<span class="sd">    &gt;&gt;&gt; boxsize = 420.0</span>
+<span class="sd">    &gt;&gt;&gt; seed = 42</span>
+<span class="sd">    &gt;&gt;&gt; np.random.seed(seed)</span>
+<span class="sd">    &gt;&gt;&gt; X = np.random.uniform(-0.5*boxsize, 0.5*boxsize, N)</span>
+<span class="sd">    &gt;&gt;&gt; Y = np.random.uniform(-0.5*boxsize, 0.5*boxsize, N)</span>
+<span class="sd">    &gt;&gt;&gt; Z = np.random.uniform(-0.5*boxsize, 0.5*boxsize, N)</span>
+<span class="sd">    &gt;&gt;&gt; weights = np.ones_like(X)</span>
+<span class="sd">    &gt;&gt;&gt; CZ = np.sqrt(X*X + Y*Y + Z*Z)</span>
+<span class="sd">    &gt;&gt;&gt; inv_cz = 1.0/CZ</span>
+<span class="sd">    &gt;&gt;&gt; X *= inv_cz</span>
+<span class="sd">    &gt;&gt;&gt; Y *= inv_cz</span>
+<span class="sd">    &gt;&gt;&gt; Z *= inv_cz</span>
+<span class="sd">    &gt;&gt;&gt; DEC = 90.0 - np.arccos(Z)*180.0/math.pi</span>
+<span class="sd">    &gt;&gt;&gt; RA = (np.arctan2(Y, X)*180.0/math.pi) + 180.0</span>
+<span class="sd">    &gt;&gt;&gt; autocorr = 1</span>
+<span class="sd">    &gt;&gt;&gt; cosmology = 1</span>
+<span class="sd">    &gt;&gt;&gt; nthreads = 2</span>
+<span class="sd">    &gt;&gt;&gt; pimax = 40.0</span>
+<span class="sd">    &gt;&gt;&gt; results = DDrppi_mocks(autocorr, cosmology, nthreads,</span>
+<span class="sd">    ...                        pimax, binfile, RA, DEC, CZ,</span>
+<span class="sd">    ...                        weights1=weights, weight_type=&#39;pair_product&#39;,</span>
+<span class="sd">    ...                        output_rpavg=True, is_comoving_dist=True)</span>
+<span class="sd">    &gt;&gt;&gt; for r in results[519:]: print(&quot;{0:10.6f} {1:10.6f} {2:10.6f} {3:10.1f}&quot;</span>
+<span class="sd">    ...                               &quot; {4:10d} {5:10.6f}&quot;.format(r[&#39;rmin&#39;], r[&#39;rmax&#39;],</span>
+<span class="sd">    ...                               r[&#39;rpavg&#39;], r[&#39;pimax&#39;], r[&#39;npairs&#39;], r[&#39;weightavg&#39;]))</span>
+<span class="sd">    ...                         # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">     11.359969  16.852277  14.285169       40.0     104850   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.181246        1.0     274144   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.190844        2.0     272876   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.183321        3.0     272294   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.188486        4.0     272506   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.170832        5.0     272100   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.165379        6.0     271788   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.175246        7.0     270040   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.187417        8.0     269492   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.172066        9.0     269682   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.182460       10.0     268266   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.170594       11.0     268744   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.178608       12.0     266820   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.187184       13.0     266510   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.184937       14.0     265484   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.180184       15.0     265258   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.191504       16.0     262952   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.187746       17.0     262602   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.189778       18.0     260206   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.188882       19.0     259410   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.185684       20.0     256806   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.194036       21.0     255574   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.184115       22.0     255406   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.178255       23.0     252394   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.184644       24.0     252220   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.187020       25.0     251668   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.183827       26.0     249648   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.183121       27.0     247160   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.180872       28.0     246238   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.185251       29.0     246030   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.183488       30.0     242124   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.194538       31.0     242426   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.190702       32.0     239778   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.188985       33.0     239046   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.187092       34.0     237640   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.185515       35.0     236256   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.190278       36.0     233536   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.183240       37.0     233274   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.183796       38.0     231628   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.200668       39.0     230378   1.000000</span>
+<span class="sd">     16.852277  25.000000  21.181153       40.0     229006   1.000000</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">Corrfunc._countpairs_mocks</span> <span class="kn">import</span> <span class="n">countpairs_rp_pi_mocks</span> <span class="k">as</span>\
+            <span class="n">DDrppi_extn</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Could not import the C extension for the on-sky&quot;</span>\
+              <span class="s2">&quot;pair counter.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">translate_isa_string_to_enum</span><span class="p">,</span> <span class="n">fix_ra_dec</span><span class="p">,</span>\
+        <span class="n">return_file_with_rbins</span><span class="p">,</span> <span class="n">convert_to_native_endian</span><span class="p">,</span>\
+        <span class="n">sys_pipes</span><span class="p">,</span> <span class="n">process_weights</span>
+    <span class="kn">from</span> <span class="nn">future.utils</span> <span class="kn">import</span> <span class="n">bytes_to_native_str</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">autocorr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">RA2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">DEC2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">CZ2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Must pass valid arrays for RA2/DEC2/CZ2 for &quot;</span>\
+                  <span class="s2">&quot;computing cross-correlation&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">RA2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">DEC2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">CZ2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">weights1</span><span class="p">,</span> <span class="n">weights2</span> <span class="o">=</span> <span class="n">process_weights</span><span class="p">(</span><span class="n">weights1</span><span class="p">,</span> <span class="n">weights2</span><span class="p">,</span> <span class="n">RA1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">weight_type</span><span class="p">,</span> <span class="n">autocorr</span><span class="p">)</span>
+
+    <span class="c1"># Ensure all input arrays are native endian</span>
+    <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">CZ1</span><span class="p">,</span> <span class="n">weights1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span> <span class="n">CZ2</span><span class="p">,</span> <span class="n">weights2</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">convert_to_native_endian</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span>
+            <span class="p">[</span><span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">CZ1</span><span class="p">,</span> <span class="n">weights1</span><span class="p">,</span> <span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">,</span> <span class="n">CZ2</span><span class="p">,</span> <span class="n">weights2</span><span class="p">]]</span>
+
+    <span class="n">fix_ra_dec</span><span class="p">(</span><span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">autocorr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">fix_ra_dec</span><span class="p">(</span><span class="n">RA2</span><span class="p">,</span> <span class="n">DEC2</span><span class="p">)</span>
+
+    <span class="c1"># Passing None parameters breaks the parsing code, so avoid this</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;weights1&#39;</span><span class="p">,</span> <span class="s1">&#39;weights2&#39;</span><span class="p">,</span> <span class="s1">&#39;weight_type&#39;</span><span class="p">,</span> <span class="s1">&#39;RA2&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC2&#39;</span><span class="p">,</span> <span class="s1">&#39;CZ2&#39;</span><span class="p">]:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">integer_isa</span> <span class="o">=</span> <span class="n">translate_isa_string_to_enum</span><span class="p">(</span><span class="n">isa</span><span class="p">)</span>
+    <span class="n">rbinfile</span><span class="p">,</span> <span class="n">delete_after_use</span> <span class="o">=</span> <span class="n">return_file_with_rbins</span><span class="p">(</span><span class="n">binfile</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">sys_pipes</span><span class="p">():</span>
+        <span class="n">extn_results</span> <span class="o">=</span> <span class="n">DDrppi_extn</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">cosmology</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span>
+                                   <span class="n">pimax</span><span class="p">,</span> <span class="n">rbinfile</span><span class="p">,</span>
+                                   <span class="n">RA1</span><span class="p">,</span> <span class="n">DEC1</span><span class="p">,</span> <span class="n">CZ1</span><span class="p">,</span>
+                                   <span class="n">is_comoving_dist</span><span class="o">=</span><span class="n">is_comoving_dist</span><span class="p">,</span>
+                                   <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                   <span class="n">output_rpavg</span><span class="o">=</span><span class="n">output_rpavg</span><span class="p">,</span>
+                                   <span class="n">fast_divide_and_NR_steps</span><span class="o">=</span><span class="n">fast_divide_and_NR_steps</span><span class="p">,</span>
+                                   <span class="n">xbin_refine_factor</span><span class="o">=</span><span class="n">xbin_refine_factor</span><span class="p">,</span>
+                                   <span class="n">ybin_refine_factor</span><span class="o">=</span><span class="n">ybin_refine_factor</span><span class="p">,</span>
+                                   <span class="n">zbin_refine_factor</span><span class="o">=</span><span class="n">zbin_refine_factor</span><span class="p">,</span>
+                                   <span class="n">max_cells_per_dim</span><span class="o">=</span><span class="n">max_cells_per_dim</span><span class="p">,</span>
+                                   <span class="n">copy_particles</span><span class="o">=</span><span class="n">copy_particles</span><span class="p">,</span>
+                                   <span class="n">enable_min_sep_opt</span><span class="o">=</span><span class="n">enable_min_sep_opt</span><span class="p">,</span>
+                                   <span class="n">c_api_timer</span><span class="o">=</span><span class="n">c_api_timer</span><span class="p">,</span>
+                                   <span class="n">isa</span><span class="o">=</span><span class="n">integer_isa</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extn_results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;RuntimeError occurred&quot;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extn_results</span><span class="p">,</span> <span class="n">api_time</span> <span class="o">=</span> <span class="n">extn_results</span>
+
+    <span class="k">if</span> <span class="n">delete_after_use</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rbinfile</span><span class="p">)</span>
+
+    <span class="n">results_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;rmin&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;rmax&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;rpavg&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;pimax&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;npairs&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                              <span class="p">(</span><span class="n">bytes_to_native_str</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;weightavg&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)])</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">extn_results</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">results_dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">c_api_timer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">results</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">api_time</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../Corrfunc.html" >Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc.mocks.DDrppi_mocks</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

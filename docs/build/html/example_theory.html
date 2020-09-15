@@ -1,0 +1,962 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Notebook: The Continuous-Function Estimator &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Corrfunc v0.0.4</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Demo Notebook: The Continuous-Function Estimator</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pylab</span>
+<span class="o">%</span><span class="k">config</span> InlineBackend.figure_format = &#39;retina&#39;
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.dpi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="n">textsize</span> <span class="o">=</span> <span class="s1">&#39;x-large&#39;</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;legend.fontsize&#39;</span><span class="p">:</span> <span class="s1">&#39;x-large&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;figure.figsize&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+         <span class="s1">&#39;axes.labelsize&#39;</span><span class="p">:</span> <span class="n">textsize</span><span class="p">,</span>
+         <span class="s1">&#39;axes.titlesize&#39;</span><span class="p">:</span> <span class="n">textsize</span><span class="p">,</span>
+         <span class="s1">&#39;xtick.labelsize&#39;</span><span class="p">:</span> <span class="n">textsize</span><span class="p">,</span>
+         <span class="s1">&#39;ytick.labelsize&#39;</span><span class="p">:</span> <span class="n">textsize</span><span class="p">}</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+
+<span class="kn">import</span> <span class="nn">Corrfunc</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_lognormal_catalog</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.theory.DDsmu</span> <span class="kn">import</span> <span class="n">DDsmu</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.theory.DD</span> <span class="kn">import</span> <span class="n">DD</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.theory.xi</span> <span class="kn">import</span> <span class="n">xi</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">compute_amps</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">evaluate_xi</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">qq_analytic</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.bases</span> <span class="kn">import</span> <span class="n">spline</span>
+
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+<p>Check Corrfunc version:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+/Users/ksf/code/nyu/research/Corrfunc/Corrfunc/__init__.py
+0.0.4
+</pre></div></div>
+</div>
+<div class="section" id="Demo-Notebook:-The-Continuous-Function-Estimator">
+<h1>Demo Notebook: The Continuous-Function Estimator<a class="headerlink" href="#Demo-Notebook:-The-Continuous-Function-Estimator" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Tophat-and-Spline-bases-on-a-periodic-box">
+<h2>Tophat and Spline bases on a periodic box<a class="headerlink" href="#Tophat-and-Spline-bases-on-a-periodic-box" title="Permalink to this headline">¶</a></h2>
+<p>Hello! In this notebook we’ll show you how to use the continuous-function estimator to estimate the 2-point correlation function (2pcf) with a method that produces, well, continuous correlation functions.</p>
+</div>
+<div class="section" id="Load-in-data">
+<h2>Load in data<a class="headerlink" href="#Load-in-data" title="Permalink to this headline">¶</a></h2>
+<p>We’ll demonstrate with a low-density lognormal simulation box, which we’ve included with the code. We’ll show here the box with 3e-4 (<span class="math notranslate nohighlight">\(h^{-1}\)</span>Mpc)<span class="math notranslate nohighlight">\(^{-3}\)</span>, but if you’re only running with a single thread, you will want to run this notebook with the 1e-4 (<span class="math notranslate nohighlight">\(h^{-1}\)</span>Mpc)<span class="math notranslate nohighlight">\(^{-3}\)</span> box for speed. (The code is extremely parallel, so when you’re running for real, you’ll definitely want to bump up the number of threads.)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">read_lognormal_catalog</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="s1">&#39;1e-4&#39;</span><span class="p">)</span>
+<span class="n">boxsize</span> <span class="o">=</span> <span class="mf">750.0</span>
+<span class="n">nd</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of data points:&quot;</span><span class="p">,</span><span class="n">nd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of data points: 43000
+</pre></div></div>
+</div>
+<p>We’ll also want a random catalog, that’s a bit bigger than our data:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nr</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="n">nd</span>
+<span class="n">x_rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">nr</span><span class="p">)</span>
+<span class="n">y_rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">nr</span><span class="p">)</span>
+<span class="n">z_rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">nr</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of random points:&quot;</span><span class="p">,</span><span class="n">nr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of random points: 129000
+</pre></div></div>
+</div>
+<p>Let’s first compute the regular correlation function. We’ll need some radial bins. We’ll also need to tell Corrfunc that we’re working with a periodic box, and the number of parallel threads. Then we can go ahead and compute the real-space correlation function xi(r) from the pair counts, DD(r) (documentation here: <a class="reference external" href="https://corrfunc.readthedocs.io/en/master/api/Corrfunc.theory.html">https://corrfunc.readthedocs.io/en/master/api/Corrfunc.theory.html</a>)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rmin</span> <span class="o">=</span> <span class="mf">40.0</span>
+<span class="n">rmax</span> <span class="o">=</span> <span class="mf">150.0</span>
+<span class="n">nbins</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="n">r_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">nbins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">r_avg</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">r_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">+</span><span class="n">r_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">periodic</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">nthreads</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dd_res</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">)</span>
+<span class="n">dr_res</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">X2</span><span class="o">=</span><span class="n">x_rand</span><span class="p">,</span> <span class="n">Y2</span><span class="o">=</span><span class="n">y_rand</span><span class="p">,</span> <span class="n">Z2</span><span class="o">=</span><span class="n">z_rand</span><span class="p">,</span> <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">)</span>
+<span class="n">rr_res</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">x_rand</span><span class="p">,</span> <span class="n">y_rand</span><span class="p">,</span> <span class="n">z_rand</span><span class="p">,</span> <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can use these pair counts to compute the Landy-Szalay 2pcf estimator (Landy &amp; Szalay 1993). Let’s define a function, as we’ll want to reuse this:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">landy_szalay</span><span class="p">(</span><span class="n">nd</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">rr</span><span class="p">):</span>
+    <span class="c1"># Normalize the pair counts</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="n">dd</span><span class="o">/</span><span class="p">(</span><span class="n">nd</span><span class="o">*</span><span class="n">nd</span><span class="p">)</span>
+    <span class="n">dr</span> <span class="o">=</span> <span class="n">dr</span><span class="o">/</span><span class="p">(</span><span class="n">nd</span><span class="o">*</span><span class="n">nr</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">rr</span><span class="o">/</span><span class="p">(</span><span class="n">nr</span><span class="o">*</span><span class="n">nr</span><span class="p">)</span>
+    <span class="n">xi_ls</span> <span class="o">=</span> <span class="p">(</span><span class="n">dd</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">dr</span><span class="o">+</span><span class="n">rr</span><span class="p">)</span><span class="o">/</span><span class="n">rr</span>
+    <span class="k">return</span> <span class="n">xi_ls</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s unpack the pair counts from the Corrfunc results object, and plot the resulting correlation function:</p>
+<p>(Note that if you use weights, you need to multiply by the ‘weightavg’ column.)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;npairs&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dd_res</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">dr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;npairs&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dr_res</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">rr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;npairs&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rr_res</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">xi_ls</span> <span class="o">=</span> <span class="n">landy_szalay</span><span class="p">(</span><span class="n">nd</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">rr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_avg</span><span class="p">,</span> <span class="n">xi_ls</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Standard estimator&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;r ($h^{-1}$Mpc)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\xi$(r)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0xb26b474e0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/example_theory_16_1.png" class="no-scaled-link" src="_images/example_theory_16_1.png" style="width: 587px; height: 369px;" />
+</div>
+</div>
+<p>Great, we can even see the baryon acoustic feauture at ~100 <span class="math notranslate nohighlight">\(h^{-1}\)</span>Mpc!</p>
+</div>
+<div class="section" id="Continuous-function-estimator:-Tophat-basis">
+<h2>Continuous-function estimator: Tophat basis<a class="headerlink" href="#Continuous-function-estimator:-Tophat-basis" title="Permalink to this headline">¶</a></h2>
+<p>Now we’ll use the continuous-function estimator to compute the same correlation function, but in a continuous representation. First we’ll use a tophat basis, to achieve the equivalent (but more correct!) result.</p>
+<p>We need to give the name of the basis as ‘proj_type’. We also need to choose the number of components, ‘nprojbins’. In this case, we want the components to be a tophat for each bin, so this will just be ‘nbins’.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">proj_type</span> <span class="o">=</span> <span class="s1">&#39;tophat&#39;</span>
+<span class="n">nprojbins</span> <span class="o">=</span> <span class="n">nbins</span>
+</pre></div>
+</div>
+</div>
+<p>Currently the continuous-function estimator is only implemented in DD(s,mu) (‘DDsmu’), the redshift-space correlation function which divides the transverse direction s from the line-of-sight direction mu. But we can simply set the number of mu bins to 1, and mumax to 1 (the max of cosine), to achieve the equivalent of DD in real space.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nmubins</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">mumax</span> <span class="o">=</span> <span class="mf">1.0</span>
+</pre></div>
+</div>
+</div>
+<p>Then we just need to give Corrfunc all this info, and unpack the continuous results! The first returned object is still the regular Corrfunc results object (we could have just used this in our above demo of the standard result).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dd_res</span><span class="p">,</span> <span class="n">dd_proj</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">DDsmu</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">mumax</span><span class="p">,</span> <span class="n">nmubins</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span>
+                           <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">proj_type</span><span class="o">=</span><span class="n">proj_type</span><span class="p">,</span> <span class="n">nprojbins</span><span class="o">=</span><span class="n">nprojbins</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dr_res</span><span class="p">,</span> <span class="n">dr_proj</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">DDsmu</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">mumax</span><span class="p">,</span> <span class="n">nmubins</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">X2</span><span class="o">=</span><span class="n">x_rand</span><span class="p">,</span> <span class="n">Y2</span><span class="o">=</span><span class="n">y_rand</span><span class="p">,</span> <span class="n">Z2</span><span class="o">=</span><span class="n">z_rand</span><span class="p">,</span>
+                           <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">proj_type</span><span class="o">=</span><span class="n">proj_type</span><span class="p">,</span> <span class="n">nprojbins</span><span class="o">=</span><span class="n">nprojbins</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rr_res</span><span class="p">,</span> <span class="n">rr_proj</span><span class="p">,</span> <span class="n">qq_proj</span> <span class="o">=</span> <span class="n">DDsmu</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">mumax</span><span class="p">,</span> <span class="n">nmubins</span><span class="p">,</span> <span class="n">x_rand</span><span class="p">,</span> <span class="n">y_rand</span><span class="p">,</span> <span class="n">z_rand</span><span class="p">,</span>
+                           <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">proj_type</span><span class="o">=</span><span class="n">proj_type</span><span class="p">,</span> <span class="n">nprojbins</span><span class="o">=</span><span class="n">nprojbins</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can now compute the amplitudes of the correlation function from these continuous pair counts. The compute_amps function uses the Landy-Szalay formulation of the estimator, but adapted for continuous bases. (Note that you have to pass some values twice, as this is flexible enough to translate to cross-correlations between two datasets and two random catalogs.)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">amps</span> <span class="o">=</span> <span class="n">compute_amps</span><span class="p">(</span><span class="n">nprojbins</span><span class="p">,</span> <span class="n">nd</span><span class="p">,</span> <span class="n">nd</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">dd_proj</span><span class="p">,</span> <span class="n">dr_proj</span><span class="p">,</span> <span class="n">dr_proj</span><span class="p">,</span> <span class="n">rr_proj</span><span class="p">,</span> <span class="n">qq_proj</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing amplitudes (Corrfunc/utils.py)
+</pre></div></div>
+</div>
+<p>With these amplitudes, we can evaluate our correlation function at any set of radial separations! Let’s make a fine-grained array and evaluate. We need to pass ‘nprojbins’ and ‘proj_type’. Because we will be evaluating our tophat function at the new separations, we also need to give it the original bins.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">r_fine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">amps</span><span class="p">,</span> <span class="n">r_fine</span><span class="p">,</span> <span class="n">proj_type</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[ 2.88788886e-02  1.52232342e-02  8.32385015e-03  4.22707980e-03
+  3.83121040e-03  2.96726920e-03  4.07886679e-03  4.88654322e-03
+  3.35432542e-03  4.14802085e-03  3.97570692e-03  4.50569272e-03
+  4.91855586e-03  4.13383204e-03  2.08155511e-03  2.04830492e-03
+ -8.42257715e-05  5.21718732e-04  4.56325243e-04 -5.77733402e-04
+ -5.97764836e-05 -1.67246268e-05] [ 40.          40.05502751  40.11005503 ... 149.88994497 149.94497249
+ 150.        ] tophat [ 40.  45.  50.  55.  60.  65.  70.  75.  80.  85.  90.  95. 100. 105.
+ 110. 115. 120. 125. 130. 135. 140. 145. 150.]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">xi_proj</span> <span class="o">=</span> <span class="n">evaluate_xi</span><span class="p">(</span><span class="n">amps</span><span class="p">,</span> <span class="n">r_fine</span><span class="p">,</span> <span class="n">proj_type</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="n">r_edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Evaluating xi (Corrfunc/utils.py)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">xi_proj</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([0.02887889, 0.02887889, 0.02887889, ..., 0.        , 0.        ,
+       0.        ])
+</pre></div></div>
+</div>
+<p>Let’s check out the results, compared with the standard estimator!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_fine</span><span class="p">,</span> <span class="n">xi_proj</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;steelblue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Tophat estimator&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_avg</span><span class="p">,</span> <span class="n">xi_ls</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Standard estimator&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;r ($h^{-1}$Mpc)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\xi$(r)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0xb26c46668&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/example_theory_35_1.png" class="no-scaled-link" src="_images/example_theory_35_1.png" style="width: 587px; height: 369px;" />
+</div>
+</div>
+<p>We can see that we’re getting “the same” result, but continously, with the hard bin edges made clear.</p>
+<div class="section" id="Analytically-computing-the-random-term">
+<h3>Analytically computing the random term<a class="headerlink" href="#Analytically-computing-the-random-term" title="Permalink to this headline">¶</a></h3>
+<p>Because we’re working with a periodic box, we don’t actually need a random catalog. We can analytically compute the RR term, as well as the QQ matrix.</p>
+<p>We’ll need the volume of the box, and the same info about our basis function as before:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">volume</span> <span class="o">=</span> <span class="n">boxsize</span><span class="o">**</span><span class="mi">3</span>
+<span class="n">rr_ana</span><span class="p">,</span> <span class="n">qq_ana</span> <span class="o">=</span> <span class="n">qq_analytic</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">nd</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">nprojbins</span><span class="p">,</span> <span class="n">proj_type</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="n">r_edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Evaluating qq_analytic (Corrfunc/utils.py)
+</pre></div></div>
+</div>
+<p>We also don’t need to use the Landy-Szalay estimator (we don’t have a DR term!). To get the amplitudes we can just use the naive estimator, <span class="math notranslate nohighlight">\(\frac{\text{DD}}{\text{RR}}-1\)</span>. In our formulation, the RR term in the demoninator becomes the inverse QQ term, so we have QQ<span class="math notranslate nohighlight">\(^{-1}\)</span> <span class="math notranslate nohighlight">\(\cdot\)</span> (DD-RR).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">numerator</span> <span class="o">=</span> <span class="n">dd_proj</span> <span class="o">-</span> <span class="n">rr_ana</span>
+<span class="n">amps_ana</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">qq_ana</span><span class="p">,</span> <span class="n">numerator</span><span class="p">)</span> <span class="c1"># Use linalg.solve instead of actually computing inverse!</span>
+</pre></div>
+</div>
+</div>
+<p>Now we can go ahead and evaluate the correlation function at our fine separations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">xi_ana</span> <span class="o">=</span> <span class="n">evaluate_xi</span><span class="p">(</span><span class="n">amps_ana</span><span class="p">,</span> <span class="n">r_fine</span><span class="p">,</span> <span class="n">proj_type</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="n">r_edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Evaluating xi (Corrfunc/utils.py)
+</pre></div></div>
+</div>
+<p>We’ll compare this to computing the analytic correlation function with standard Corrfunc:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">xi_res</span> <span class="o">=</span> <span class="n">Corrfunc</span><span class="o">.</span><span class="n">theory</span><span class="o">.</span><span class="n">xi</span><span class="p">(</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">xi_theory</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;xi&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xi_res</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_fine</span><span class="p">,</span> <span class="n">xi_ana</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Tophat basis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_avg</span><span class="p">,</span> <span class="n">xi_theory</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Standard Estimator&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;r ($h^{-1}$Mpc)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\xi$(r)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7f899d8d7eb8&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/example_theory_46_1.png" class="no-scaled-link" src="_images/example_theory_46_1.png" style="width: 529px; height: 329px;" />
+</div>
+</div>
+<p>Once again, the standard and continuous correlation functions line up exactly. The correlation function looks smoother, as we didn’t have to deal with a non-exact random catalog to estimate the window function.</p>
+</div>
+</div>
+<div class="section" id="Continuous-function-estimator:-Cubic-spline-basis">
+<h2>Continuous-function estimator: Cubic spline basis<a class="headerlink" href="#Continuous-function-estimator:-Cubic-spline-basis" title="Permalink to this headline">¶</a></h2>
+<p>Now we can make things more interesting! Let’s choose a cubic spline basis. Luckily, this capability comes with the continuous-function version of Corrfunc!</p>
+<p>We need to choose the parameters for our spline. Here, we’ll choose a cubic spline. If we used a linear spline, we’d get a piecewise function; if we used a zeroth-order spline, we’d recover our tophat bases from above.</p>
+<p>We’ll take the min and max of the same separation values we used, and choose half the number of components as our previous bins (these will be related to the ‘knots’ in the spline). We’ll also need the number of radial bins at which to evaluate our functions; the code will interpolate between these.</p>
+<p>Then we’ll write our basis to a file. For any set of basis functions that is read from a file, ‘proj_type’ must be set to ‘general_r’.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">proj_type</span> <span class="o">=</span> <span class="s1">&#39;generalr&#39;</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;order&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span> <span class="c1"># 3: cubic spline</span>
+<span class="n">projfn</span> <span class="o">=</span> <span class="s1">&#39;quadratic_spline.dat&#39;</span>
+<span class="n">nprojbins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nbins</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">spline</span><span class="o">.</span><span class="n">write_bases</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">nprojbins</span><span class="p">,</span> <span class="n">projfn</span><span class="p">,</span> <span class="n">ncont</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;quadratic_spline.dat&#39;
+</pre></div></div>
+</div>
+<p>Let’s check out the basis functions:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">bases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">projfn</span><span class="p">)</span>
+<span class="n">bases</span><span class="o">.</span><span class="n">shape</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">bases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">bases</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;r ($h^{-1}$Mpc)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 0, &#39;r ($h^{-1}$Mpc)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/example_theory_52_1.png" class="no-scaled-link" src="_images/example_theory_52_1.png" style="width: 490px; height: 329px;" />
+</div>
+</div>
+<p>The bases on the ends are different so that they have the same normalization.</p>
+<p>We’ll use the analytic version of the estimator, making sure to pass the basis file:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">dd_res_spline</span><span class="p">,</span> <span class="n">dd_spline</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">DDsmu</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">r_edges</span><span class="p">,</span> <span class="n">mumax</span><span class="p">,</span> <span class="n">nmubins</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span>
+                           <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">proj_type</span><span class="o">=</span><span class="n">proj_type</span><span class="p">,</span> <span class="n">nprojbins</span><span class="o">=</span><span class="n">nprojbins</span><span class="p">,</span> <span class="n">projfn</span><span class="o">=</span><span class="n">projfn</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">volume</span> <span class="o">=</span> <span class="n">boxsize</span><span class="o">**</span><span class="mi">3</span>
+<span class="c1"># nbins and r_edges won&#39;t be used here because we passed projfn, but they&#39;re needed for compatibility. (TODO: fix!)</span>
+<span class="n">rr_ana_spline</span><span class="p">,</span> <span class="n">qq_ana_spline</span> <span class="o">=</span> <span class="n">qq_analytic</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">nd</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">nprojbins</span><span class="p">,</span> <span class="n">proj_type</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="n">r_edges</span><span class="p">,</span> <span class="n">projfn</span><span class="o">=</span><span class="n">projfn</span><span class="p">)</span>
+
+<span class="n">numerator</span> <span class="o">=</span> <span class="n">dd_spline</span> <span class="o">-</span> <span class="n">rr_ana_spline</span>
+<span class="n">amps_ana_spline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">qq_ana_spline</span><span class="p">,</span> <span class="n">numerator</span><span class="p">)</span> <span class="c1"># Use linalg.solve instead of actually computing inverse!</span>
+
+<span class="n">xi_ana_spline</span> <span class="o">=</span> <span class="n">evaluate_xi</span><span class="p">(</span><span class="n">amps_ana_spline</span><span class="p">,</span> <span class="n">r_fine</span><span class="p">,</span> <span class="n">proj_type</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="n">r_edges</span><span class="p">,</span> <span class="n">projfn</span><span class="o">=</span><span class="n">projfn</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Evaluating qq_analytic (Corrfunc/utils.py)
+Evaluating xi (Corrfunc/utils.py)
+</pre></div></div>
+</div>
+<p>Let’s compare the results:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_fine</span><span class="p">,</span> <span class="n">xi_ana_spline</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Cubic spline basis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_fine</span><span class="p">,</span> <span class="n">xi_ana</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Tophat basis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_avg</span><span class="p">,</span> <span class="n">xi_theory</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Standard estimator&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;r ($h^{-1}$Mpc)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\xi$(r)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7f899c7a5fd0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/example_theory_58_1.png" class="no-scaled-link" src="_images/example_theory_58_1.png" style="width: 529px; height: 329px;" />
+</div>
+</div>
+<p>We can see that the spline basis function produced a completely smooth correlation function; no hard-edged bins! It also captured that baryon acoustic feature (which we expect to be a smooth peak).</p>
+<p>This basis function is a bit noisy and likely has some non-physical features - but so does the tophat / standard basis! In the next notebook, we’ll use a physically motivated basis function.</p>
+<p>Finally, Remember to clean up the basis function file:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">projfn</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The below ipython magic line will convert this notebook to a regular old python script.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="ch">#!jupyter nbconvert --to script example_theory.ipynb</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Demo Notebook: The Continuous-Function Estimator</a><ul>
+<li><a class="reference internal" href="#Tophat-and-Spline-bases-on-a-periodic-box">Tophat and Spline bases on a periodic box</a></li>
+<li><a class="reference internal" href="#Load-in-data">Load in data</a></li>
+<li><a class="reference internal" href="#Continuous-function-estimator:-Tophat-basis">Continuous-function estimator: Tophat basis</a><ul>
+<li><a class="reference internal" href="#Analytically-computing-the-random-term">Analytically computing the random term</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Continuous-function-estimator:-Cubic-spline-basis">Continuous-function estimator: Cubic spline basis</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example_theory.nblink.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Corrfunc v0.0.4</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Demo Notebook: The Continuous-Function Estimator</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>
