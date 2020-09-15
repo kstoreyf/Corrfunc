@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smoothcorrfunc package &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Smoothcorrfunc package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="smoothcorrfunc-package">
+<h1>Smoothcorrfunc package<a class="headerlink" href="#smoothcorrfunc-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="corrfunc-theory-ddsmu">
+<h2>Corrfunc.theory.DDsmu<a class="headerlink" href="#corrfunc-theory-ddsmu" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for all clustering statistic calculations on galaxies
+in a simulation volume.</p>
+<dl class="py function">
+<dt>
+<code class="sig-prename descclassname">Corrfunc.theory.</code><code class="sig-name descname">DDsmu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">autocorr</span></em>, <em class="sig-param"><span class="n">nthreads</span></em>, <em class="sig-param"><span class="n">binfile</span></em>, <em class="sig-param"><span class="n">mu_max</span></em>, <em class="sig-param"><span class="n">nmu_bins</span></em>, <em class="sig-param"><span class="n">X1</span></em>, <em class="sig-param"><span class="n">Y1</span></em>, <em class="sig-param"><span class="n">Z1</span></em>, <em class="sig-param"><span class="n">weights1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">X2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Y2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Z2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">boxsize</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">output_savg</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fast_divide_and_NR_steps</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">xbin_refine_factor</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">ybin_refine_factor</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">zbin_refine_factor</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">max_cells_per_dim</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">copy_particles</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">enable_min_sep_opt</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">c_api_timer</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">isa</span><span class="o">=</span><span class="default_value">'fastest'</span></em>, <em class="sig-param"><span class="n">weight_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">proj_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nprojbins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projfn</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/theory/DDsmu.html#DDsmu"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Calculate the 2-D component values (e.g. pair-counts for the tophat basis) corresponding to the redshift-space
+correlation function, <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span> Pairs which are separated
+by less than the <code class="docutils literal notranslate"><span class="pre">s</span></code> bins (specified in <code class="docutils literal notranslate"><span class="pre">binfile</span></code>) in 3-D, and
+less than <code class="docutils literal notranslate"><span class="pre">s*mu_max</span></code> in the Z-dimension are counted.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">weights</span></code> are provided, the mean pair weight is stored in the
+<code class="docutils literal notranslate"><span class="pre">&quot;weightavg&quot;</span></code> field of the results array.  The raw pair counts in the
+<code class="docutils literal notranslate"><span class="pre">&quot;npairs&quot;</span></code> field are not weighted.  The weighting scheme depends on
+<code class="docutils literal notranslate"><span class="pre">weight_type</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module only returns pair counts and not the actual
+correlation function <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span>. See the
+utilities <a class="reference internal" href="Corrfunc.html#Corrfunc.utils.convert_3d_counts_to_cf" title="Corrfunc.utils.convert_3d_counts_to_cf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.utils.convert_3d_counts_to_cf</span></code></a>
+for computing <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span> from the pair counts.</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.1.0.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>autocorr</strong> (<em>boolean</em><em>, </em><em>required</em>) – Boolean flag for auto/cross-correlation. If autocorr is set to 1,
+then the second set of particle positions are not required.</p></li>
+<li><p><strong>nthreads</strong> (<em>integer</em>) – The number of OpenMP threads to use. Has no effect if OpenMP was not
+enabled during library compilation.</p></li>
+<li><p><strong>binfile</strong> (<em>string</em><em> or </em><em>an list/array of floats</em>) – <p>For string input: filename specifying the <code class="docutils literal notranslate"><span class="pre">s</span></code> bins for
+<code class="docutils literal notranslate"><span class="pre">DDsmu_mocks</span></code>. The file should contain white-space separated values
+of (smin, smax) specifying each <code class="docutils literal notranslate"><span class="pre">s</span></code> bin wanted. The bins
+need to be contiguous and sorted in increasing order (smallest bins
+come first).</p>
+<p>For array-like input: A sequence of <code class="docutils literal notranslate"><span class="pre">s</span></code> values that provides the
+bin-edges. For example,
+<code class="docutils literal notranslate"><span class="pre">np.logspace(np.log10(0.1),</span> <span class="pre">np.log10(10.0),</span> <span class="pre">15)</span></code> is a valid
+input specifying <strong>14</strong> (logarithmic) bins between 0.1 and 10.0. This
+array does not need to be sorted.</p>
+</p></li>
+<li><p><strong>mu_max</strong> (<em>double. Must be in range</em><em> (</em><em>0.0</em><em>, </em><em>1.0</em><em>]</em>) – <p>A double-precision value for the maximum cosine of the angular
+separation from the line of sight (LOS). Here, LOS is taken to be
+along the Z direction.</p>
+<p>Note: Only pairs with <span class="math notranslate nohighlight">\(0 &lt;= \cos(\theta_{LOS}) &lt; \mu_{max}\)</span>
+are counted (no equality).</p>
+</p></li>
+<li><p><strong>nmu_bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of linear <code class="docutils literal notranslate"><span class="pre">mu</span></code> bins, with the bins ranging from
+from (0, <span class="math notranslate nohighlight">\(\mu_{max}\)</span>)</p></li>
+<li><p><strong>X1/Y1/Z1</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – The array of X/Y/Z positions for the first set of points.
+Calculations are done in the precision of the supplied arrays.</p></li>
+<li><p><strong>weights1</strong> (<em>array_like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em><em>, </em><em>optional</em>) – A scalar, or an array of weights of shape (n_weights, n_positions) or
+(n_positions,). <code class="docutils literal notranslate"><span class="pre">weight_type</span></code> specifies how these weights are used;
+results are returned in the <code class="docutils literal notranslate"><span class="pre">weightavg</span></code> field.  If only one of
+weights1 and weights2 is specified, the other will be set to uniform
+weights.</p></li>
+<li><p><strong>periodic</strong> (<em>boolean</em>) – Boolean flag to indicate periodic boundary conditions.</p></li>
+<li><p><strong>X2/Y2/Z2</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – Array of XYZ positions for the second set of points. <em>Must</em> be the same
+precision as the X1/Y1/Z1 arrays. Only required when <code class="docutils literal notranslate"><span class="pre">autocorr==0</span></code>.</p></li>
+<li><p><strong>weights2</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em><em>, </em><em>optional</em>) – Same as weights1, but for the second set of positions</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to control output of informational messages</p></li>
+<li><p><strong>boxsize</strong> (<em>double</em>) – The side-length of the cube in the cosmological simulation.
+Present to facilitate exact calculations for periodic wrapping.
+If boxsize is not supplied, then the wrapping is done based on
+the maximum difference within each dimension of the X/Y/Z arrays.</p></li>
+<li><p><strong>output_savg</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to output the average <code class="docutils literal notranslate"><span class="pre">s</span></code> for each bin. Code will
+run slower if you set this flag. Also, note, if you are calculating
+in single-precision, <code class="docutils literal notranslate"><span class="pre">s</span></code> will suffer from numerical loss of
+precision and can not be trusted. If you need accurate <code class="docutils literal notranslate"><span class="pre">s</span></code>
+values, then pass in double precision arrays for the particle
+positions.</p></li>
+<li><p><strong>fast_divide_and_NR_steps</strong> (<em>integer</em><em> (</em><em>default 0</em><em>)</em>) – Replaces the division in <code class="docutils literal notranslate"><span class="pre">AVX</span></code> implementation with an approximate
+reciprocal, followed by <code class="docutils literal notranslate"><span class="pre">fast_divide_and_NR_steps</span></code> of Newton-Raphson.
+Can improve runtime by ~15-20% on older computers. Value of 0 uses
+the standard division operation.</p></li>
+<li><p><strong>(</strong><strong>xyz</strong><strong>)</strong><strong>bin_refine_factor</strong> (<em>integer</em><em> (</em><em>default</em><em> (</em><em>2</em><em>,</em><em>2</em><em>,</em><em>1</em><em>) </em><em>typical values in</em><em> [</em><em>1-3</em><em>]</em><em>)</em>) – Controls the refinement on the cell sizes. Can have up to a 20% impact
+on runtime.</p></li>
+<li><p><strong>max_cells_per_dim</strong> (<em>integer</em><em> (</em><em>default 100</em><em>, </em><em>typical values in</em><em> [</em><em>50-300</em><em>]</em><em>)</em>) – Controls the maximum number of cells per dimension. Total number of
+cells can be up to (max_cells_per_dim)^3. Only increase if <code class="docutils literal notranslate"><span class="pre">rmax</span></code> is
+too small relative to the boxsize (and increasing helps the runtime).</p></li>
+<li><p><strong>copy_particles</strong> (<em>boolean</em><em> (</em><em>default True</em><em>)</em>) – <p>Boolean flag to make a copy of the particle positions
+If set to False, the particles will be re-ordered in-place</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.3.0.</span></p>
+</div>
+</p></li>
+<li><p><strong>enable_min_sep_opt</strong> (<em>boolean</em><em> (</em><em>default true</em><em>)</em>) – <p>Boolean flag to allow optimizations based on min. separation between
+pairs of cells. Here to allow for comparison studies.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.3.0.</span></p>
+</div>
+</p></li>
+<li><p><strong>c_api_timer</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to measure actual time spent in the C libraries. Here
+to allow for benchmarking and scaling studies.</p></li>
+<li><p><strong>isa</strong> (string (default <code class="docutils literal notranslate"><span class="pre">fastest</span></code>)) – <p>Controls the runtime dispatch for the instruction set to use. Options
+are: [<code class="docutils literal notranslate"><span class="pre">fastest</span></code>, <code class="docutils literal notranslate"><span class="pre">avx512f</span></code>, <code class="docutils literal notranslate"><span class="pre">avx</span></code>, <code class="docutils literal notranslate"><span class="pre">sse42</span></code>, <code class="docutils literal notranslate"><span class="pre">fallback</span></code>]</p>
+<p>Setting isa to <code class="docutils literal notranslate"><span class="pre">fastest</span></code> will pick the fastest available instruction
+set on the current computer. However, if you set <code class="docutils literal notranslate"><span class="pre">isa</span></code> to, say,
+<code class="docutils literal notranslate"><span class="pre">avx</span></code> and <code class="docutils literal notranslate"><span class="pre">avx</span></code> is not available on the computer, then the code
+will revert to using <code class="docutils literal notranslate"><span class="pre">fallback</span></code> (even though <code class="docutils literal notranslate"><span class="pre">sse42</span></code> might be
+available).  Unless you are benchmarking the different instruction
+sets, you should always leave <code class="docutils literal notranslate"><span class="pre">isa</span></code> to the default value. And if
+you <em>are</em> benchmarking, then the string supplied here gets translated
+into an <code class="docutils literal notranslate"><span class="pre">enum</span></code> for the instruction set defined in <code class="docutils literal notranslate"><span class="pre">utils/defs.h</span></code>.</p>
+</p></li>
+<li><p><strong>weight_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – The type of pair weighting to apply.
+Options: “pair_product”, None; Default: None.</p></li>
+<li><p><strong>proj_type</strong> (<em>string</em><em> (</em><em>default None</em><em>)</em>) – Projection method to use; currently supported methods are [‘tophat’, ‘piecewise’, ‘generalr’, ‘gaussian_kernel’]</p></li>
+<li><p><strong>nprojbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> (</em><em>default None</em><em>)</em>) – Number of basis functions; necessary if projection method is defined</p></li>
+<li><p><strong>projfn</strong> (<em>string</em><em> (</em><em>default None</em><em>)</em>) – Filename of projection file; necessary for proj_type=’generalr’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>results</strong> (<em>A python list</em>) – A python list containing <code class="docutils literal notranslate"><span class="pre">nmu_bins</span></code> of [smin, smax, savg, mu_max,
+npairs, weightavg] for each spatial bin specified in the <code class="docutils literal notranslate"><span class="pre">binfile</span></code>.
+There will be a total of <code class="docutils literal notranslate"><span class="pre">nmu_bins</span></code> ranging from [0, <code class="docutils literal notranslate"><span class="pre">mu_max</span></code>)
+<em>per</em> spatial bin. If <code class="docutils literal notranslate"><span class="pre">output_savg</span></code> is not set, then <code class="docutils literal notranslate"><span class="pre">savg</span></code> will
+be set to 0.0 for all bins; similarly for <code class="docutils literal notranslate"><span class="pre">weight_avg</span></code>. <code class="docutils literal notranslate"><span class="pre">npairs</span></code>
+contains the number of pairs in that bin.</p></li>
+<li><p><strong>api_time</strong> (<em>float, optional</em>) – Only returned if <code class="docutils literal notranslate"><span class="pre">c_api_timer</span></code> is set.  <code class="docutils literal notranslate"><span class="pre">api_time</span></code> measures only
+the time spent within the C library and ignores all python overhead.</p></li>
+<li><p><strong>proj</strong> (<em>array-like, double, optional</em>) – Only returned if proj_type is not None. An array of length nprojbins of the computed component values (e.g. pair counts for the tophat basis)</p></li>
+<li><p><strong>projt</strong> (<em>array-like, double, optional</em>) – Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length nprojbins*nprojbins, with the computed component values (e.g. pair counts for the tophat basis)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Corrfunc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory.DDsmu</span> <span class="kn">import</span> <span class="n">DDsmu</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binfile</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span>
+<span class="gp">... </span>                <span class="s2">&quot;../theory/tests/&quot;</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boxsize</span> <span class="o">=</span> <span class="mf">420.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nthreads</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_max</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nmu_bins</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">DDsmu</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">binfile</span><span class="p">,</span> <span class="n">mu_max</span><span class="p">,</span> <span class="n">nmu_bins</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">weights1</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">weight_type</span><span class="o">=</span><span class="s1">&#39;pair_product&#39;</span><span class="p">,</span> <span class="n">output_savg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="mi">100</span><span class="p">:]:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:10.6f}</span><span class="s2"> </span><span class="si">{1:10.6f}</span><span class="s2"> </span><span class="si">{2:10.6f}</span><span class="s2"> </span><span class="si">{3:10.1f}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>                              <span class="s2">&quot; </span><span class="si">{4:10d}</span><span class="s2"> </span><span class="si">{5:10.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;smin&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;smax&#39;</span><span class="p">],</span>
+<span class="gp">... </span>                              <span class="n">r</span><span class="p">[</span><span class="s1">&#39;savg&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;mu_max&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;npairs&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;weightavg&#39;</span><span class="p">]))</span>
+<span class="gp">... </span>                        
+<span class="go"> 5.788530   8.249250   7.148213        0.1        230   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.157218        0.2        236   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.165338        0.3        208   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.079905        0.4        252   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.251661        0.5        184   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.118536        0.6        222   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.083466        0.7        238   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.198184        0.8        170   1.000000</span>
+<span class="go"> 5.788530   8.249250   7.127409        0.9        208   1.000000</span>
+<span class="go"> 5.788530   8.249250   6.973090        1.0        206   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.149183        0.1        592   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.213009        0.2        634   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.192220        0.3        532   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.246931        0.4        544   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.102675        0.5        530   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.276180        0.6        644   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.251264        0.7        666   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.138399        0.8        680   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.191916        0.9        566   1.000000</span>
+<span class="go"> 8.249250  11.756000  10.243229        1.0        608   1.000000</span>
+<span class="go">11.756000  16.753600  14.552776        0.1       1734   1.000000</span>
+<span class="go">11.756000  16.753600  14.579991        0.2       1806   1.000000</span>
+<span class="go">11.756000  16.753600  14.599611        0.3       1802   1.000000</span>
+<span class="go">11.756000  16.753600  14.471100        0.4       1820   1.000000</span>
+<span class="go">11.756000  16.753600  14.480192        0.5       1740   1.000000</span>
+<span class="go">11.756000  16.753600  14.493679        0.6       1746   1.000000</span>
+<span class="go">11.756000  16.753600  14.547713        0.7       1722   1.000000</span>
+<span class="go">11.756000  16.753600  14.465390        0.8       1750   1.000000</span>
+<span class="go">11.756000  16.753600  14.547465        0.9       1798   1.000000</span>
+<span class="go">11.756000  16.753600  14.440975        1.0       1828   1.000000</span>
+<span class="go">16.753600  23.875500  20.720406        0.1       5094   1.000000</span>
+<span class="go">16.753600  23.875500  20.735403        0.2       5004   1.000000</span>
+<span class="go">16.753600  23.875500  20.721069        0.3       5172   1.000000</span>
+<span class="go">16.753600  23.875500  20.723648        0.4       5014   1.000000</span>
+<span class="go">16.753600  23.875500  20.650621        0.5       5094   1.000000</span>
+<span class="go">16.753600  23.875500  20.688135        0.6       5076   1.000000</span>
+<span class="go">16.753600  23.875500  20.735691        0.7       4910   1.000000</span>
+<span class="go">16.753600  23.875500  20.714097        0.8       4864   1.000000</span>
+<span class="go">16.753600  23.875500  20.751836        0.9       4954   1.000000</span>
+<span class="go">16.753600  23.875500  20.721183        1.0       5070   1.000000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="corrfunc-mocks-ddsmu-mocks">
+<h2>Corrfunc.mocks.DDsmu_mocks<a class="headerlink" href="#corrfunc-mocks-ddsmu-mocks" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for all clustering statistic calculations on galaxies
+in a mock catalog.</p>
+<dl class="py function">
+<dt>
+<code class="sig-prename descclassname">Corrfunc.mocks.</code><code class="sig-name descname">DDsmu_mocks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">autocorr</span></em>, <em class="sig-param"><span class="n">cosmology</span></em>, <em class="sig-param"><span class="n">nthreads</span></em>, <em class="sig-param"><span class="n">mu_max</span></em>, <em class="sig-param"><span class="n">nmu_bins</span></em>, <em class="sig-param"><span class="n">binfile</span></em>, <em class="sig-param"><span class="n">RA1</span></em>, <em class="sig-param"><span class="n">DEC1</span></em>, <em class="sig-param"><span class="n">CZ1</span></em>, <em class="sig-param"><span class="n">weights1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">RA2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">DEC2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">CZ2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">is_comoving_dist</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_savg</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fast_divide_and_NR_steps</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">xbin_refine_factor</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">ybin_refine_factor</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">zbin_refine_factor</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">max_cells_per_dim</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">copy_particles</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">enable_min_sep_opt</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">c_api_timer</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">isa</span><span class="o">=</span><span class="default_value">'fastest'</span></em>, <em class="sig-param"><span class="n">weight_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">proj_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nprojbins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projfn</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/mocks/DDsmu_mocks.html#DDsmu_mocks"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Calculate the 2-D pair-counts corresponding to the projected correlation
+function, <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span>. The pairs are counted in bins of
+radial separation and cosine of angle to the line-of-sight (LOS). The
+input positions are expected to be on-sky co-ordinates. This module is
+suitable for calculating correlation functions for mock catalogs.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">weights</span></code> are provided, the resulting pair counts are weighted.  The
+weighting scheme depends on <code class="docutils literal notranslate"><span class="pre">weight_type</span></code>.</p>
+<p>Returns a numpy structured array containing the pair counts for the
+specified bins.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module only returns pair counts and not the actual
+correlation function <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span>. See the
+utilities <a class="reference internal" href="Corrfunc.html#Corrfunc.utils.convert_3d_counts_to_cf" title="Corrfunc.utils.convert_3d_counts_to_cf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.utils.convert_3d_counts_to_cf</span></code></a>
+for computing <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span> from the pair counts.</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.1.0.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>autocorr</strong> (<em>boolean</em><em>, </em><em>required</em>) – Boolean flag for auto/cross-correlation. If autocorr is set to 1,
+then the second set of particle positions are not required.</p></li>
+<li><p><strong>cosmology</strong> (<em>integer</em><em>, </em><em>required</em>) – <p>Integer choice for setting cosmology. Valid values are 1-&gt;LasDamas
+cosmology and 2-&gt;Planck cosmology. If you need arbitrary cosmology,
+easiest way is to convert the <code class="docutils literal notranslate"><span class="pre">CZ</span></code> values into co-moving distance,
+based on your preferred cosmology. Set <code class="docutils literal notranslate"><span class="pre">is_comoving_dist=True</span></code>, to
+indicate that the co-moving distance conversion has already been done.</p>
+<dl class="simple">
+<dt>Choices:</dt><dd><ol class="arabic simple">
+<li><p>LasDamas cosmology. <span class="math notranslate nohighlight">\(\Omega_m=0.25\)</span>, <span class="math notranslate nohighlight">\(\Omega_\Lambda=0.75\)</span></p></li>
+<li><p>Planck   cosmology. <span class="math notranslate nohighlight">\(\Omega_m=0.302\)</span>, <span class="math notranslate nohighlight">\(\Omega_\Lambda=0.698\)</span></p></li>
+</ol>
+</dd>
+</dl>
+<p>To setup a new cosmology, add an entry to the function,
+<code class="docutils literal notranslate"><span class="pre">init_cosmology</span></code> in <code class="docutils literal notranslate"><span class="pre">ROOT/utils/cosmology_params.c</span></code> and re-install
+the entire package.</p>
+</p></li>
+<li><p><strong>nthreads</strong> (<em>integer</em>) – The number of OpenMP threads to use. Has no effect if OpenMP was not
+enabled during library compilation.</p></li>
+<li><p><strong>mu_max</strong> (<em>double. Must be in range</em><em> [</em><em>0.0</em><em>, </em><em>1.0</em><em>]</em>) – <p>A double-precision value for the maximum cosine of the angular
+separation from the line of sight (LOS). Here, <code class="docutils literal notranslate"><span class="pre">mu</span></code> is defined as
+the angle between <code class="docutils literal notranslate"><span class="pre">s</span></code> and <code class="docutils literal notranslate"><span class="pre">l</span></code>. If <span class="math notranslate nohighlight">\(v_1\)</span> and <span class="math notranslate nohighlight">\(v_2\)</span>
+represent the vectors to each point constituting the pair, then
+<span class="math notranslate nohighlight">\(s := v_1 - v_2\)</span> and <span class="math notranslate nohighlight">\(l := 1/2 (v_1 + v_2)\)</span>.</p>
+<p>Note: Only pairs with <span class="math notranslate nohighlight">\(0 &lt;= \cos(\theta_{LOS}) &lt; \mu_{max}\)</span>
+are counted (no equality).</p>
+</p></li>
+<li><p><strong>nmu_bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of linear <code class="docutils literal notranslate"><span class="pre">mu</span></code> bins, with the bins ranging from
+from (0, <span class="math notranslate nohighlight">\(\mu_{max}\)</span>)</p></li>
+<li><p><strong>binfile</strong> (<em>string</em><em> or </em><em>an list/array of floats</em>) – <p>For string input: filename specifying the <code class="docutils literal notranslate"><span class="pre">s</span></code> bins for
+<code class="docutils literal notranslate"><span class="pre">DDsmu_mocks</span></code>. The file should contain white-space separated values
+of (smin, smax) specifying each <code class="docutils literal notranslate"><span class="pre">s</span></code> bin wanted. The bins
+need to be contiguous and sorted in increasing order (smallest bins
+come first).</p>
+<p>For array-like input: A sequence of <code class="docutils literal notranslate"><span class="pre">s</span></code> values that provides the
+bin-edges. For example,
+<code class="docutils literal notranslate"><span class="pre">np.logspace(np.log10(0.1),</span> <span class="pre">np.log10(10.0),</span> <span class="pre">15)</span></code> is a valid
+input specifying <strong>14</strong> (logarithmic) bins between 0.1 and 10.0. This
+array does not need to be sorted.</p>
+</p></li>
+<li><p><strong>RA1</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – <p>The array of Right Ascensions for the first set of points. RA’s
+are expected to be in [0.0, 360.0], but the code will try to fix cases
+where the RA’s are in [-180, 180.0]. For peace of mind, always supply
+RA’s in [0.0, 360.0].</p>
+<p>Calculations are done in the precision of the supplied arrays.</p>
+</p></li>
+<li><p><strong>DEC1</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – <p>Array of Declinations for the first set of points. DEC’s are expected
+to be in the [-90.0, 90.0], but the code will try to fix cases where
+the DEC’s are in [0.0, 180.0]. Again, for peace of mind, always supply
+DEC’s in [-90.0, 90.0].</p>
+<p>Must be of same precision type as RA1.</p>
+</p></li>
+<li><p><strong>CZ1</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – <p>Array of (Speed Of Light * Redshift) values for the first set of
+points. Code will try to detect cases where <code class="docutils literal notranslate"><span class="pre">redshifts</span></code> have been
+passed and multiply the entire array with the <code class="docutils literal notranslate"><span class="pre">speed</span> <span class="pre">of</span> <span class="pre">light</span></code>.</p>
+<p>If is_comoving_dist is set, then <code class="docutils literal notranslate"><span class="pre">CZ1</span></code> is interpreted as the
+co-moving distance, rather than <cite>cz</cite>.</p>
+</p></li>
+<li><p><strong>weights1</strong> (<em>array_like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em><em>, </em><em>optional</em>) – A scalar, or an array of weights of shape (n_weights, n_positions)
+or (n_positions,). <cite>weight_type</cite> specifies how these weights are used;
+results are returned in the <cite>weightavg</cite> field.  If only one of
+<code class="docutils literal notranslate"><span class="pre">weights1</span></code> or <code class="docutils literal notranslate"><span class="pre">weights2</span></code> is specified, the other will be set
+to uniform weights.</p></li>
+<li><p><strong>RA2</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – <p>The array of Right Ascensions for the second set of points. RA’s
+are expected to be in [0.0, 360.0], but the code will try to fix cases
+where the RA’s are in [-180, 180.0]. For peace of mind, always supply
+RA’s in [0.0, 360.0].</p>
+<p>Must be of same precision type as RA1/DEC1/CZ1.</p>
+</p></li>
+<li><p><strong>DEC2</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – <p>Array of Declinations for the second set of points. DEC’s are expected
+to be in the [-90.0, 90.0], but the code will try to fix cases where
+the DEC’s are in [0.0, 180.0]. Again, for peace of mind, always supply
+DEC’s in [-90.0, 90.0].</p>
+<p>Must be of same precision type as RA1/DEC1/CZ1.</p>
+</p></li>
+<li><p><strong>CZ2</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em>) – <p>Array of (Speed Of Light * Redshift) values for the second set of
+points. Code will try to detect cases where <code class="docutils literal notranslate"><span class="pre">redshifts</span></code> have been
+passed and multiply the entire array with the <code class="docutils literal notranslate"><span class="pre">speed</span> <span class="pre">of</span> <span class="pre">light</span></code>.</p>
+<p>If is_comoving_dist is set, then <code class="docutils literal notranslate"><span class="pre">CZ2</span></code> is interpreted as the
+co-moving distance, rather than <cite>cz</cite>.</p>
+<p>Must be of same precision type as RA1/DEC1/CZ1.</p>
+</p></li>
+<li><p><strong>weights2</strong> (<em>array-like</em><em>, </em><em>real</em><em> (</em><em>float/double</em><em>)</em><em>, </em><em>optional</em>) – Same as weights1, but for the second set of positions</p></li>
+<li><p><strong>is_comoving_dist</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to indicate that <code class="docutils literal notranslate"><span class="pre">cz</span></code> values have already been
+converted into co-moving distances. This flag allows arbitrary
+cosmologies to be used in <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to control output of informational messages</p></li>
+<li><p><strong>output_savg</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to output the average <code class="docutils literal notranslate"><span class="pre">s</span></code> for each bin. Code will
+run slower if you set this flag. Also, note, if you are calculating
+in single-precision, <code class="docutils literal notranslate"><span class="pre">savg</span></code> will suffer from numerical loss of
+precision and can not be trusted. If you need accurate <code class="docutils literal notranslate"><span class="pre">savg</span></code>
+values, then pass in double precision arrays for the particle
+positions.</p></li>
+<li><p><strong>fast_divide_and_NR_steps</strong> (<em>integer</em><em> (</em><em>default 0</em><em>)</em>) – Replaces the division in <code class="docutils literal notranslate"><span class="pre">AVX</span></code> implementation with an approximate
+reciprocal, followed by <code class="docutils literal notranslate"><span class="pre">fast_divide_and_NR_steps</span></code> of Newton-Raphson.
+Can improve runtime by ~15-20% on older computers. Value of 0 uses
+the standard division operation.</p></li>
+<li><p><strong>(</strong><strong>xyz</strong><strong>)</strong><strong>bin_refine_factor</strong> (<em>integer</em><em>, </em><em>default is</em><em> (</em><em>2</em><em>,</em><em>2</em><em>,</em><em>1</em><em>)</em><em>; typically within</em><em> [</em><em>1-3</em><em>]</em>) – Controls the refinement on the cell sizes. Can have up to a 20% impact
+on runtime.</p></li>
+<li><p><strong>max_cells_per_dim</strong> (<em>integer</em><em>, </em><em>default is 100</em><em>, </em><em>typical values in</em><em> [</em><em>50-300</em><em>]</em>) – Controls the maximum number of cells per dimension. Total number of
+cells can be up to (max_cells_per_dim)^3. Only increase if <code class="docutils literal notranslate"><span class="pre">rpmax</span></code> is
+too small relative to the boxsize (and increasing helps the runtime).</p></li>
+<li><p><strong>copy_particles</strong> (<em>boolean</em><em> (</em><em>default True</em><em>)</em>) – <p>Boolean flag to make a copy of the particle positions
+If set to False, the particles will be re-ordered in-place</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.3.0.</span></p>
+</div>
+</p></li>
+<li><p><strong>enable_min_sep_opt</strong> (<em>boolean</em><em> (</em><em>default true</em><em>)</em>) – <p>Boolean flag to allow optimizations based on min. separation between
+pairs of cells. Here to allow for comparison studies.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.3.0.</span></p>
+</div>
+</p></li>
+<li><p><strong>c_api_timer</strong> (<em>boolean</em><em> (</em><em>default false</em><em>)</em>) – Boolean flag to measure actual time spent in the C libraries. Here
+to allow for benchmarking and scaling studies.</p></li>
+<li><p><strong>isa</strong> (string, case-insensitive (default <code class="docutils literal notranslate"><span class="pre">fastest</span></code>)) – <p>Controls the runtime dispatch for the instruction set to use. Options
+are: [<code class="docutils literal notranslate"><span class="pre">fastest</span></code>, <code class="docutils literal notranslate"><span class="pre">avx512f</span></code>, <code class="docutils literal notranslate"><span class="pre">avx</span></code>, <code class="docutils literal notranslate"><span class="pre">sse42</span></code>, <code class="docutils literal notranslate"><span class="pre">fallback</span></code>]</p>
+<p>Setting isa to <code class="docutils literal notranslate"><span class="pre">fastest</span></code> will pick the fastest available instruction
+set on the current computer. However, if you set <code class="docutils literal notranslate"><span class="pre">isa</span></code> to, say,
+<code class="docutils literal notranslate"><span class="pre">avx</span></code> and <code class="docutils literal notranslate"><span class="pre">avx</span></code> is not available on the computer, then the code will
+revert to using <code class="docutils literal notranslate"><span class="pre">fallback</span></code> (even though <code class="docutils literal notranslate"><span class="pre">sse42</span></code> might be available).</p>
+<p>Unless you are benchmarking the different instruction sets, you should
+always leave <code class="docutils literal notranslate"><span class="pre">isa</span></code> to the default value. And if you <em>are</em>
+benchmarking, then the string supplied here gets translated into an
+<code class="docutils literal notranslate"><span class="pre">enum</span></code> for the instruction set defined in <code class="docutils literal notranslate"><span class="pre">utils/defs.h</span></code>.</p>
+</p></li>
+<li><p><strong>weight_type</strong> (<em>string</em><em>, </em><em>optional</em><em> (</em><em>default None</em><em>)</em>) – The type of weighting to apply.  One of [“pair_product”, None].</p></li>
+<li><p><strong>proj_type</strong> (<em>string</em><em> (</em><em>default None</em><em>)</em>) – Projection method to use; currently supported methods are [‘tophat’, ‘piecewise’, ‘generalr’, ‘gaussian_kernel’]</p></li>
+<li><p><strong>nprojbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> (</em><em>default None</em><em>)</em>) – Number of basis functions; necessary if projection method is defined</p></li>
+<li><p><strong>projfn</strong> (<em>string</em><em> (</em><em>default None</em><em>)</em>) – Filename of projection file; necessary for proj_type=’generalr’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>results</strong> (<em>Numpy structured array</em>) – A numpy structured array containing [smin, smax, savg, mumax,
+npairs, weightavg]. There are a total of <code class="docutils literal notranslate"><span class="pre">nmu_bins</span></code> in <code class="docutils literal notranslate"><span class="pre">mu</span></code>
+for each separation bin specified in the <code class="docutils literal notranslate"><span class="pre">binfile</span></code>, with <code class="docutils literal notranslate"><span class="pre">mumax</span></code>
+being the upper limit of the <code class="docutils literal notranslate"><span class="pre">mu</span></code> bin. If <code class="docutils literal notranslate"><span class="pre">output_savg</span></code> is  not
+set, then <code class="docutils literal notranslate"><span class="pre">savg</span></code> will be set to 0.0 for all bins; similarly for
+<code class="docutils literal notranslate"><span class="pre">weightavg</span></code>. <code class="docutils literal notranslate"><span class="pre">npairs</span></code> contains the number of pairs in that bin
+and can be used to compute the actual <span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span> by
+combining with (DR, RR) counts.</p></li>
+<li><p><strong>api_time</strong> (<em>float, optional</em>) – Only returned if <code class="docutils literal notranslate"><span class="pre">c_api_timer</span></code> is set.  <code class="docutils literal notranslate"><span class="pre">api_time</span></code> measures only
+the time spent within the C library and ignores all python overhead.</p></li>
+<li><p><strong>proj</strong> (<em>array-like, double, optional</em>) – Only returned if proj_type is not None. An array of length nprojbins of the computed component values (e.g. pair counts for the tophat basis)</p></li>
+<li><p><strong>projt</strong> (<em>array-like, double, optional</em>) – Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length nprojbins*nprojbins, with the computed component values (e.g. pair counts for the tophat basis)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="corrfunc-utils">
+<h2>Corrfunc.utils<a class="headerlink" href="#corrfunc-utils" title="Permalink to this headline">¶</a></h2>
+<p>A set of utility routines</p>
+<dl class="py function">
+<dt>
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">compute_amps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nprojbins</span></em>, <em class="sig-param"><span class="n">nd1</span></em>, <em class="sig-param"><span class="n">nd2</span></em>, <em class="sig-param"><span class="n">nr1</span></em>, <em class="sig-param"><span class="n">nr2</span></em>, <em class="sig-param"><span class="n">dd</span></em>, <em class="sig-param"><span class="n">dr</span></em>, <em class="sig-param"><span class="n">rd</span></em>, <em class="sig-param"><span class="n">rr</span></em>, <em class="sig-param"><span class="n">qq</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#compute_amps"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Compute the amplitude vector for the continuous correlation function from the component vectors (a.k.a. pair counts in a given basis).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nprojbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of basis functions</p></li>
+<li><p><strong>nd1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in data catalog 1</p></li>
+<li><p><strong>nd2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in data catalog 2</p></li>
+<li><p><strong>nr1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in random1</p></li>
+<li><p><strong>nr2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in random2</p></li>
+<li><p><strong>dd</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for data-data cross-correlation</p></li>
+<li><p><strong>dr</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for data-random cross-correlation</p></li>
+<li><p><strong>rd</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for random-data cross-correlation</p></li>
+<li><p><strong>rr</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for random-random cross-correlation</p></li>
+<li><p><strong>qq</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component tensor for random-random cross-correlation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>amps</strong> – Vector of amplitudes, with length nprojbins</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like, double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">evaluate_xi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">amps</span></em>, <em class="sig-param"><span class="n">rvals</span></em>, <em class="sig-param"><span class="n">proj_type</span></em>, <em class="sig-param"><span class="n">rbins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projfn</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#evaluate_xi"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Evaluate the correlation function for the given amplitudes and separation values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>amps</strong> (<em>array-like</em><em>, </em><em>double</em>) – Vector of amplitudes, e.g. that returned by compute_amps</p></li>
+<li><p><strong>rvals</strong> (<em>array-like</em><em>, </em><em>double</em>) – Array of radial separation values at which to evaluate the correlation function</p></li>
+<li><p><strong>proj_type</strong> (<em>string</em>) – Projection method to use; currently supported methods are [‘tophat’, ‘piecewise’, ‘generalr’, ‘gaussian_kernel’]</p></li>
+<li><p><strong>rbins</strong> (<em>array-like</em><em>, </em><em>double</em><em>, </em><em>default=None</em>) – Bin edges for tophat or piecewise bases (or custom basis)</p></li>
+<li><p><strong>projfn</strong> (<em>string</em><em>, </em><em>default=None</em>) – Filename of projection file; necessary for proj_type=’generalr’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>xi</strong> – Vector of xi values, same shape as rvals</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like, double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt>
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">qq_analytic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rmin</span></em>, <em class="sig-param"><span class="n">rmax</span></em>, <em class="sig-param"><span class="n">nd</span></em>, <em class="sig-param"><span class="n">volume</span></em>, <em class="sig-param"><span class="n">nprojbins</span></em>, <em class="sig-param"><span class="n">proj_type</span></em>, <em class="sig-param"><span class="n">rbins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projfn</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#qq_analytic"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Compute the QQ tensor analytically for a periodic box, for the given set of basis functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rmin</strong> (<em>double</em>) – Minimum r-value for integration</p></li>
+<li><p><strong>rmax</strong> (<em>double</em>) – Maximum r-value for integration</p></li>
+<li><p><strong>nd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of points in data catalog</p></li>
+<li><p><strong>volume</strong> (<em>double</em>) – Volume of data cube, in the same units as the r-values (cubed)</p></li>
+<li><p><strong>nprojbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of basis functions</p></li>
+<li><p><strong>proj_type</strong> (<em>string</em>) – Projection method to use; currently supported methods are [‘tophat’, ‘piecewise’, ‘generalr’, ‘gaussian_kernel’]</p></li>
+<li><p><strong>rbins</strong> (<em>array-like</em><em>, </em><em>double</em><em>, </em><em>default=None</em>) – Edges of r-bins for tophat or piecewise projections</p></li>
+<li><p><strong>projfn</strong> (<em>string</em><em>, </em><em>default=None</em>) – Filename of projection file if necessary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>qq</strong> – Tensor of QQ values, with size (nprojbins, nprojbins)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like, double</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="corrfunc-bases-module">
+<h2>Corrfunc.bases module<a class="headerlink" href="#corrfunc-bases-module" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Corrfunc.bases.html">Corrfunc.bases package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#module-Corrfunc.bases.bao">Corrfunc.bases.bao module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#module-Corrfunc.bases.dcosmo">Corrfunc.bases.dcosmo module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#module-Corrfunc.bases.spline">Corrfunc.bases.spline module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Smoothcorrfunc package</a><ul>
+<li><a class="reference internal" href="#corrfunc-theory-ddsmu">Corrfunc.theory.DDsmu</a></li>
+<li><a class="reference internal" href="#corrfunc-mocks-ddsmu-mocks">Corrfunc.mocks.DDsmu_mocks</a></li>
+<li><a class="reference internal" href="#corrfunc-utils">Corrfunc.utils</a></li>
+<li><a class="reference internal" href="#corrfunc-bases-module">Corrfunc.bases module</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/smoothmodules.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Smoothcorrfunc package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

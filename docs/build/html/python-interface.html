@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Using the python extensions in Corrfunc &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using the static library interface in Corrfunc" href="staticlibrary-interface.html" />
+    <link rel="prev" title="Getting started with Corrfunc" href="quickstart.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="staticlibrary-interface.html" title="Using the static library interface in Corrfunc"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Getting started with Corrfunc"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="quickstart.html" accesskey="U">Getting started with Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Using the python extensions in Corrfunc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-the-python-extensions-in-corrfunc">
+<span id="python-interface"></span><h1>Using the python extensions in Corrfunc<a class="headerlink" href="#using-the-python-extensions-in-corrfunc" title="Permalink to this headline">¶</a></h1>
+<p>This guide assumes that you already followed the <a class="reference internal" href="install.html#step-by-step-install"><span class="std std-ref">Package Installation</span></a>
+section of the documentation to get the package and its dependencies set
+up on your machine. Rest of document also assumes that you have installed
+the C extensions for python.</p>
+<div class="section" id="importing-corrfunc">
+<h2>Importing Corrfunc<a class="headerlink" href="#importing-corrfunc" title="Permalink to this headline">¶</a></h2>
+<p>After installing Corrfunc you can open up a python terminal and import the
+base package by:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Corrfunc</span>
+</pre></div>
+</div>
+<p>All of the functionality is divided into <code class="docutils literal notranslate"><span class="pre">theory</span></code> routines and <code class="docutils literal notranslate"><span class="pre">mocks</span></code>
+routines. These routines can be independently imported by using:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.mocks</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>You can access the full API documentation by simply typing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">DD</span><span class="p">)</span>              <span class="c1"># theory pair-counter in 3-D separation (r)</span>
+<span class="n">help</span><span class="p">(</span><span class="n">DDrppi_mocks</span><span class="p">)</span>    <span class="c1"># mocks pair-counter in 2-D (rp, pi)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="first-steps-with-corrfunc">
+<span id="first-steps"></span><h2>First steps with Corrfunc<a class="headerlink" href="#first-steps-with-corrfunc" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview-of-corrfunc-inputs">
+<h3>Overview of Corrfunc inputs<a class="headerlink" href="#overview-of-corrfunc-inputs" title="Permalink to this headline">¶</a></h3>
+<p>Broadly speaking, Corrfunc requires these following inputs:</p>
+<ul>
+<li><p>(At least) 3 arrays specifying the positions for the particles</p>
+<ul>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">Corrfunc.theory</span></code> routines, these positions are Cartesian XYZ in
+co-moving <code class="docutils literal notranslate"><span class="pre">Mpc/h</span></code> units.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks</span></code> routines, these positions are <code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Ascension</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Declination</span></code>, and <code class="docutils literal notranslate"><span class="pre">Speed</span> <span class="pre">of</span> <span class="pre">Light</span> <span class="pre">*</span> <span class="pre">Redshift</span></code> or <code class="docutils literal notranslate"><span class="pre">Co-moving</span>
+<span class="pre">distance</span></code>. The angles are expected in degrees, while the distance is
+expected in co-moving <code class="docutils literal notranslate"><span class="pre">Mpc/h</span></code>.</p>
+<p>See <a class="reference internal" href="modules/read_catalog.html#read-catalog"><span class="std std-ref">Reading Catalogs for Corrfunc</span></a> for details on how to read in arrays from a file.</p>
+</li>
+</ul>
+</li>
+<li><p>A boolean flag specifying in an auto-correlation or cross-correlation is
+being performed. In case of cross-correlations, another set of 3 arrays
+<strong>must</strong> be passed as input. This second set of arrays typically represents
+randoms for <code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks</span></code>.</p></li>
+<li><p>A file containing the bins for the clustering statistic (where
+relevant). Look at <code class="docutils literal notranslate"><span class="pre">theory/tests/bins</span></code> for an example of the contents of
+the file for spatial bins. See <code class="docutils literal notranslate"><span class="pre">mocks/tests/angular_bins</span></code> for an example
+containing angular bins for mocks routines. Passing a filename is the most
+general way of specifying bins in Corrfunc. However, you can also pass in a
+1-D array for the bins.</p>
+<p>See <a class="reference internal" href="modules/generate_bins.html#generate-bins"><span class="std std-ref">Specifying the separation bins in Corrfunc</span></a> for details on how to specify the bins as a file as
+well as an array</p>
+</li>
+</ul>
+<p>See <a class="reference internal" href="modules/index.html#function-usage-examples"><span class="std std-ref">Typical Tasks for Computing Correlation Functions</span></a> for a broad overview of the typical tasks
+associated with computing correlation functions. Read on for the various
+pair-counters available within the python interfaces of Corrfunc.</p>
+</div>
+</div>
+<div class="section" id="calculating-spatial-clustering-statistics-in-simulation-boxes">
+<h2>Calculating spatial clustering statistics in simulation boxes<a class="headerlink" href="#calculating-spatial-clustering-statistics-in-simulation-boxes" title="Permalink to this headline">¶</a></h2>
+<p>Corrfunc can compute a range of spatial correlation functions and the
+counts-in-cells. For all of these calculations a few inputs are required. The
+following code section sets up the default inputs that are used later on in the
+clustering functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_catalog</span>
+
+<span class="go"># Read the default galaxies supplied with</span>
+<span class="go"># Corrfunc. ~ 1 million galaxies on a 420 Mpc/h cube</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">()</span>
+
+<span class="go"># Specify boxsize for the XYZ arrays</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boxsize</span> <span class="o">=</span> <span class="mf">420.0</span>
+
+<span class="go"># Number of threads to use</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nthreads</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="go"># Create the bins array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rmin</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rmax</span> <span class="o">=</span> <span class="mf">20.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbins</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rbins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rmin</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rmax</span><span class="p">),</span> <span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="go"># Specify the distance to integrate along line of sight</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pimax</span> <span class="o">=</span> <span class="mf">40.0</span>
+
+<span class="go"># Specify the max. of the cosine of the angle to the LOS for</span>
+<span class="go"># DD(s, mu)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_max</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="go"># Specify the number of linear bins in `mu`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nmu_bins</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="go"># Specify that an autocorrelation is wanted</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<div class="section" id="calculating-2-d-projected-auto-correlation-corrfunc-theory-wp">
+<h3>Calculating 2-D projected auto-correlation (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.wp</span></code>)<a class="headerlink" href="#calculating-2-d-projected-auto-correlation-corrfunc-theory-wp" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can directly compute the projected auto-correlation function,
+<span class="math notranslate nohighlight">\(w_p(r_p)\)</span>. This calculation sets periodic boundary conditions. Randoms
+are calculated analytically based on the supplied boxsize. The projected
+separation, <span class="math notranslate nohighlight">\(r_p\)</span> is calculated in the X-Y plane while the line-of-sight
+separation, <span class="math notranslate nohighlight">\(\pi\)</span> is calculated in the Z plane. Only pairs with
+<span class="math notranslate nohighlight">\(\pi\)</span> separation less than <span class="math notranslate nohighlight">\(\pi_{max}\)</span> are counted.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.theory.wp</span> <span class="kn">import</span> <span class="n">wp</span>
+<span class="n">results_wp</span> <span class="o">=</span> <span class="n">wp</span><span class="p">(</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-3-d-autocorrelation-corrfunc-theory-xi">
+<h3>Calculating 3-D autocorrelation (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code>)<a class="headerlink" href="#calculating-3-d-autocorrelation-corrfunc-theory-xi" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can also compute the 3-D auto-correlation function,
+<span class="math notranslate nohighlight">\(\xi(r)\)</span>. Like <span class="math notranslate nohighlight">\(w_p(r_p)\)</span>, this calculation also enforces periodic
+boundary conditions and an auto-correlation. Randoms are calculated
+analytically on the supplied boxsize.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.theory.xi</span> <span class="kn">import</span> <span class="n">xi</span>
+<span class="n">results_xi</span> <span class="o">=</span> <span class="n">xi</span><span class="p">(</span><span class="n">boxsize</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-3-d-pair-counts-corrfunc-theory-dd">
+<h3>Calculating 3-D pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.DD</span></code>)<a class="headerlink" href="#calculating-3-d-pair-counts-corrfunc-theory-dd" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can return the pair counts in 3-D real-space for a set of arrays. The
+calculation can be either auto or cross-correlation, <em>and</em> with or without periodic
+boundaries. The pairs are always double-counted. Additionally, if the smallest
+bin is <code class="docutils literal notranslate"><span class="pre">0.0</span></code> for an autocorrelation, then the self-pairs <em>will</em> be counted.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.theory.DD</span> <span class="kn">import</span> <span class="n">DD</span>
+<span class="n">results_DD</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-2-d-pair-counts-corrfunc-theory-ddrppi">
+<h3>Calculating 2-D pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.DDrppi</span></code>)<a class="headerlink" href="#calculating-2-d-pair-counts-corrfunc-theory-ddrppi" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can return the pair counts in 2-D real-space for a set of arrays. The
+calculation can be either auto or cross-correlation, <em>and</em> with or without periodic
+boundaries. The projected separation, <span class="math notranslate nohighlight">\(r_p\)</span> is calculated in the X-Y plane while the
+line-of-sight separation, <span class="math notranslate nohighlight">\(\pi\)</span> is calculated in the Z plane.</p>
+<p>The pairs are always double-counted. Additionally, if the smallest
+bin is <code class="docutils literal notranslate"><span class="pre">0.0</span></code> for an autocorrelation, then the self-pairs <em>will</em> be counted.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.theory.DDrppi</span> <span class="kn">import</span> <span class="n">DDrppi</span>
+<span class="n">results_DDrppi</span> <span class="o">=</span> <span class="n">DDrppi</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-2-d-pair-counts-corrfunc-theory-ddsmu">
+<h3>Calculating 2-D pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.DDsmu</span></code>)<a class="headerlink" href="#calculating-2-d-pair-counts-corrfunc-theory-ddsmu" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can return the pair counts in 2-D real-space for a set of arrays. The
+calculation can be either auto or cross-correlation, <em>and</em> with or without periodic
+boundaries. The spatial separation, <span class="math notranslate nohighlight">\(s\)</span> is calculated in 3-D while
+<span class="math notranslate nohighlight">\(mu\)</span> is the cosine of angle to the line-of-sight and is calculated
+assuming that the Z-axis is the line-of-sight.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{s}  &amp;= \mathbf{v_1} - \mathbf{v_2}, \\
+{\mu} &amp;= \frac{\left(z_1 - z_2 \right)}{\Vert\mathbf{s}\Vert}\end{split}\]</div>
+<p>where, <span class="math notranslate nohighlight">\(\mathbf{v_1}:=(x_1, y_1, z_1)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v_2}:=(x_2, y_2, z_2)\)</span> are the vectors for the
+two points under consideration, and, <span class="math notranslate nohighlight">\(\Vert\mathbf{s}\Vert=\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}\)</span></p>
+<p>The pairs are always double-counted. Additionally, if the smallest
+bin is <code class="docutils literal notranslate"><span class="pre">0.0</span></code> for an autocorrelation, then the self-pairs <em>will</em> be counted.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.theory.DDsmu</span> <span class="kn">import</span> <span class="n">DDsmu</span>
+<span class="n">results_DDsmu</span> <span class="o">=</span> <span class="n">DDsmu</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">mu_max</span><span class="p">,</span> <span class="n">nmu_bins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">boxsize</span><span class="o">=</span><span class="n">boxsize</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-the-counts-in-cells-corrfunc-theory-vpf">
+<h3>Calculating the Counts-in-Cells (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.vpf</span></code>)<a class="headerlink" href="#calculating-the-counts-in-cells-corrfunc-theory-vpf" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can calculate the counts-in-cells statistics. The simplest example for
+counts-in-cells is the Void Probability Function – the probability that a
+sphere of a certain size contains zero galaxies.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.theory.vpf</span> <span class="kn">import</span> <span class="n">vpf</span>
+
+<span class="c1"># Maximum radius of the sphere in Mpc/h</span>
+<span class="n">rmax</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1"># Number of bins to cover up to rmax</span>
+<span class="n">nbins</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># Number of random spheres to place</span>
+<span class="n">nspheres</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="c1"># Max number of galaxies in sphere (must be &gt;=1)</span>
+<span class="n">numpN</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="c1"># Random number seed (used for choosing sphere centres)</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+
+<span class="n">results_vpf</span> <span class="o">=</span> <span class="n">vpf</span><span class="p">(</span><span class="n">rmax</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">nspheres</span><span class="p">,</span> <span class="n">numpN</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="calculating-clustering-statistics-in-mock-catalogs">
+<h2>Calculating clustering statistics in mock catalogs<a class="headerlink" href="#calculating-clustering-statistics-in-mock-catalogs" title="Permalink to this headline">¶</a></h2>
+<p>In order to calculate clustering statistics in mock catalogs, the galaxy
+positions are assumed to be specified as on-sky (<code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Ascension</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Declination</span></code>, and <code class="docutils literal notranslate"><span class="pre">speed</span> <span class="pre">of</span> <span class="pre">light</span> <span class="pre">*</span> <span class="pre">redshift</span></code>). The following code section
+sets up the default arrays and parameters for the actual clustering calculations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">Corrfunc</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_catalog</span>
+
+<span class="c1"># Mock catalog (SDSS-North) supplied with Corrfunc</span>
+<span class="n">mock_catalog</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;../mocks/tests/data/&quot;</span><span class="p">,</span> <span class="s2">&quot;Mr19_mock_northonly.rdcz.ff&quot;</span><span class="p">)</span>
+<span class="n">RA</span><span class="p">,</span> <span class="n">DEC</span><span class="p">,</span> <span class="n">CZ</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">(</span><span class="n">mock_catalog</span><span class="p">)</span>
+
+<span class="c1"># Randoms catalog (SDSS-North) supplied with Corrfunc</span>
+<span class="n">randoms_catalog</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;../mocks/tests/data/&quot;</span><span class="p">,</span> <span class="s2">&quot;Mr19_randoms_northonly.rdcz.ff&quot;</span><span class="p">)</span>
+<span class="n">RAND_RA</span><span class="p">,</span> <span class="n">RAND_DEC</span><span class="p">,</span> <span class="n">RAND_CZ</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">(</span><span class="n">randoms_catalog</span><span class="p">)</span>
+
+<span class="c1"># Number of threads to use</span>
+<span class="n">nthreads</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Specify cosmology (1-&gt;LasDamas, 2-&gt;Planck)</span>
+<span class="n">cosmology</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Create the bins array</span>
+<span class="n">rmin</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">rmax</span> <span class="o">=</span> <span class="mf">20.0</span>
+<span class="n">nbins</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">rbins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rmin</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rmax</span><span class="p">),</span> <span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Specify the distance to integrate along line of sight</span>
+<span class="n">pimax</span> <span class="o">=</span> <span class="mf">40.0</span>
+
+<span class="c1"># Specify the max. of the cosine of the angle to the LOS</span>
+<span class="c1"># for DD(s, mu)</span>
+<span class="n">mu_max</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="c1"># Specify the number of linear bins in `mu`</span>
+<span class="n">nmu_bins</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># Specify that an autocorrelation is wanted</span>
+<span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<div class="section" id="calculating-2-d-pair-counts-corrfunc-mocks-ddrppi-mocks">
+<h3>Calculating 2-D pair counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDrppi_mocks</span></code>)<a class="headerlink" href="#calculating-2-d-pair-counts-corrfunc-mocks-ddrppi-mocks" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can calculate pair counts for mock catalogs. The input positions are
+expected to be <code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Ascension</span></code>, <code class="docutils literal notranslate"><span class="pre">Declination</span></code> and <code class="docutils literal notranslate"><span class="pre">CZ</span></code> (speed of light
+times redshift, in <code class="docutils literal notranslate"><span class="pre">Mpc/h</span></code>). Cosmology has to be specified since <code class="docutils literal notranslate"><span class="pre">CZ</span></code> needs
+to be converted into co-moving distance. If you want to calculate in arbitrary
+cosmology, then convert <code class="docutils literal notranslate"><span class="pre">CZ</span></code> into co-moving distance, and then pass the
+converted array while setting the option <code class="docutils literal notranslate"><span class="pre">is_comoving_dist=True</span></code>. The
+projected and line of sight separations are calculated using the following
+equations from <a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...571..172Z">Zehavi et al. 2002</a></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{s} &amp;= \mathbf{v_1} - \mathbf{v_2}, \\
+\mathbf{l} &amp;= \frac{1}{2}\left(\mathbf{v_1} + \mathbf{v_2}\right), \\
+\pi &amp;= \left(\mathbf{s} \cdot \mathbf{l}\right)/\Vert\mathbf{l}\Vert, \\
+r_p^2 &amp;= \mathbf{s} \cdot \mathbf{s} - \pi^2\end{split}\]</div>
+<p>where, <span class="math notranslate nohighlight">\(\mathbf{v_1}:=(x_1, y_1, z_1)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v_2}:=(x_2, y_2, z_2)\)</span> are the vectors for the
+two points under consideration, and, <span class="math notranslate nohighlight">\(\Vert\mathbf{s}\Vert=\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}\)</span>.</p>
+<p>Here is the python code to call <code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDrppi_mocks</span></code>:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.mocks.DDrppi_mocks</span> <span class="kn">import</span> <span class="n">DDrppi_mocks</span>
+<span class="n">results_DDrppi_mocks</span> <span class="o">=</span> <span class="n">DDrppi_mocks</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">cosmology</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">RA</span><span class="p">,</span> <span class="n">DEC</span><span class="p">,</span> <span class="n">CZ</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-2-d-pair-counts-corrfunc-mocks-ddsmu-mocks">
+<h3>Calculating 2-D pair counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDsmu_mocks</span></code>)<a class="headerlink" href="#calculating-2-d-pair-counts-corrfunc-mocks-ddsmu-mocks" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can calculate pair counts for mock catalogs. The input positions are
+expected to be <code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Ascension</span></code>, <code class="docutils literal notranslate"><span class="pre">Declination</span></code> and <code class="docutils literal notranslate"><span class="pre">CZ</span></code> (speed of light
+times redshift, in <code class="docutils literal notranslate"><span class="pre">Mpc/h</span></code>). Cosmology has to be specified since <code class="docutils literal notranslate"><span class="pre">CZ</span></code> needs
+to be converted into co-moving distance. If you want to calculate in arbitrary
+cosmology, then convert <code class="docutils literal notranslate"><span class="pre">CZ</span></code> into co-moving distance, and then pass the
+converted array while setting the option <code class="docutils literal notranslate"><span class="pre">is_comoving_dist=True</span></code>. The
+projected and line of sight separations are calculated using the following
+equations from <a class="reference external" href="http://adsabs.harvard.edu/abs/2002ApJ...571..172Z">Zehavi et al. 2002</a></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{s} &amp;= \mathbf{v_1} - \mathbf{v_2}, \\
+\mathbf{l} &amp;= \frac{1}{2}\left(\mathbf{v_1} + \mathbf{v_2}\right), \\
+\mu &amp;= \left(\mathbf{s} \cdot \mathbf{l}\right)/\left(\Vert\mathbf{l}\Vert \Vert\mathbf{s}\Vert \right)\end{split}\]</div>
+<p>where, <span class="math notranslate nohighlight">\(\mathbf{v_1}:=(x_1, y_1, z_1)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v_2}:=(x_2, y_2, z_2)\)</span> are the vectors for the
+two points under consideration, and, <span class="math notranslate nohighlight">\(\Vert\mathbf{s}\Vert=\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}\)</span></p>
+<p>Here is the python code to call <code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDsmu_mocks</span></code>:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.mocks.DDsmu_mocks</span> <span class="kn">import</span> <span class="n">DDsmu_mocks</span>
+<span class="n">results_DDsmu_mocks</span> <span class="o">=</span> <span class="n">DDsmu_mocks</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">cosmology</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">mu_max</span><span class="p">,</span> <span class="n">nmu_bins</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">RA</span><span class="p">,</span> <span class="n">DEC</span><span class="p">,</span> <span class="n">CZ</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-angular-pair-counts-corrfunc-mocks-ddtheta-mocks">
+<h3>Calculating angular pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDtheta_mocks</span></code>)<a class="headerlink" href="#calculating-angular-pair-counts-corrfunc-mocks-ddtheta-mocks" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can compute angular pair counts for mock catalogs. The input positions
+are expected to be <code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Ascension</span></code> and <code class="docutils literal notranslate"><span class="pre">Declination</span></code>. Since all
+calculations are in angular space, cosmology is not required.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.mocks.DDtheta_mocks</span> <span class="kn">import</span> <span class="n">DDtheta_mocks</span>
+<span class="n">results_DDtheta_mocks</span> <span class="o">=</span> <span class="n">DDtheta_mocks</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">RA</span><span class="p">,</span> <span class="n">DEC</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calculating-the-counts-in-cells-corrfunc-mocks-vpf-mocks">
+<h3>Calculating the Counts-in-Cells (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.vpf_mocks</span></code>)<a class="headerlink" href="#calculating-the-counts-in-cells-corrfunc-mocks-vpf-mocks" title="Permalink to this headline">¶</a></h3>
+<p>Corrfunc can calculate the counts-in-cells statistics. The simplest example for
+counts-in-cells is the Void Probability Function – the probability that a
+sphere of a certain size contains zero galaxies.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Corrfunc.mocks.vpf_mocks</span> <span class="kn">import</span> <span class="n">vpf_mocks</span>
+
+<span class="c1"># Maximum radius of the sphere in Mpc/h</span>
+<span class="n">rmax</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1"># Number of bins to cover up to rmax</span>
+<span class="n">nbins</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># Number of random spheres to place</span>
+<span class="n">nspheres</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="c1"># Max number of galaxies in sphere (must be &gt;=1)</span>
+<span class="n">numpN</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="c1"># Minimum number of random points needed in a ``rmax`` sphere</span>
+<span class="c1"># such that it is considered to be entirely within the mock</span>
+<span class="c1"># footprint. Does not matter in this case, since we already</span>
+<span class="c1"># have the centers for the fully enclosed spheres</span>
+<span class="n">threshold_ngb</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># File with sphere centers (centers such that spheres with size</span>
+<span class="c1"># rmax=10 Mpc/h are completely inside the survey)</span>
+<span class="n">centers_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;../mocks/tests/data/&quot;</span><span class="p">,</span> <span class="s2">&quot;Mr19_centers_xyz_forVPF_rmax_10Mpc.txt&quot;</span><span class="p">)</span>
+
+<span class="n">results_vpf_mocks</span> <span class="o">=</span> <span class="n">vpf_mocks</span><span class="p">(</span><span class="n">rmax</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">nspheres</span><span class="p">,</span> <span class="n">numpN</span><span class="p">,</span> <span class="n">threshold_ngb</span><span class="p">,</span> <span class="n">centers_file</span><span class="p">,</span> <span class="n">cosmology</span><span class="p">,</span> <span class="n">RA</span><span class="p">,</span> <span class="n">DEC</span><span class="p">,</span> <span class="n">CZ</span><span class="p">,</span> <span class="n">RAND_RA</span><span class="p">,</span> <span class="n">RAND_DEC</span><span class="p">,</span> <span class="n">RAND_CZ</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the complete reference here <a class="reference internal" href="api/Corrfunc.html#module-Corrfunc" title="Corrfunc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc</span></code></a>.</p>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using the python extensions in Corrfunc</a><ul>
+<li><a class="reference internal" href="#importing-corrfunc">Importing Corrfunc</a></li>
+<li><a class="reference internal" href="#first-steps-with-corrfunc">First steps with Corrfunc</a><ul>
+<li><a class="reference internal" href="#overview-of-corrfunc-inputs">Overview of Corrfunc inputs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#calculating-spatial-clustering-statistics-in-simulation-boxes">Calculating spatial clustering statistics in simulation boxes</a><ul>
+<li><a class="reference internal" href="#calculating-2-d-projected-auto-correlation-corrfunc-theory-wp">Calculating 2-D projected auto-correlation (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.wp</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-3-d-autocorrelation-corrfunc-theory-xi">Calculating 3-D autocorrelation (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-3-d-pair-counts-corrfunc-theory-dd">Calculating 3-D pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.DD</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-2-d-pair-counts-corrfunc-theory-ddrppi">Calculating 2-D pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.DDrppi</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-2-d-pair-counts-corrfunc-theory-ddsmu">Calculating 2-D pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.DDsmu</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-the-counts-in-cells-corrfunc-theory-vpf">Calculating the Counts-in-Cells (<code class="docutils literal notranslate"><span class="pre">Corrfunc.theory.vpf</span></code>)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#calculating-clustering-statistics-in-mock-catalogs">Calculating clustering statistics in mock catalogs</a><ul>
+<li><a class="reference internal" href="#calculating-2-d-pair-counts-corrfunc-mocks-ddrppi-mocks">Calculating 2-D pair counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDrppi_mocks</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-2-d-pair-counts-corrfunc-mocks-ddsmu-mocks">Calculating 2-D pair counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDsmu_mocks</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-angular-pair-counts-corrfunc-mocks-ddtheta-mocks">Calculating angular pair-counts (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDtheta_mocks</span></code>)</a></li>
+<li><a class="reference internal" href="#calculating-the-counts-in-cells-corrfunc-mocks-vpf-mocks">Calculating the Counts-in-Cells (<code class="docutils literal notranslate"><span class="pre">Corrfunc.mocks.vpf_mocks</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">Getting started with Corrfunc</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="staticlibrary-interface.html"
+                        title="next chapter">Using the static library interface in Corrfunc</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/python-interface.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="staticlibrary-interface.html" title="Using the static library interface in Corrfunc"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Getting started with Corrfunc"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="quickstart.html" >Getting started with Corrfunc</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Using the python extensions in Corrfunc</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,862 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corrfunc package &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Corrfunc.bases package" href="Corrfunc.bases.html" />
+    <link rel="prev" title="Comprehensive API reference" href="modules.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Corrfunc.bases.html" title="Corrfunc.bases package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="Comprehensive API reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">Comprehensive API reference</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Corrfunc">
+<span id="corrfunc-package"></span><h1>Corrfunc package<a class="headerlink" href="#module-Corrfunc" title="Permalink to this headline">¶</a></h1>
+<p>Corrfunc is a set of high-performance routines for
+computing clustering statistics on a distribution of
+points.</p>
+<dl class="py function">
+<dt id="Corrfunc.read_text_file">
+<code class="sig-prename descclassname">Corrfunc.</code><code class="sig-name descname">read_text_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">'utf-8'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc.html#read_text_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.read_text_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a file under python3 with encoding (default UTF-8).
+Also works under python2, without encoding.
+Uses the EAFP (<a class="reference external" href="https://docs.python.org/2/glossary.html#term-eafp">https://docs.python.org/2/glossary.html#term-eafp</a>)
+principle.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.which">
+<code class="sig-prename descclassname">Corrfunc.</code><code class="sig-name descname">which</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">program</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc.html#which"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.which" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mimics the Unix utility which.
+For python3.3+, shutil.which provides all of the required functionality.
+An implementation is provided in case shutil.which does
+not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>program</strong> – (required) string
+Name of program (can be fully-qualified path as well)</p></li>
+<li><p><strong>mode</strong> – (optional) integer flag bits
+Permissions to check for in the executable
+Default: os.F_OK (file exists) | os.X_OK (executable file)</p></li>
+<li><p><strong>path</strong> – (optional) string
+A custom path list to check against. Implementation taken from
+shutil.py.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A fully qualified path to program as resolved by path or
+user environment.
+Returns None when program can not be resolved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.write_text_file">
+<code class="sig-prename descclassname">Corrfunc.</code><code class="sig-name descname">write_text_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">contents</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">'utf-8'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc.html#write_text_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.write_text_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a file under python3 with encoding (default UTF-8).
+Also works under python2, without encoding.
+Uses the EAFP (<a class="reference external" href="https://docs.python.org/2/glossary.html#term-eafp">https://docs.python.org/2/glossary.html#term-eafp</a>)
+principle.</p>
+</dd></dl>
+
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Corrfunc.bases.html">Corrfunc.bases package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#module-Corrfunc.bases.bao">Corrfunc.bases.bao module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#module-Corrfunc.bases.dcosmo">Corrfunc.bases.dcosmo module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Corrfunc.bases.html#module-Corrfunc.bases.spline">Corrfunc.bases.spline module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Corrfunc.mocks.html">Corrfunc.mocks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Corrfunc.theory.html">Corrfunc.theory package</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-Corrfunc.io">
+<span id="corrfunc-io-module"></span><h2>Corrfunc.io module<a class="headerlink" href="#module-Corrfunc.io" title="Permalink to this headline">¶</a></h2>
+<p>Routines to read galaxy catalogs from disk.
+Updated with lognormal scripts!</p>
+<dl class="py function">
+<dt id="Corrfunc.io.read_ascii_catalog">
+<code class="sig-prename descclassname">Corrfunc.io.</code><code class="sig-name descname">read_ascii_catalog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">return_dtype</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/io.html#read_ascii_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.io.read_ascii_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a galaxy catalog from an ascii file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>string</em>) – Filename containing the galaxy positions</p></li>
+<li><p><strong>return_dtype</strong> (numpy dtype for returned arrays. Default <code class="docutils literal notranslate"><span class="pre">numpy.float</span></code>) – Specifies the datatype for the returned arrays. Must be in
+{np.float, np.float32}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>X, Y, Z</strong> – Returns the triplet of X/Y/Z positions as separate numpy arrays.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy arrays</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Corrfunc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_ascii_catalog</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span>
+<span class="gp">... </span>                <span class="s2">&quot;../mocks/tests/data/&quot;</span><span class="p">,</span> <span class="s2">&quot;Mr19_mock_northonly.rdcz.dat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">cz</span> <span class="o">=</span> <span class="n">read_ascii_catalog</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="p">],</span> <span class="n">dec</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="p">],</span> <span class="n">cz</span><span class="p">[</span><span class="mi">0</span><span class="p">:]):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:10.5f}</span><span class="s2"> </span><span class="si">{1:10.5f}</span><span class="s2"> </span><span class="si">{2:10.5f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+<span class="gp">... </span>    
+<span class="go">178.45087   67.01112 19905.28514</span>
+<span class="go">178.83495   67.72519 19824.02285</span>
+<span class="go">179.50132   67.67628 19831.21553</span>
+<span class="go">182.75497   67.13004 19659.79825</span>
+<span class="go">186.29853   68.64099 20030.64412</span>
+<span class="go">186.32346   68.65879 19763.38137</span>
+<span class="go">187.36173   68.15151 19942.66996</span>
+<span class="go">187.20613   68.56189 19996.36607</span>
+<span class="go">185.56358   67.97724 19729.32308</span>
+<span class="go">183.27930   67.11318 19609.71345</span>
+<span class="go">183.86498   67.82823 19500.44130</span>
+<span class="go">184.07771   67.43429 19440.53790</span>
+<span class="go">185.13370   67.15382 19390.60304</span>
+<span class="go">189.15907   68.28252 19858.85853</span>
+<span class="go">190.12209   68.55062 20044.29744</span>
+<span class="go">193.65245   68.36878 19445.62469</span>
+<span class="go">194.93514   68.34870 19158.93155</span>
+<span class="go">180.36897   67.50058 18671.40780</span>
+<span class="go">179.63278   67.51318 18657.59191</span>
+<span class="go">180.75742   67.95530 18586.88913</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.io.read_catalog">
+<code class="sig-prename descclassname">Corrfunc.io.</code><code class="sig-name descname">read_catalog</code><span class="sig-paren">(</span><em class="sig-param">filebase=None</em>, <em class="sig-param">return_dtype=&lt;class 'float'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/io.html#read_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.io.read_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a galaxy/randoms catalog and returns 3 XYZ arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filebase</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – The fully qualified path to the file. If omitted, reads the
+theory galaxy catalog under ../theory/tests/data/</p></li>
+<li><p><strong>return_dtype</strong> (numpy dtype for returned arrays. Default <code class="docutils literal notranslate"><span class="pre">numpy.float</span></code>) – Specifies the datatype for the returned arrays. Must be in
+{np.float, np.float32}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">y</span> <span class="pre">z</span></code> - Unpacked numpy arrays compatible with the installed</p></li>
+<li><p>version of <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the filename is omitted, then first the fast-food file
+is searched for, and then the ascii file. End-users should always
+supply the full filename.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.io.read_fastfood_catalog">
+<code class="sig-prename descclassname">Corrfunc.io.</code><code class="sig-name descname">read_fastfood_catalog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">return_dtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">need_header</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/io.html#read_fastfood_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.io.read_fastfood_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a galaxy catalog from a fast-food binary file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>string</em>) – Filename containing the galaxy positions</p></li>
+<li><p><strong>return_dtype</strong> (numpy dtype for returned arrays. Default <code class="docutils literal notranslate"><span class="pre">numpy.float</span></code>) – Specifies the datatype for the returned arrays. Must be in
+{np.float, np.float32}</p></li>
+<li><p><strong>need_header</strong> (<em>boolean</em><em>, </em><em>default None.</em>) – Returns the header found in the fast-food file in addition to the
+X/Y/Z arrays.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>X, Y, Z</strong> – Returns the triplet of X/Y/Z positions as separate numpy arrays.</p>
+<p>If need_header is set, then the header is also returned</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy arrays</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Corrfunc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_fastfood_catalog</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">Corrfunc</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)),</span>
+<span class="gp">... </span>                 <span class="s2">&quot;../theory/tests/data/&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="s2">&quot;gals_Mr19.ff&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_fastfood_catalog</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="p">],</span> <span class="n">Z</span><span class="p">[</span><span class="mi">0</span><span class="p">:]):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:10.5f}</span><span class="s2"> </span><span class="si">{1:10.5f}</span><span class="s2"> </span><span class="si">{2:10.5f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span>
+<span class="gp">... </span>    
+<span class="go">419.94550    1.96340    0.01610</span>
+<span class="go">419.88272    1.79736    0.11960</span>
+<span class="go">0.32880   10.63620    4.16550</span>
+<span class="go">0.15314   10.68723    4.06529</span>
+<span class="go">0.46400    8.91150    6.97090</span>
+<span class="go">6.30690    9.77090    8.61080</span>
+<span class="go">5.87160    9.65870    9.29810</span>
+<span class="go">8.06210    0.42350    4.89410</span>
+<span class="go">11.92830    4.38660    4.54410</span>
+<span class="go">11.95543    4.32622    4.51485</span>
+<span class="go">11.65676    4.34665    4.53181</span>
+<span class="go">11.75739    4.26262    4.31666</span>
+<span class="go">11.81329    4.27530    4.49183</span>
+<span class="go">11.80406    4.54737    4.26824</span>
+<span class="go">12.61570    4.14470    3.70140</span>
+<span class="go">13.23640    4.34750    5.26450</span>
+<span class="go">13.19833    4.33196    5.29435</span>
+<span class="go">13.21249    4.35695    5.37418</span>
+<span class="go">13.06805    4.24275    5.35126</span>
+<span class="go">13.19693    4.37618    5.28772</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.io.read_fortran_catalog">
+<code class="sig-prename descclassname">Corrfunc.io.</code><code class="sig-name descname">read_fortran_catalog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">return_dtype</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/io.html#read_fortran_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.io.read_fortran_catalog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.io.read_lognormal_catalog">
+<code class="sig-prename descclassname">Corrfunc.io.</code><code class="sig-name descname">read_lognormal_catalog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">'3e-4'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/io.html#read_lognormal_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.io.read_lognormal_catalog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-Corrfunc.utils">
+<span id="corrfunc-utils-module"></span><h2>Corrfunc.utils module<a class="headerlink" href="#module-Corrfunc.utils" title="Permalink to this headline">¶</a></h2>
+<p>A set of utility routines</p>
+<dl class="py function">
+<dt id="Corrfunc.utils.compute_amps">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">compute_amps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nprojbins</span></em>, <em class="sig-param"><span class="n">nd1</span></em>, <em class="sig-param"><span class="n">nd2</span></em>, <em class="sig-param"><span class="n">nr1</span></em>, <em class="sig-param"><span class="n">nr2</span></em>, <em class="sig-param"><span class="n">dd</span></em>, <em class="sig-param"><span class="n">dr</span></em>, <em class="sig-param"><span class="n">rd</span></em>, <em class="sig-param"><span class="n">rr</span></em>, <em class="sig-param"><span class="n">qq</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#compute_amps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.compute_amps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the amplitude vector for the continuous correlation function from the component vectors (a.k.a. pair counts in a given basis).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nprojbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of basis functions</p></li>
+<li><p><strong>nd1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in data catalog 1</p></li>
+<li><p><strong>nd2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in data catalog 2</p></li>
+<li><p><strong>nr1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in random1</p></li>
+<li><p><strong>nr2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of particles in random2</p></li>
+<li><p><strong>dd</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for data-data cross-correlation</p></li>
+<li><p><strong>dr</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for data-random cross-correlation</p></li>
+<li><p><strong>rd</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for random-data cross-correlation</p></li>
+<li><p><strong>rr</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component vector for random-random cross-correlation</p></li>
+<li><p><strong>qq</strong> (<em>array-like</em><em>, </em><em>double</em>) – Component tensor for random-random cross-correlation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>amps</strong> – Vector of amplitudes, with length nprojbins</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like, double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.compute_nbins">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">compute_nbins</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_diff</span></em>, <em class="sig-param"><span class="n">binsize</span></em>, <em class="sig-param"><span class="n">refine_factor</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">max_nbins</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#compute_nbins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.compute_nbins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper utility to find the number of bins for
+that satisfies the constraints of (binsize, refine_factor, and max_nbins).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_diff</strong> (<em>double</em>) – Max. difference (spatial or angular) to be spanned,
+(i.e., range of allowed domain values)</p></li>
+<li><p><strong>binsize</strong> (<em>double</em>) – Min. allowed binsize (spatial or angular)</p></li>
+<li><p><strong>refine_factor</strong> (<em>integer</em><em>, </em><em>default 1</em>) – How many times to refine the bins. The refinements occurs
+after <code class="docutils literal notranslate"><span class="pre">nbins</span></code> has already been determined (with <code class="docutils literal notranslate"><span class="pre">refine_factor-1</span></code>).
+Thus, the number of bins will be <strong>exactly</strong> higher by
+<code class="docutils literal notranslate"><span class="pre">refine_factor</span></code> compared to the base case of <code class="docutils literal notranslate"><span class="pre">refine_factor=1</span></code></p></li>
+<li><p><strong>max_nbins</strong> (<em>integer</em><em>, </em><em>default None</em>) – Max number of allowed cells</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nbins</strong> – Number of bins that satisfies the constraints of
+bin size &gt;= <code class="docutils literal notranslate"><span class="pre">binsize</span></code>, the refinement factor
+and nbins &lt;= <code class="docutils literal notranslate"><span class="pre">max_nbins</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>integer, &gt;= 1</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">compute_nbins</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">max_diff</span> <span class="o">=</span> <span class="mi">180</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binsize</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compute_nbins</span><span class="p">(</span><span class="n">max_diff</span><span class="p">,</span> <span class="n">binsize</span><span class="p">)</span>
+<span class="go">18</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">refine_factor</span><span class="o">=</span><span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">max_nbins</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compute_nbins</span><span class="p">(</span><span class="n">max_diff</span><span class="p">,</span> <span class="n">binsize</span><span class="p">,</span> <span class="n">refine_factor</span><span class="o">=</span><span class="n">refine_factor</span><span class="p">,</span>
+<span class="gp">... </span>             <span class="n">max_nbins</span><span class="o">=</span><span class="n">max_nbins</span><span class="p">)</span>
+<span class="go">20</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.convert_3d_counts_to_cf">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">convert_3d_counts_to_cf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ND1</span></em>, <em class="sig-param"><span class="n">ND2</span></em>, <em class="sig-param"><span class="n">NR1</span></em>, <em class="sig-param"><span class="n">NR2</span></em>, <em class="sig-param"><span class="n">D1D2</span></em>, <em class="sig-param"><span class="n">D1R2</span></em>, <em class="sig-param"><span class="n">D2R1</span></em>, <em class="sig-param"><span class="n">R1R2</span></em>, <em class="sig-param"><span class="n">estimator</span><span class="o">=</span><span class="default_value">'LS'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#convert_3d_counts_to_cf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.convert_3d_counts_to_cf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts raw pair counts to a correlation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ND1</strong> (<em>integer</em>) – Number of points in the first dataset</p></li>
+<li><p><strong>ND2</strong> (<em>integer</em>) – Number of points in the second dataset</p></li>
+<li><p><strong>NR1</strong> (<em>integer</em>) – Number of points in the randoms for first dataset</p></li>
+<li><p><strong>NR2</strong> (<em>integer</em>) – Number of points in the randoms for second dataset</p></li>
+<li><p><strong>D1D2</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between D1 and D2</p></li>
+<li><p><strong>D1R2</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between D1 and R2</p></li>
+<li><p><strong>D2R1</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between D2 and R1</p></li>
+<li><p><strong>R1R2</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between R1 and R2</p></li>
+<li><p><strong>all of these pair-counts arrays</strong> (<em>For</em>) – </p></li>
+<li><p><strong>corresponding numpy</strong> (<em>the</em>) – </p></li>
+<li><p><strong>returned by the theory/mocks modules can also be passed</strong> (<em>struct</em>) – </p></li>
+<li><p><strong>estimator</strong> (<em>string</em><em>, </em><em>default='LS'</em><em> (</em><em>Landy-Szalay</em><em>)</em>) – The kind of estimator to use for computing the correlation
+function. Currently, only supports Landy-Szalay</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cf</strong> – The correlation function, calculated using the chosen estimator,
+is returned. NAN is returned for the bins where the <code class="docutils literal notranslate"><span class="pre">RR</span></code> count
+is 0.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A numpy array</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory.DD</span> <span class="kn">import</span> <span class="n">DD</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_catalog</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">convert_3d_counts_to_cf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boxsize</span> <span class="o">=</span> <span class="mf">420.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_N</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="n">N</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nthreads</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rmin</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rmax</span> <span class="o">=</span> <span class="mf">15.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbins</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DD_counts</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DR_counts</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">X2</span><span class="o">=</span><span class="n">rand_X</span><span class="p">,</span> <span class="n">Y2</span><span class="o">=</span><span class="n">rand_Y</span><span class="p">,</span> <span class="n">Z2</span><span class="o">=</span><span class="n">rand_Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RR_counts</span> <span class="o">=</span> <span class="n">DD</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">rand_X</span><span class="p">,</span> <span class="n">rand_Y</span><span class="p">,</span> <span class="n">rand_Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cf</span> <span class="o">=</span> <span class="n">convert_3d_counts_to_cf</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">,</span>
+<span class="gp">... </span>                             <span class="n">DD_counts</span><span class="p">,</span> <span class="n">DR_counts</span><span class="p">,</span>
+<span class="gp">... </span>                             <span class="n">DR_counts</span><span class="p">,</span> <span class="n">RR_counts</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">cf</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:10.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xi</span><span class="p">))</span>
+<span class="gp">... </span>                   
+<span class="go">22.769019</span>
+<span class="go"> 3.612709</span>
+<span class="go"> 1.621372</span>
+<span class="go"> 1.000969</span>
+<span class="go"> 0.691646</span>
+<span class="go"> 0.511819</span>
+<span class="go"> 0.398872</span>
+<span class="go"> 0.318815</span>
+<span class="go"> 0.255643</span>
+<span class="go"> 0.207759</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.convert_rp_pi_counts_to_wp">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">convert_rp_pi_counts_to_wp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ND1</span></em>, <em class="sig-param"><span class="n">ND2</span></em>, <em class="sig-param"><span class="n">NR1</span></em>, <em class="sig-param"><span class="n">NR2</span></em>, <em class="sig-param"><span class="n">D1D2</span></em>, <em class="sig-param"><span class="n">D1R2</span></em>, <em class="sig-param"><span class="n">D2R1</span></em>, <em class="sig-param"><span class="n">R1R2</span></em>, <em class="sig-param"><span class="n">nrpbins</span></em>, <em class="sig-param"><span class="n">pimax</span></em>, <em class="sig-param"><span class="n">dpi</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">estimator</span><span class="o">=</span><span class="default_value">'LS'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#convert_rp_pi_counts_to_wp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.convert_rp_pi_counts_to_wp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts raw pair counts to a correlation function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ND1</strong> (<em>integer</em>) – Number of points in the first dataset</p></li>
+<li><p><strong>ND2</strong> (<em>integer</em>) – Number of points in the second dataset</p></li>
+<li><p><strong>NR1</strong> (<em>integer</em>) – Number of points in the randoms for first dataset</p></li>
+<li><p><strong>NR2</strong> (<em>integer</em>) – Number of points in the randoms for second dataset</p></li>
+<li><p><strong>D1D2</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between D1 and D2</p></li>
+<li><p><strong>D1R2</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between D1 and R2</p></li>
+<li><p><strong>D2R1</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between D2 and R1</p></li>
+<li><p><strong>R1R2</strong> (<em>array-like</em><em>, </em><em>integer</em>) – Pair-counts for the cross-correlation between R1 and R2</p></li>
+<li><p><strong>all of these pair-counts arrays</strong> (<em>For</em>) – </p></li>
+<li><p><strong>corresponding numpy</strong> (<em>the</em>) – </p></li>
+<li><p><strong>returned by the theory/mocks modules can also be passed</strong> (<em>struct</em>) – </p></li>
+<li><p><strong>nrpbins</strong> (<em>integer</em>) – Number of bins in <code class="docutils literal notranslate"><span class="pre">rp</span></code></p></li>
+<li><p><strong>pimax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Integration distance along the line of sight direction</p></li>
+<li><p><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>default=1.0 Mpc/h</em>) – Binsize in the line of sight direction</p></li>
+<li><p><strong>estimator</strong> (<em>string</em><em>, </em><em>default='LS'</em><em> (</em><em>Landy-Szalay</em><em>)</em>) – The kind of estimator to use for computing the correlation
+function. Currently, only supports Landy-Szalay</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>wp</strong> – The projected correlation function, calculated using the chosen
+estimator, is returned. If <em>any</em> of the <code class="docutils literal notranslate"><span class="pre">pi</span></code> bins (in an <code class="docutils literal notranslate"><span class="pre">rp</span></code>
+bin) contains 0 for the <code class="docutils literal notranslate"><span class="pre">RR</span></code> counts, then <code class="docutils literal notranslate"><span class="pre">NAN</span></code> is returned
+for that <code class="docutils literal notranslate"><span class="pre">rp</span></code> bin.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A numpy array</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.theory.DDrppi</span> <span class="kn">import</span> <span class="n">DDrppi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.io</span> <span class="kn">import</span> <span class="n">read_catalog</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">convert_rp_pi_counts_to_wp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">read_catalog</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boxsize</span> <span class="o">=</span> <span class="mf">420.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_N</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="n">N</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">boxsize</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nthreads</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pimax</span> <span class="o">=</span> <span class="mf">40.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nrpbins</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpmin</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpmax</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">rpmin</span><span class="p">,</span> <span class="n">rpmax</span><span class="p">,</span> <span class="n">nrpbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DD_counts</span> <span class="o">=</span> <span class="n">DDrppi</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DR_counts</span> <span class="o">=</span> <span class="n">DDrppi</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">X2</span><span class="o">=</span><span class="n">rand_X</span><span class="p">,</span> <span class="n">Y2</span><span class="o">=</span><span class="n">rand_Y</span><span class="p">,</span> <span class="n">Z2</span><span class="o">=</span><span class="n">rand_Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autocorr</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RR_counts</span> <span class="o">=</span> <span class="n">DDrppi</span><span class="p">(</span><span class="n">autocorr</span><span class="p">,</span> <span class="n">nthreads</span><span class="p">,</span> <span class="n">pimax</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">rand_X</span><span class="p">,</span> <span class="n">rand_Y</span><span class="p">,</span> <span class="n">rand_Z</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span> <span class="o">=</span> <span class="n">convert_rp_pi_counts_to_wp</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">,</span> <span class="n">rand_N</span><span class="p">,</span>
+<span class="gp">... </span>                                <span class="n">DD_counts</span><span class="p">,</span> <span class="n">DR_counts</span><span class="p">,</span>
+<span class="gp">... </span>                                <span class="n">DR_counts</span><span class="p">,</span> <span class="n">RR_counts</span><span class="p">,</span>
+<span class="gp">... </span>                                <span class="n">nrpbins</span><span class="p">,</span> <span class="n">pimax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">wp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:10.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+<span class="gp">... </span>                   
+<span class="go">187.592199</span>
+<span class="go"> 83.059181</span>
+<span class="go"> 53.200599</span>
+<span class="go"> 40.389354</span>
+<span class="go"> 33.356371</span>
+<span class="go"> 29.045476</span>
+<span class="go"> 26.088133</span>
+<span class="go"> 23.628340</span>
+<span class="go"> 21.703961</span>
+<span class="go"> 20.153125</span>
+<span class="go"> 18.724781</span>
+<span class="go"> 17.433235</span>
+<span class="go"> 16.287183</span>
+<span class="go"> 15.443230</span>
+<span class="go"> 14.436193</span>
+<span class="go"> 13.592727</span>
+<span class="go"> 12.921226</span>
+<span class="go"> 12.330074</span>
+<span class="go"> 11.696364</span>
+<span class="go"> 11.208365</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.evaluate_xi">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">evaluate_xi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">amps</span></em>, <em class="sig-param"><span class="n">rvals</span></em>, <em class="sig-param"><span class="n">proj_type</span></em>, <em class="sig-param"><span class="n">rbins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projfn</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#evaluate_xi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.evaluate_xi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the correlation function for the given amplitudes and separation values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>amps</strong> (<em>array-like</em><em>, </em><em>double</em>) – Vector of amplitudes, e.g. that returned by compute_amps</p></li>
+<li><p><strong>rvals</strong> (<em>array-like</em><em>, </em><em>double</em>) – Array of radial separation values at which to evaluate the correlation function</p></li>
+<li><p><strong>proj_type</strong> (<em>string</em>) – Projection method to use; currently supported methods are [‘tophat’, ‘piecewise’, ‘generalr’, ‘gaussian_kernel’]</p></li>
+<li><p><strong>rbins</strong> (<em>array-like</em><em>, </em><em>double</em><em>, </em><em>default=None</em>) – Bin edges for tophat or piecewise bases (or custom basis)</p></li>
+<li><p><strong>projfn</strong> (<em>string</em><em>, </em><em>default=None</em>) – Filename of projection file; necessary for proj_type=’generalr’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>xi</strong> – Vector of xi values, same shape as rvals</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like, double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.fix_cz">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">fix_cz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cz</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#fix_cz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.fix_cz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiplies the input array by speed of light, if the input values are
+too small.</p>
+<p>Essentially, converts redshift into <cite>cz</cite>, if the user passed
+redshifts instead of <cite>cz</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cz</strong> (<em>array-like</em><em>, </em><em>reals</em>) – An array containing <code class="docutils literal notranslate"><span class="pre">[Speed</span> <span class="pre">of</span> <span class="pre">Light</span> <span class="pre">*]</span> <span class="pre">redshift</span></code> values.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cz</strong> – Actual <code class="docutils literal notranslate"><span class="pre">cz</span></code> values, multiplying the input <code class="docutils literal notranslate"><span class="pre">cz</span></code> array by the
+<code class="docutils literal notranslate"><span class="pre">Speed</span> <span class="pre">of</span> <span class="pre">Light</span></code>, if <code class="docutils literal notranslate"><span class="pre">redshift</span></code> values were passed as input <code class="docutils literal notranslate"><span class="pre">cz</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.fix_ra_dec">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">fix_ra_dec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra</span></em>, <em class="sig-param"><span class="n">dec</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#fix_ra_dec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.fix_ra_dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps input RA and DEC values into range expected by the extensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RA</strong> (<em>array-like</em><em>, </em><em>units must be degrees</em>) – Right Ascension values (astronomical longitude)</p></li>
+<li><p><strong>DEC</strong> (<em>array-like</em><em>, </em><em>units must be degrees</em>) – Declination values (astronomical latitude)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Tuple (RA, DEC)</strong> – RA is wrapped into range [0.0, 360.0]
+Declination is wrapped into range [-90.0, 90.0]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.gridlink_sphere">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">gridlink_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">thetamax</span></em>, <em class="sig-param"><span class="n">ra_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dec_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">link_in_ra</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ra_refine_factor</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dec_refine_factor</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">max_ra_cells</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">max_dec_cells</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">return_num_ra_cells</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">input_in_degrees</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#gridlink_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.gridlink_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method to optimally partition spherical regions such that pairs of
+points within a certain angular separation, <code class="docutils literal notranslate"><span class="pre">thetamax</span></code>, can be quickly
+computed.</p>
+<p>Generates the  binning scheme used in <a class="reference internal" href="Corrfunc.mocks.html#Corrfunc.mocks.DDtheta_mocks" title="Corrfunc.mocks.DDtheta_mocks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDtheta_mocks</span></code></a>
+for a spherical region in Right Ascension (RA), Declination (DEC)
+and a maximum angular separation.</p>
+<p>For a given <code class="docutils literal notranslate"><span class="pre">thetamax</span></code>, regions on the sphere are divided into bands
+in DEC bands, with the width in DEC equal to <code class="docutils literal notranslate"><span class="pre">thetamax</span></code>. If
+<code class="docutils literal notranslate"><span class="pre">link_in_ra</span></code> is set, then these DEC bands are further sub-divided
+into RA cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thetamax</strong> (<em>double</em>) – Max. angular separation of pairs. Expected to be in degrees
+unless <code class="docutils literal notranslate"><span class="pre">input_in_degrees</span></code> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>ra_limits</strong> (<em>array of 2 doubles. Default</em><em> [</em><em>0.0</em><em>, </em><em>2*pi</em><em>]</em>) – Range of Righ Ascension (longitude) for the spherical region</p></li>
+<li><p><strong>dec_limits</strong> (<em>array of 2 doubles. Default</em><em> [</em><em>-pi/2</em><em>, </em><em>pi/2</em><em>]</em>) – Range of Declination (latitude) values for the spherical region</p></li>
+<li><p><strong>link_in_ra</strong> (<em>Boolean. Default True</em>) – Whether linking in RA is done (in addition to linking in DEC)</p></li>
+<li><p><strong>ra_refine_factor</strong> (<em>integer</em><em>, </em><em>&gt;= 1. Default 1</em>) – Controls the sub-division of the RA cells. For a large number of
+particles, higher <cite>ra_refine_factor</cite> typically results in a faster
+runtime</p></li>
+<li><p><strong>dec_refine_factor</strong> (<em>integer</em><em>, </em><em>&gt;= 1. Default 1</em>) – Controls the sub-division of the DEC cells. For a large number of
+particles, higher <cite>dec_refine_factor</cite> typically results in a faster
+runtime</p></li>
+<li><p><strong>max_ra_cells</strong> (<em>integer</em><em>, </em><em>&gt;= 1. Default 100</em>) – The max. number of RA cells <strong>per DEC band</strong>.</p></li>
+<li><p><strong>max_dec_cells</strong> (<em>integer &gt;= 1. Default 200</em>) – The max. number of total DEC bands</p></li>
+<li><p><strong>return_num_ra_cells</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>default False</em>) – Flag to return the number of RA cells per DEC band</p></li>
+<li><p><strong>input_in_degrees</strong> (<em>Boolean. Default True</em>) – Flag to show if the input quantities are in degrees. If set to
+False, all angle inputs will be taken to be in radians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>sphere_grid</strong> (<em>A numpy compound array, shape (ncells, 2)</em>) – A numpy compound array with fields <code class="docutils literal notranslate"><span class="pre">dec_limit</span></code> and <code class="docutils literal notranslate"><span class="pre">ra_limit</span></code> of
+size 2 each. These arrays contain the beginning and end of DEC
+and RA regions for the cell.</p></li>
+<li><p><strong>num_ra_cells</strong> (numpy array, returned if <code class="docutils literal notranslate"><span class="pre">return_num_ra_cells</span></code> is set) – A numpy array containing the number of RA cells per declination band</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">link_in_ra=False</span></code>, then there is effectively one RA bin
+per DEC band. The  ‘ra_limit’ field will show the range of allowed
+RA values.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="Corrfunc.mocks.html#Corrfunc.mocks.DDtheta_mocks" title="Corrfunc.mocks.DDtheta_mocks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDtheta_mocks</span></code></a></p>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Corrfunc.utils</span> <span class="kn">import</span> <span class="n">gridlink_sphere</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>  <span class="c1"># Backwards compatibility with old Numpy print formatting</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="s1">&#39;1.13&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">thetamax</span><span class="o">=</span><span class="mi">30</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">gridlink_sphere</span><span class="p">(</span><span class="n">thetamax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>  
+<span class="go">[([-1.57079633, -1.04719755], [ 0.        ,  3.14159265])</span>
+<span class="go"> ([-1.57079633, -1.04719755], [ 3.14159265,  6.28318531])</span>
+<span class="go"> ([-1.04719755, -0.52359878], [ 0.        ,  3.14159265])</span>
+<span class="go"> ([-1.04719755, -0.52359878], [ 3.14159265,  6.28318531])</span>
+<span class="go"> ([-0.52359878,  0.        ], [ 0.        ,  1.25663706])</span>
+<span class="go"> ([-0.52359878,  0.        ], [ 1.25663706,  2.51327412])</span>
+<span class="go"> ([-0.52359878,  0.        ], [ 2.51327412,  3.76991118])</span>
+<span class="go"> ([-0.52359878,  0.        ], [ 3.76991118,  5.02654825])</span>
+<span class="go"> ([-0.52359878,  0.        ], [ 5.02654825,  6.28318531])</span>
+<span class="go"> ([ 0.        ,  0.52359878], [ 0.        ,  1.25663706])</span>
+<span class="go"> ([ 0.        ,  0.52359878], [ 1.25663706,  2.51327412])</span>
+<span class="go"> ([ 0.        ,  0.52359878], [ 2.51327412,  3.76991118])</span>
+<span class="go"> ([ 0.        ,  0.52359878], [ 3.76991118,  5.02654825])</span>
+<span class="go"> ([ 0.        ,  0.52359878], [ 5.02654825,  6.28318531])</span>
+<span class="go"> ([ 0.52359878,  1.04719755], [ 0.        ,  3.14159265])</span>
+<span class="go"> ([ 0.52359878,  1.04719755], [ 3.14159265,  6.28318531])</span>
+<span class="go"> ([ 1.04719755,  1.57079633], [ 0.        ,  3.14159265])</span>
+<span class="go"> ([ 1.04719755,  1.57079633], [ 3.14159265,  6.28318531])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">gridlink_sphere</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="n">dec_refine_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ra_refine_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>  
+<span class="go">[([-1.57079633, -1.22173048], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([-1.57079633, -1.22173048], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([-1.57079633, -1.22173048], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([-1.57079633, -1.22173048], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([-1.22173048, -0.87266463], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([-1.22173048, -0.87266463], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([-1.22173048, -0.87266463], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([-1.22173048, -0.87266463], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([-0.87266463, -0.52359878], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([-0.87266463, -0.52359878], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([-0.87266463, -0.52359878], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([-0.87266463, -0.52359878], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([-0.52359878, -0.17453293], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([-0.52359878, -0.17453293], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([-0.52359878, -0.17453293], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([-0.52359878, -0.17453293], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([-0.17453293,  0.17453293], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([-0.17453293,  0.17453293], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([-0.17453293,  0.17453293], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([-0.17453293,  0.17453293], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([ 0.17453293,  0.52359878], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([ 0.17453293,  0.52359878], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([ 0.17453293,  0.52359878], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([ 0.17453293,  0.52359878], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([ 0.52359878,  0.87266463], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([ 0.52359878,  0.87266463], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([ 0.52359878,  0.87266463], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([ 0.52359878,  0.87266463], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([ 0.87266463,  1.22173048], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([ 0.87266463,  1.22173048], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([ 0.87266463,  1.22173048], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([ 0.87266463,  1.22173048], [ 4.71238898,  6.28318531])</span>
+<span class="go"> ([ 1.22173048,  1.57079633], [ 0.        ,  1.57079633])</span>
+<span class="go"> ([ 1.22173048,  1.57079633], [ 1.57079633,  3.14159265])</span>
+<span class="go"> ([ 1.22173048,  1.57079633], [ 3.14159265,  4.71238898])</span>
+<span class="go"> ([ 1.22173048,  1.57079633], [ 4.71238898,  6.28318531])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.qq_analytic">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">qq_analytic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rmin</span></em>, <em class="sig-param"><span class="n">rmax</span></em>, <em class="sig-param"><span class="n">nd</span></em>, <em class="sig-param"><span class="n">volume</span></em>, <em class="sig-param"><span class="n">nprojbins</span></em>, <em class="sig-param"><span class="n">proj_type</span></em>, <em class="sig-param"><span class="n">rbins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projfn</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#qq_analytic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.qq_analytic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the QQ tensor analytically for a periodic box, for the given set of basis functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rmin</strong> (<em>double</em>) – Minimum r-value for integration</p></li>
+<li><p><strong>rmax</strong> (<em>double</em>) – Maximum r-value for integration</p></li>
+<li><p><strong>nd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of points in data catalog</p></li>
+<li><p><strong>volume</strong> (<em>double</em>) – Volume of data cube, in the same units as the r-values (cubed)</p></li>
+<li><p><strong>nprojbins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of basis functions</p></li>
+<li><p><strong>proj_type</strong> (<em>string</em>) – Projection method to use; currently supported methods are [‘tophat’, ‘piecewise’, ‘generalr’, ‘gaussian_kernel’]</p></li>
+<li><p><strong>rbins</strong> (<em>array-like</em><em>, </em><em>double</em><em>, </em><em>default=None</em>) – Edges of r-bins for tophat or piecewise projections</p></li>
+<li><p><strong>projfn</strong> (<em>string</em><em>, </em><em>default=None</em>) – Filename of projection file if necessary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>qq</strong> – Tensor of QQ values, with size (nprojbins, nprojbins)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like, double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.return_file_with_rbins">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">return_file_with_rbins</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rbins</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#return_file_with_rbins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.return_file_with_rbins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to ensure that the <code class="docutils literal notranslate"><span class="pre">binfile</span></code> required by the Corrfunc
+extensions is a actually a string.</p>
+<p>Checks if the input is a string and file; return if True. If not, and
+the input is an array, then a temporary file is created and the contents
+of rbins is written out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rbins</strong> (<em>string</em><em> or </em><em>array-like</em>) – Expected to be a string or an array containing the bins</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>binfile</strong> – If the input <code class="docutils literal notranslate"><span class="pre">rbins</span></code> was a valid filename, then returns the same
+string. If <code class="docutils literal notranslate"><span class="pre">rbins</span></code> was an array, then this function creates a
+temporary file with the contents of the <code class="docutils literal notranslate"><span class="pre">rbins</span></code> arrays. This
+temporary filename is returned</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string, filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="Corrfunc.utils.translate_isa_string_to_enum">
+<code class="sig-prename descclassname">Corrfunc.utils.</code><code class="sig-name descname">translate_isa_string_to_enum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">isa</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Corrfunc/utils.html#translate_isa_string_to_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Corrfunc.utils.translate_isa_string_to_enum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to convert an user-supplied string to the
+underlying enum in the C-API. The extensions only have specific
+implementations for AVX512F, AVX, SSE42 and FALLBACK. Any other
+value will raise a ValueError.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>isa</strong> (<em>string</em>) – A string containing the desired instruction set. Valid values are
+[‘AVX512F’, ‘AVX’, ‘SSE42’, ‘FALLBACK’, ‘FASTEST’]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>instruction_set</strong> – An integer corresponding to the desired instruction set, as used in the
+underlying C API. The enum used here should be defined <em>exactly</em> the
+same way as the enum in <code class="docutils literal notranslate"><span class="pre">utils/defs.h</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Corrfunc package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#module-Corrfunc.io">Corrfunc.io module</a></li>
+<li><a class="reference internal" href="#module-Corrfunc.utils">Corrfunc.utils module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="previous chapter">Comprehensive API reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Corrfunc.bases.html"
+                        title="next chapter">Corrfunc.bases package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/Corrfunc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Corrfunc.bases.html" title="Corrfunc.bases package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="Comprehensive API reference"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >Comprehensive API reference</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Corrfunc package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

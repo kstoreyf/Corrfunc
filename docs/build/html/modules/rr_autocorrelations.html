@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notes on the Random-Random Term in Autocorrelations &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Calculating the projected correlation function, \(wp(rp)\)" href="converting_rp_pi_mocks.html" />
+    <link rel="prev" title="Detailed API for Clustering Statistics on Simulations" href="theory_functions.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="converting_rp_pi_mocks.html" title="Calculating the projected correlation function, \(wp(rp)\)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="theory_functions.html" title="Detailed API for Clustering Statistics on Simulations"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Notes on the Random-Random Term in Autocorrelations</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="notes-on-the-random-random-term-in-autocorrelations">
+<span id="rr-autocorrelations"></span><h1>Notes on the Random-Random Term in Autocorrelations<a class="headerlink" href="#notes-on-the-random-random-term-in-autocorrelations" title="Permalink to this headline">¶</a></h1>
+<p>The following discussion is adapted from <a class="reference external" href="http://nbviewer.jupyter.org/gist/lgarrison/1efabe4430429996733a9d29397423d2">this notebook</a> by <a class="reference external" href="https://lgarrison.github.io">Lehman Garrison</a>.</p>
+<div class="math notranslate nohighlight">
+\[\newcommand{\RR}{\mathrm{RR}}
+\newcommand{\DD}{\mathrm{DD}}\]</div>
+<p>When computing a two-point correlation function estimator like</p>
+<div class="math notranslate nohighlight">
+\[\xi(r) = \frac{\DD}{\RR} - 1,\]</div>
+<p>the <span class="math notranslate nohighlight">\(\RR\)</span> term can be computed analytically if the domain is a periodic box.
+Often, this is done as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\RR_i &amp;= N V_i \bar\rho \\
+&amp;= N V_i \frac{N}{L^3}
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\RR_i\)</span> is the expected number of random-random pairs in bin <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(N\)</span> is the total number of points, <span class="math notranslate nohighlight">\(V_i\)</span> is the volume (or area if 2D) of bin <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(L\)</span> is the box size, and <span class="math notranslate nohighlight">\(\bar\rho\)</span> is the average density in the box.</p>
+<p>However, using <span class="math notranslate nohighlight">\(\bar\rho = \frac{N}{L^3}\)</span> is only correct for continuous fields, not sets of particles.  When sitting on a particle, only <span class="math notranslate nohighlight">\(N-1\)</span> particles are available to be in a bin at some non-zero distance.  The remaining particle is the particle you’re sitting on, which is always at distance <span class="math notranslate nohighlight">\(0\)</span>.  Thus, the correct expression is</p>
+<div class="math notranslate nohighlight">
+\[\RR_i = N V_i \frac{N-1}{L^3}.\]</div>
+<p>See <a class="reference external" href="http://nbviewer.jupyter.org/gist/lgarrison/1efabe4430429996733a9d29397423d2">this notebook</a> for an empirical demonstration of this effect; specifically, that computing the density with <span class="math notranslate nohighlight">\(N-1\)</span> is correct, and that using <span class="math notranslate nohighlight">\(N\)</span> introduces bias of order <span class="math notranslate nohighlight">\(\frac{1}{N}\)</span> into the estimator.  This is a tiny correction for large <span class="math notranslate nohighlight">\(N\)</span> problems, but important for small <span class="math notranslate nohighlight">\(N\)</span>.</p>
+<p>Any <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> function that returns a clustering statistic (not just raw pair counts) implements this correction.
+Currently, this includes <a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.xi" title="Corrfunc.theory.xi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code></a> and <a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.wp" title="Corrfunc.theory.wp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.wp</span></code></a>.</p>
+<p>Cross-correlations of two different particle sets don’t suffer from this problem; the particle you’re sitting on is never part of the set of particles under consideration for pair-making.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> also allows bins of zero separation, in which “self-pairs” are included in the pair counting.  <span class="math notranslate nohighlight">\(\RR_i\)</span> must reflect this by simply adding <span class="math notranslate nohighlight">\(N\)</span> to any such bin.</p>
+<div class="section" id="rr-in-weighted-clustering-statistics">
+<span id="weighted-rr"></span><h2>RR in Weighted Clustering Statistics<a class="headerlink" href="#rr-in-weighted-clustering-statistics" title="Permalink to this headline">¶</a></h2>
+<p>We can extend the above discussion to weighted correlation functions in which
+each particle is assigned a weight, and the pair weight is taken as the product
+of the particle weights (see <a class="reference internal" href="weighted_correlations.html#weighted-correlations"><span class="std std-ref">Computing Weighted Correlation Functions</span></a>).</p>
+<p>Let <span class="math notranslate nohighlight">\(w_j\)</span> be the weight of particle <span class="math notranslate nohighlight">\(j\)</span>, and <span class="math notranslate nohighlight">\(W\)</span> be the sum of the weights.
+We will define the “unclustered” particle distribution to be the case of <span class="math notranslate nohighlight">\(N\)</span> particles
+uniformly distributed, where each is assigned the mean weight <span class="math notranslate nohighlight">\(\bar w\)</span>.  We thus have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\RR_i &amp;= \sum_{j=1}^N \bar w (W - \bar w) \frac{V_i}{L^3} \\
+&amp;= (W^2 - \bar w W) \frac{V_i}{L^3} \\
+&amp;= W^2\left(1 - \frac{1}{N}\right) \frac{V_i}{L^3}.
+\end{align}\end{split}\]</div>
+<p>When the particles all have <span class="math notranslate nohighlight">\(w_j = 1\)</span>, then <span class="math notranslate nohighlight">\(W = N\)</span> and we recover the unweighted result from above.</p>
+<p>There are other ways to define the unclustered distribution.  If we were to redistribute
+the particles uniformly but preserve their individual weights, we would find</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\RR_i &amp;= \sum_{j=1}^N w_j (W - w_j) \frac{V_i}{L^3} \\
+&amp;= \left(W^2 - \sum_{j=1}^N w_j^2\right) \frac{V_i}{L^3}.
+\end{align}\end{split}\]</div>
+<p>This is not what we use in <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code>, but this should help illuminate some of the considerations that
+go into defining the “unclustered” case when writing a custom weight function (see <a class="reference internal" href="custom_weighting.html#custom-weighting"><span class="std std-ref">Implementing Custom Weight Functions</span></a>).</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Notes on the Random-Random Term in Autocorrelations</a><ul>
+<li><a class="reference internal" href="#rr-in-weighted-clustering-statistics">RR in Weighted Clustering Statistics</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="theory_functions.html"
+                        title="previous chapter">Detailed API for Clustering Statistics on Simulations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="converting_rp_pi_mocks.html"
+                        title="next chapter">Calculating the projected correlation function, <span class="math notranslate nohighlight">\(wp(rp)\)</span></a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/rr_autocorrelations.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="converting_rp_pi_mocks.html" title="Calculating the projected correlation function, \(wp(rp)\)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="theory_functions.html" title="Detailed API for Clustering Statistics on Simulations"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Notes on the Random-Random Term in Autocorrelations</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

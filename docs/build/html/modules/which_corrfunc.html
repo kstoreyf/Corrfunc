@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Which correlation function to use? &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Converting 3D pair counts into a correlation function" href="converting_3d_counts.html" />
+    <link rel="prev" title="Specifying the separation bins in Corrfunc" href="generate_bins.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="converting_3d_counts.html" title="Converting 3D pair counts into a correlation function"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="generate_bins.html" title="Specifying the separation bins in Corrfunc"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Which correlation function to use?</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="which-correlation-function-to-use">
+<span id="which-corrfunc"></span><h1>Which correlation function to use?<a class="headerlink" href="#which-correlation-function-to-use" title="Permalink to this headline">¶</a></h1>
+<p>Corrfunc has a variety of correlation functions to cover a broad range of Science applications. The basic distinction occurs if the input particles are directly
+from a simulation or from an observational survey (or equivalently, a simulation that has been processed to look like a survey). For simulation data, referred throughout
+as <cite>theory</cite>, the assumption is that the particle positions are Cartesian, co-moving XYZ.  For survey data, referred throughout as <cite>mocks</cite>, the assumption is that
+particle positions are <cite>Right Ascension</cite> (0 – 360 deg), <cite>Declination</cite> (-90 – 90 deg) and <cite>CZ</cite> (speed of light multiplied by the redshift). Depending on the exact
+type of data, <strong>and</strong> the desired correlation function you want, the following table should help you figure out which code you should use.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 9%" />
+<col style="width: 10%" />
+<col style="width: 25%" />
+<col style="width: 19%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Input Data</p></th>
+<th class="head"><p>Periodic</p></th>
+<th class="head"><p>Particle domain</p></th>
+<th class="head"><p>Desired correlation function</p></th>
+<th class="head"><p>Returns</p></th>
+<th class="head"><p>Python code</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td rowspan="2"><p>X, Y, Z</p></td>
+<td rowspan="2"><p>True</p></td>
+<td rowspan="2"><p>Cube (box)</p></td>
+<td><p>wp(<span class="math notranslate nohighlight">\(r_p\)</span>)</p></td>
+<td><p>2-D Projected Correlation</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.wp" title="Corrfunc.theory.wp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.wp</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\xi(r)\)</span></p></td>
+<td><p>3-D Real-space Correlation</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.xi" title="Corrfunc.theory.xi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.xi</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><p>X, Y, Z</p></td>
+<td rowspan="3"><p>True or False</p></td>
+<td rowspan="3"><p>Arbitrary</p></td>
+<td><p><span class="math notranslate nohighlight">\(\xi(r)\)</span></p></td>
+<td><p>Pair-counts in 3-D real-space</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.DD" title="Corrfunc.theory.DD"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.DD</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\xi(r_p, \pi)\)</span></p></td>
+<td><p>Pair-counts in 2-D</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.DDrppi" title="Corrfunc.theory.DDrppi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.DDrppi</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span></p></td>
+<td><p>Pair-counts in 2-D</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.theory.html#Corrfunc.theory.DDsmu" title="Corrfunc.theory.DDsmu"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.theory.DDsmu</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><p>ra, dec, cz</p></td>
+<td rowspan="2"><p>False</p></td>
+<td rowspan="2"><p>Arbitrary</p></td>
+<td><p><span class="math notranslate nohighlight">\(\xi(r_p, \pi)\)</span></p></td>
+<td><p>Pair-counts in 2-D</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.mocks.html#Corrfunc.mocks.DDrppi_mocks" title="Corrfunc.mocks.DDrppi_mocks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDrppi_mocks</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\xi(s, \mu)\)</span></p></td>
+<td><p>Pair-counts in 2-D</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.mocks.html#Corrfunc.mocks.DDsmu_mocks" title="Corrfunc.mocks.DDsmu_mocks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDsmu_mocks</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>ra, dec</p></td>
+<td><p>False</p></td>
+<td><p>Arbitrary</p></td>
+<td><p><span class="math notranslate nohighlight">\(\omega(\theta)\)</span></p></td>
+<td><p>Pair-counts in angular space</p></td>
+<td><p><a class="reference internal" href="../api/Corrfunc.mocks.html#Corrfunc.mocks.DDtheta_mocks" title="Corrfunc.mocks.DDtheta_mocks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.mocks.DDtheta_mocks</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+<p>In all cases where only pair-counts are returned (e.g., all of the <cite>mocks</cite> routines), you will need to compute at least
+an additional <cite>RR</cite> term. Please see <a class="reference internal" href="../api/Corrfunc.html#Corrfunc.utils.convert_3d_counts_to_cf" title="Corrfunc.utils.convert_3d_counts_to_cf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.utils.convert_3d_counts_to_cf</span></code></a> to
+convert 3-D pair-counts (or angular pair counts) into a correlation
+function. For 2-D pair-counts, please use <a class="reference internal" href="../api/Corrfunc.html#Corrfunc.utils.convert_rp_pi_counts_to_wp" title="Corrfunc.utils.convert_rp_pi_counts_to_wp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.utils.convert_rp_pi_counts_to_wp</span></code></a>
+to convert into a projected correlation function. If you want to compute
+the <span class="math notranslate nohighlight">\(\xi(r_p, \pi)\)</span> from the 2-D pair-counts, then simply call
+<a class="reference internal" href="../api/Corrfunc.html#Corrfunc.utils.convert_3d_counts_to_cf" title="Corrfunc.utils.convert_3d_counts_to_cf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Corrfunc.utils.convert_3d_counts_to_cf</span></code></a> with the arrays.</p>
+<p>Also, see <a class="reference internal" href="../commandline-interface.html#commandline-interface"><span class="std std-ref">Using the command-line interface in Corrfunc</span></a> for a detailed list of the clustering statistics and the various available API interfaces.</p>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="generate_bins.html"
+                        title="previous chapter">Specifying the separation bins in Corrfunc</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="converting_3d_counts.html"
+                        title="next chapter">Converting 3D pair counts into a correlation function</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/which_corrfunc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="converting_3d_counts.html" title="Converting 3D pair counts into a correlation function"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="generate_bins.html" title="Specifying the separation bins in Corrfunc"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Typical Tasks for Computing Correlation Functions</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Which correlation function to use?</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

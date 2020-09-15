@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contributing to Corrfunc &#8212; Corrfunc v0.0.4</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="shortcut icon" href="../_static/corrfunc-logo-no-text.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Comprehensive API reference" href="../api/modules.html" />
+    <link rel="prev" title="Staying Up to Date" href="staying_up_to_date.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/modules.html" title="Comprehensive API reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="staying_up_to_date.html" title="Staying Up to Date"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Contributing to Corrfunc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="contributing-to-corrfunc">
+<span id="contributing"></span><h1>Contributing to Corrfunc<a class="headerlink" href="#contributing-to-corrfunc" title="Permalink to this headline">¶</a></h1>
+<p>Corrfunc is written in a very modular fashion with minimal interaction between
+the various calculations. The algorithm presented in Corrfunc is applicable to
+a broad-range of astrophysical problems, viz., any situation that requires
+looking at <em>all</em> objects around a target and performing some analysis with
+this group of objects.</p>
+<p>Here are the basic steps to get your statistic into the Corrfunc package:</p>
+<ul class="simple">
+<li><p>Fork the repo and add your statistic</p></li>
+<li><p>Add exhaustive tests. The output of your statistic should <strong>exactly</strong> agree with a
+brute-force implementation (under double-precision). Look at <code class="docutils literal notranslate"><span class="pre">test_periodic.c</span></code> and <code class="docutils literal notranslate"><span class="pre">test_nonperiodic.c</span></code>
+under <code class="docutils literal notranslate"><span class="pre">theory/tests/</span></code> for tests on simulation volumes. For mock
+catalogs, look at <code class="docutils literal notranslate"><span class="pre">mocks/tests/tests_mocks.c</span></code>.</p></li>
+<li><p>Add a python extension for the new statistic. This extension should reside in file
+<code class="docutils literal notranslate"><span class="pre">theory/python_bindings/_countpairs.c</span></code> or
+<code class="docutils literal notranslate"><span class="pre">mocks/python_bindings/_countpairs_mocks.c</span></code> for statistics relevant for
+simulations and mocks respectively. It is preferred to have the extension
+documented but not necessary.</p></li>
+<li><p>Add a call to this new <em>extension</em> in the
+<code class="docutils literal notranslate"><span class="pre">python_bindings/call_correlation_functions*.py</span></code> script.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Different from corresponding script in <code class="docutils literal notranslate"><span class="pre">Corrfunc/</span></code> directory.</p>
+</div>
+<ul class="simple">
+<li><p>Add a python wrapper for the previous python extension. This wrapper should
+exist in <code class="docutils literal notranslate"><span class="pre">Corrfunc/theory/</span></code> or <code class="docutils literal notranslate"><span class="pre">Corrfunc/mocks/</span></code>. Wrapper <strong>must</strong> have
+inline API docs.</p></li>
+<li><p>Add the new wrapper to <code class="docutils literal notranslate"><span class="pre">__all__</span></code> in <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> within the relevant
+directory.</p></li>
+<li><p>Add an example call to this <em>wrapper</em> in
+<code class="docutils literal notranslate"><span class="pre">Corrfunc/call_correlation_functions.py</span></code> or
+<code class="docutils literal notranslate"><span class="pre">Corrfunc/call_correlation_functions_mocks.py</span></code> for simulations and mocks
+respectively.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Different from corresponding script in <code class="docutils literal notranslate"><span class="pre">python_bindings</span></code> directory.</p>
+</div>
+<ul class="simple">
+<li><p>Add the new wrapper to the API docs within
+<code class="docutils literal notranslate"><span class="pre">ROOT_DIR/docs/source/theory_functions.rst</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ROOT_DIR/docs/source/mocks_functions.rst</span></code>.</p></li>
+<li><p>Add to the contributors list under
+<code class="docutils literal notranslate"><span class="pre">ROOT_DIR/docs/source/development/contributors.rst</span></code>.</p></li>
+<li><p>Submit pull request</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please feel free to email the <a class="reference external" href="mailto:manodeep&#37;&#52;&#48;gmail&#46;com">author</a> or
+the <a class="reference external" href="https://groups.google.com/forum/#!forum/corrfunc">Corrfunc Google Groups</a> if you need help at any stage.</p>
+</div>
+<div class="section" id="corrfunc-design">
+<h2>Corrfunc Design<a class="headerlink" href="#corrfunc-design" title="Permalink to this headline">¶</a></h2>
+<p>All of the algorithms in Corrfunc have the following components:</p>
+<ul class="simple">
+<li><p>Reading in data. Relevant routines are in the <code class="docutils literal notranslate"><span class="pre">io/</span></code> directory with a
+mapping within <code class="docutils literal notranslate"><span class="pre">io.c</span></code> to handle the file format</p></li>
+<li><p>Creating the 3-D lattice structure. Relevant routines are in the
+<code class="docutils literal notranslate"><span class="pre">utils/gridlink_impl.c.src</span></code>  and <code class="docutils literal notranslate"><span class="pre">utils/gridlink_mocks.c.src</span></code>. This
+lattice grids up the particle distribution on cell-sizes of <code class="docutils literal notranslate"><span class="pre">rmax</span></code> (the
+maximum search radius).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The current lattice code duplicates the particle memory. If you
+need a lattice that does not duplicate the particle memory, then please email
+the <a class="reference external" href="mailto:manodeep&#37;&#52;&#48;gmail&#46;com">author</a>. Relevant code existed in Corrfunc
+but has been removed in the current incarnation.</p>
+</div>
+<ul class="simple">
+<li><p>Setting up the OpenMP sections such that threads have local copies of
+histogram arrays. If OpenMP is not enabled, then this section should not
+produce any compilable code.</p></li>
+<li><p>Looping over all cells in the 3-D lattice and then looping over all
+neighbouring cells for each cell.</p></li>
+<li><p>For a pair of cells, hand over the two sets of arrays into a specialized
+kernel (<code class="docutils literal notranslate"><span class="pre">count*kernel.c.src</span></code>) for computing pairs.</p></li>
+<li><p>Aggregate the results, if OpenMP was enabled.</p></li>
+</ul>
+</div>
+<div class="section" id="directory-and-file-layout">
+<h2>Directory and file layout<a class="headerlink" href="#directory-and-file-layout" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Codes that compute statistics on simulation volumes (Cartesian XYZ as input)
+go into a separate directory within <code class="docutils literal notranslate"><span class="pre">theory</span></code></p></li>
+<li><p>Codes that compute statistics on mock catalogs (RA, DEC [CZ]) go into a
+separate directory within <code class="docutils literal notranslate"><span class="pre">mocks</span></code></p></li>
+<li><p>Public API in a <code class="docutils literal notranslate"><span class="pre">count*.h</span></code> file. Corresponding C file simply dispatches to
+appropriate floating point implementation.</p></li>
+<li><p>Floating point implmentation in file <code class="docutils literal notranslate"><span class="pre">count*_impl.c.src</span></code>. This file is
+processed via <code class="docutils literal notranslate"><span class="pre">sed</span></code> to generate both single and double precision
+implementations.</p></li>
+<li><p>A kernel named <code class="docutils literal notranslate"><span class="pre">count*kernels.c.src</span></code> containing implementations for
+counting pairs on two sets of arrays. This kernel file is also preprocessed
+to produce both the single and double precision kernels.</p></li>
+<li><p>Tests go within <code class="docutils literal notranslate"><span class="pre">tests</span></code> directory under <code class="docutils literal notranslate"><span class="pre">theory</span></code> or <code class="docutils literal notranslate"><span class="pre">mocks</span></code>, as
+appropriate. For simulation routines, tests with and without periodic
+boundaries go into <code class="docutils literal notranslate"><span class="pre">test_periodic.c</span></code> and <code class="docutils literal notranslate"><span class="pre">test_nonperiodic.c</span></code></p></li>
+<li><p>C code to generate the python extensions goes under <code class="docutils literal notranslate"><span class="pre">python_bindings</span></code>
+directory into the file <code class="docutils literal notranslate"><span class="pre">_countpairs*.c</span></code></p></li>
+<li><p>Each python extension has a python wrapper within <code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> directory</p></li>
+</ul>
+</div>
+<div class="section" id="coding-guidelines">
+<h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="c-guidelines">
+<h3>C guidelines<a class="headerlink" href="#c-guidelines" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="code-contents">
+<h4>Code contents<a class="headerlink" href="#code-contents" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Always</strong> check for error conditions when calling a function</p></li>
+<li><p>If an error condition occurs when making an kernel/external library call,
+first call <code class="docutils literal notranslate"><span class="pre">perror</span></code> and then return the error status. If calling a wrapper
+from within Corrfunc, assume that <code class="docutils literal notranslate"><span class="pre">perror</span></code> has already been called and
+simply return the status. Clean up memory before returning status.</p></li>
+<li><p>Declare variables in the smallest possible scope.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">const</span></code> qualifiers liberally</p></li>
+<li><p>There <strong>must</strong> not be any compiler warnings (with <code class="docutils literal notranslate"><span class="pre">gcc6.0</span></code>) under the given set of Warnings
+already enabled within <code class="docutils literal notranslate"><span class="pre">common.mk</span></code>. If the warning can not be avoided
+because of logic issues, then suppress the warning but note why that
+suppression is required. Warnings are treated as errors on the continuous integration platform (TRAVIS)</p></li>
+<li><p>Valgrind should not report any fixable memory or file leaks (memory
+leaks in OpenMP library, e.g., <code class="docutils literal notranslate"><span class="pre">libgomp</span></code>, are fine)</p></li>
+</ul>
+</div>
+<div class="section" id="style">
+<h4>Style<a class="headerlink" href="#style" title="Permalink to this headline">¶</a></h4>
+<p>The coding style is loosely based on <a class="reference external" href="https://www.kernel.org/doc/Documentation/CodingStyle">Linux Kernel Guideline</a>. These are recommended
+but not strictly enforced. However, note that if you do contribute code to
+Corrfunc, the style may get converted.</p>
+<ul class="simple">
+<li><p>Braces
+- Opening braces start at the same line, except for functions
+- Closing braces on new line
+- Even single line conditionals must have opening and closing braces</p></li>
+<li><p>Comments
+- Explanatory comments on top of code segment enclosed with <code class="docutils literal notranslate"><span class="pre">/**/</span></code>
+- Inline comments must be single-line on the right</p></li>
+<li><p>Indentation is <code class="docutils literal notranslate"><span class="pre">tab:=4</span> <span class="pre">spaces</span></code></p></li>
+<li><p>Avoid <code class="docutils literal notranslate"><span class="pre">typedef</span></code> for <code class="docutils literal notranslate"><span class="pre">structs</span></code> and <code class="docutils literal notranslate"><span class="pre">unions</span></code></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="python-guidelines">
+<h3>Python guidelines<a class="headerlink" href="#python-guidelines" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Follow the <a class="reference external" href="http://docs.astropy.org/en/stable/development/codeguide_emacs.html">astropy python code guide</a></p></li>
+<li><p>Docs are in <code class="docutils literal notranslate"><span class="pre">numpydocs</span></code> format. Follow any of the wrapper routines in
+<code class="docutils literal notranslate"><span class="pre">Corrfunc</span></code> (which are, in turn, taken from <a class="reference external" href="http://halotools.readthedocs.io/">halotools</a>)</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/corrfunc_logo_320px_240px.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Contributing to Corrfunc</a><ul>
+<li><a class="reference internal" href="#corrfunc-design">Corrfunc Design</a></li>
+<li><a class="reference internal" href="#directory-and-file-layout">Directory and file layout</a></li>
+<li><a class="reference internal" href="#coding-guidelines">Coding Guidelines</a><ul>
+<li><a class="reference internal" href="#c-guidelines">C guidelines</a><ul>
+<li><a class="reference internal" href="#code-contents">Code contents</a></li>
+<li><a class="reference internal" href="#style">Style</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#python-guidelines">Python guidelines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="staying_up_to_date.html"
+                        title="previous chapter">Staying Up to Date</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../api/modules.html"
+                        title="next chapter">Comprehensive API reference</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/contributing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/modules.html" title="Comprehensive API reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="staying_up_to_date.html" title="Staying Up to Date"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Corrfunc v0.0.4</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Developer documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Contributing to Corrfunc</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2020, Kate Storey-Fisher &lt;kstoreyfisher@gmail.com&gt;.
+      Last updated on Sep 14, 2020.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>
