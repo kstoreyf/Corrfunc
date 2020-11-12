@@ -1,8 +1,8 @@
 The Continuous-Function Estimator
 =================================
 
-This is an implementation of the continuous-function estimator, a generalization of the standard (Landy-Szalay) estimator for the two-point correlation function. 
-It is built within the `Corrfunc <https://github.com/manodeep/Corrfunc>`_  package, by Manodeep Sinha. 
+This is an implementation of the Continuous-Function Estimator, a generalization of the standard (Landy-Szalay) estimator for the two-point correlation function. 
+It is built within the `Corrfunc <https://github.com/manodeep/Corrfunc>`_  package, by Manodeep Sinha and Lehman Garrison. 
 The Corrfunc README is copied below. 
 
 The 2-point correlation function measures the clustering of galaxies (or other tracers) as a function of scale. 
@@ -13,11 +13,12 @@ Rather, it projects the pairs onto any user-defined set of basis functions.
 It replaces the pair counts with vectors, and the random normalization vector term with a matrix, that describe the contribution of the pairs to each basis function.
 The correlation function can then be directly evaluated at any separation, resulting in a continuous estimation.
 
-An example script for using the estimator is in example.ipynb.
+An example script for using the estimator is in `example_theory.ipynb <https://github.com/kstoreyf/Corrfunc/blob/master/examples/example_theory.ipynb>`_.
+The Continuous-Function Estimator is currenly implemented in the DD(s, mu) pair counting statistic for both mock and theory data.
 Currently implemented bases are tophat and piecewise.
-General r-dependent basis functions can be read in from a file; helper routines for these include spline basis functions of any order, the BAO fitting function, and derivatives with respect to cosmological parameters.
+General r-dependent basis functions can be read in from a file; helper routines for these include spline basis functions of any order and a baryon acoustic oscillation fitting function.
 
-The paper is in prep (Storey-Fisher \& Hogg, exp 2020). In the meantime, feel free to email k.sf@nyu.edu for more details. 
+The paper presenting this method can be found at https://arxiv.org/abs/2011.01836 (Storey-Fisher \& Hogg, Submitted to ApJ). Feel free to email k.sf@nyu.edu with any comments or questions, or `submit an issue <https://github.com/kstoreyf/Corrfunc/issues/new/choose>`_.
 
 Original Corrfunc README
 ========================
