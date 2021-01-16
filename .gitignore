@@ -52,3 +52,8 @@ cov-int
 *.dat
 example*.py
 .ipynb_checkpoints/
+*.pdf
+*.npz
+*.npy
+*.txt
+tables/
