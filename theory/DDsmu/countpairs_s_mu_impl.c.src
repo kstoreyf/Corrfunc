@@ -179,6 +179,24 @@ int countpairs_s_mu_DOUBLE(const int64_t ND1, DOUBLE *X1, DOUBLE *Y1, DOUBLE *Z1
     if (projfn != NULL) {
         read_projfile_DOUBLE(projfn, projdata);
     } 
+    
+    /* Add in the location data if necessary */
+    /* TODO: delete this stuff if weight struct works */
+    // if (projdata->proj_method==GRADIENT){
+    //     int nlocarrs = 3;
+    //     projdata->locations1 = my_malloc(sizeof(*(projdata->locations1)), ND1*nlocarrs);
+    //     projdata->locations2 = my_malloc(sizeof(*(projdata->locations2)), ND2*nlocarrs);
+    //     for(int i = 0; i < ND1; i++){
+    //         projdata->locations1[i*nlocarrs] = X1[i];
+    //         projdata->locations1[i*nlocarrs+1] = Y1[i];
+    //         projdata->locations1[i*nlocarrs+2] = Z1[i];
+    //     }
+    //     for(int i = 0; i < ND2; i++){
+    //         projdata->locations2[i*nlocarrs] = X2[i];
+    //         projdata->locations2[i*nlocarrs+1] = Y2[i];
+    //         projdata->locations2[i*nlocarrs+2] = Z2[i];
+    //     } 
+    // }
     /* End Projection */
 
     struct timeval t0;
