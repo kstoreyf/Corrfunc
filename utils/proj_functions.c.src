@@ -256,10 +256,25 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
 
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
-                      int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
+                      int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn, struct extra_options *extra){
 
-    /* TODO: figure out to read in pair data and store in this struct! */
-    pair_struct_DOUBLE pair; 
+    // If no extra options were passed, create dummy options
+    // This allows us to pass arguments like "extra->weights0" below;
+    // they'll just be NULLs, which is the correct behavior
+    struct extra_options dummy_extra;
+    if(extra == NULL){
+      weight_method_t dummy_method = NONE;
+      dummy_extra = get_extra_options(dummy_method);
+      extra = &dummy_extra;
+    }
+
+    /* The metadata for a pair is applied to all r values */
+    pair_struct_DOUBLE pair = {.num_weights = extra->weights0.num_weights};
+    for(int w = 0; w < pair.num_weights; w++){
+        //0 because for evaluate_xi we only have weights for a single pair
+        pair.weights0[w].d = ((DOUBLE *) extra->weights0.weights[w])[0];
+        pair.weights1[w].d = ((DOUBLE *)extra->weights0.weights[w])[0];
+    }
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
