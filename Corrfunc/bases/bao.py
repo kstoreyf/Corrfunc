@@ -9,25 +9,34 @@ def write_bases(rmin, rmax, saveto, ncont=1000, **kwargs):
     return nprojbins, saveto
 
 
-def bao_bases(s, cf_func, dalpha, alpha_model):
+#def bao_bases(s, cf_func, dalpha, alpha_model):
+def bao_bases(s, cf_func, dalpha, alpha, k0=0.1):   
+    print("updated bases!!")
+    k1 = 10.0
+    b1 = k1/s**2
     
-    b1 = 1.0/s**2
-    b2 = 0.1/s
-    b3 = 0.001*np.ones(len(s))
+    k2 = 0.1
+    b2 = k2/s
+
+    k3 = 0.001
+    b3 = k3*np.ones(len(s))
     
-    cf = cf_func(s, alpha_model=alpha_model)
+    #cf = cf_func(s, alpha_model=alpha_model)
+    cf = cf_func(alpha*s)
     b4 = cf
 
-    alpha = dalpha/alpha_model + 1
+    #alpha = dalpha/alpha_model + 1
     #dalpha = alpha_model*alpha - alpha_model
-    cf_dalpha = cf_func(alpha*s, alpha_model=alpha_model)
+    #cf_dalpha = cf_func(alpha*s, alpha_model=alpha_model)
+    #dcf_dalpha = partial_derivative(cf, cf_dalpha, dalpha)
+    cf_dalpha = cf_func((alpha+dalpha)*s)
     dcf_dalpha = partial_derivative(cf, cf_dalpha, dalpha)
-    b5 = dalpha*dcf_dalpha
+    b5 = k0*dcf_dalpha
     
     return b1,b2,b3,b4,b5
 
 
-def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.1, alpha_model=1.0, bias=1.0):
+def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.01, alpha_model=1.0, bias=1.0, k0=0.1):
 
     if not cosmo_base:
         raise ValueError("Must pass cosmo_base!")
@@ -39,12 +48,14 @@ def get_bases(rmin, rmax, ncont=1000, cosmo_base=None, redshift=0, dalpha=0.1, a
     #alpha_model = 1.02
     print("bias: {}. dalpha: {}, alpha_model: {}".format(bias, dalpha, alpha_model))
 
-    def cf_model(s, alpha_model):
-        return bias * CF(alpha_model*s)
+    #def cf_model(s, alpha_model):
+        #return bias * CF(alpha_model*s)
+    def cf_model(s):
+        return bias * CF(s)
 
     rcont = np.linspace(rmin, rmax, ncont)
     #bs = bao_bases(rcont, CF)
-    bs = bao_bases(rcont, cf_model, dalpha, alpha_model)
+    bs = bao_bases(rcont, cf_model, dalpha, alpha_model, k0=k0)
 
     nbases = len(bs)    
     bases = np.empty((nbases+1, ncont))
