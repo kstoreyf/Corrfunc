@@ -20,7 +20,8 @@ if os.name != 'posix':
     sys.exit("Sorry, Windows is not supported")
 
 base_url = "https://github.com/kstoreyf/Corrfunc"
-projectname = 'smoothcorrfunc'
+#projectname = 'smoothcorrfunc'
+projectname = 'suave'
 
 # global variables
 version = ''
