@@ -157,30 +157,26 @@ void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s,
 
     /* this could be whatever function we want to add a gradient to! */
     // this will fill up the first 1/4 of u
-    // but CAREFUL, for non-tophat we will have to reset nprojbins, bc actual is 4x more than assumed in other funcs!
-    tophat_DOUBLE(projdata, u, s, sqr_s, pair);
+    // but CAREFUL, for functions that depend on nprojbins we will have to reset it, bc actual is 4x more than assumed in other funcs!
+    //tophat_DOUBLE(projdata, u, s, sqr_s, pair);
+    general_r_DOUBLE(projdata, u, s, sqr_s, pair);
 
     /* Add gradients */
     /* u is 4x as long as nbases! */
     /* the .d is because of the union struct that allows for the other vectorization types */
     int nconst = projdata->nprojbins/4;
-    /* TODO: DON'T HARD-CODE PIVOT */
-    DOUBLE xpivot = 375.0, ypivot = 375.0, zpivot = 375.0;
-    DOUBLE xloc, yloc, zloc;
+    DOUBLE xweight, yweight, zweight;
     
     /* Take the pair position to be the mean */
     /* x stored in index 1 of weights, because general weight in 0 (y in 2, z in 3)*/
-    xloc = 0.5*(pair->weights0[1].d + pair->weights1[1].d);
-    yloc = 0.5*(pair->weights0[2].d + pair->weights1[2].d);
-    zloc = 0.5*(pair->weights0[3].d + pair->weights1[3].d);
-    // printf("x0: %f, x1: %f\n", pair->weights0[1].d, pair->weights1[1].d);
-    // printf("xloc: %f\n", xloc);
-    // printf("xpivot: %f\n", xpivot);
+    xweight = 0.5*(pair->weights0[1].d + pair->weights1[1].d);
+    yweight = 0.5*(pair->weights0[2].d + pair->weights1[2].d);
+    zweight = 0.5*(pair->weights0[3].d + pair->weights1[3].d);
 
     for (int j=0; j<nconst; j++){
-        u[nconst+j] = u[j] * (xloc-xpivot);
-        u[2*nconst+j] = u[j] * (yloc-ypivot);
-        u[3*nconst+j] = u[j] * (zloc-zpivot);
+        u[nconst+j] = u[j] * xweight;
+        u[2*nconst+j] = u[j] * yweight;
+        u[3*nconst+j] = u[j] * zweight;
     }
 }
 
@@ -260,7 +256,7 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
                       int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn, struct extra_options *extra){
-
+                          
     // If no extra options were passed, create dummy options
     // This allows us to pass arguments like "extra->weights0" below;
     // they'll just be NULLs, which is the correct behavior
@@ -272,12 +268,10 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
     }
 
     /* The metadata for a pair is applied to all r values */
-
     pair_struct_DOUBLE pair = {.num_weights = extra->weights0.num_weights};
     for(int w = 0; w < pair.num_weights; w++){
         //0 because for evaluate_xi we only have weights for a single pair
         pair.weights0[w].d = ((DOUBLE *) extra->weights0.weights[w])[0];
-        //printf("pairweights[0]: %f\n", pair.weights0[w].d);
         pair.weights1[w].d = ((DOUBLE *)extra->weights0.weights[w])[0];
     }
 
