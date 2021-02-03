@@ -1279,23 +1279,23 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
 
             /* Projection */ 
             /* Where the projection magic happens */
-
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
                 DOUBLE u[nprojbins];
-                proj_func(projdata, u, s, s2);
+                // projdata is already a pointer, pair is not
+                proj_func(projdata, u, s, s2, &pair);
                 //outer product to get tensor value
                 if (need_tensor) { 
                     for(int p1=0;p1<nprojbins;p1++){
                         if (need_weightavg){
+                            // pair weight is just the pair product weight based on the 0 index of weights
                             projpairs[p1] += u[p1]*pairweight;
                         }
                         else{
                             projpairs[p1] += u[p1];
                         }
                         for(int p2=0;p2<nprojbins;p2++){
-                            //figure out why this is not *pairweight^2
                             if (need_weightavg){
                                 projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2]*pairweight;
                             }

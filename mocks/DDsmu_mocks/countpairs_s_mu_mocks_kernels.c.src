@@ -1329,7 +1329,7 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             if(need_proj){
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
                 DOUBLE u[nprojbins];
-                proj_func(projdata, u, s, sqr_s);
+                proj_func(projdata, u, s, sqr_s, &pair);
                 //outer product to get tensor value
                 if (need_tensor) { 
                     for(int p1=0;p1<nprojbins;p1++){

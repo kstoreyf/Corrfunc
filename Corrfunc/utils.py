@@ -1109,13 +1109,13 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     import numpy as np
     from Corrfunc.utils import sys_pipes
 
-    print('Computing amplitudes (Corrfunc/utils.py)')
+    #print('Computing amplitudes (Corrfunc/utils.py)')
     with sys_pipes():
         amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
     return np.array(amps)
 
 
-def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
+def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, weights2=None, weight_type=None):
     '''
     Evaluate the correlation function for the given amplitudes and separation values.
 
@@ -1135,6 +1135,15 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
 
     projfn : string, default=None
        Filename of projection file; necessary for proj_type='generalr'
+
+    weights1 : array-like, double, default=None
+        Weights/metadata for custom basis functions, for first set of imaginary galaxies
+
+    weights2 : array-like, double, default=None
+        Weights/metadata for custom basis functions, for second set of imaginary galaxies
+
+    weight_type : string, default=None
+        Name of weight function
 
     Returns
     -------
@@ -1165,12 +1174,12 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None):
         nrbins = -1
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
-    for k in ['projfn', 'nrbins', 'rbins']:
+    for k in ['nrbins', 'rbins', 'projfn', 'weights1', 'weights2', 'weight_type']:
         v = locals()[k]
         if v is not None:
             kwargs[k] = v
 
-    print('Evaluating xi (Corrfunc/utils.py)')
+    #print('Evaluating xi (Corrfunc/utils.py)')
     with sys_pipes():
         xi = eval_extn(nprojbins, amps, nrvals, rvals, proj_type, **kwargs)
 
@@ -1246,7 +1255,7 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn
         if v is not None:
             kwargs[k] = v
 
-    print('Evaluating qq_analytic (Corrfunc/utils.py)')
+    #print('Evaluating qq_analytic (Corrfunc/utils.py)')
 
     with sys_pipes():
         extn_results = eval_extn(rmin, rmax, nd, volume, nprojbins, proj_type, **kwargs)
