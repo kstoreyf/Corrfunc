@@ -1,6 +1,8 @@
 ``suave``: The Continuous-Function Estimator
 =================================
 
+|PyPI| |MIT licensed| |RTD| |Continuous-Function Estimator Paper| |Corrfunc Paper I| |Corrfunc Paper II|
+
 This is an implementation of the Continuous-Function Estimator, a generalization of the standard (Landy-Szalay) estimator for the two-point correlation function. 
 We call this tool ``suave`` which means *smooth* in Spanish (pronounced **swah**-beh), as it can produce smooth (continuous) correlation functions. 
 It is built within the `Corrfunc <https://github.com/manodeep/Corrfunc>`_  package, by Manodeep Sinha and Lehman Garrison; check out the full Corrfunc README at the original repo.
@@ -90,8 +92,6 @@ Finally, if you benefit from the enhanced vectorised kernels in ``Corrfunc`` (no
       }
 
 
-s://groups.google.com/forum/#!forum/corrfunc
-
 LICENSE
 =======
 
@@ -105,6 +105,7 @@ Project URLs
 -  Source Repository (https://github.com/kstoreyf/suave)
 -  Original Corrfunc Documentation (http://corrfunc.rtfd.io/)
 -  Original Corrfunc Source Repository (https://github.com/manodeep/Corrfunc)
+
 
 .. |logo| image:: https://github.com/manodeep/Corrfunc/blob/master/corrfunc_logo.png
     :target: https://github.com/manodeep/Corrfunc
@@ -122,7 +123,7 @@ Project URLs
    :target: http://suave.readthedocs.io/en/master/?badge=master
    :alt: Documentation Status
 
-.. |Continuous-Function Estimator Paper| image:: https://img.shields.io/badge/arXiv-1911.03545-%23B31B1B
+.. |Continuous-Function Estimator Paper| image:: https://img.shields.io/badge/arXiv-2011.01836-%23B31B1B
    :target: https://arxiv.org/abs/2011.01836
    :alt: Continuous-Function Estimator Paper
 .. |Corrfunc Paper I| image:: https://img.shields.io/badge/arXiv-1911.03545-%23B31B1B
