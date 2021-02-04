@@ -79,12 +79,12 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Corrfunc'
+project = u'suave'
 __import__(project)
 package = sys.modules[project]
 author = package.__author__
 current_year = date.today().year
-copyright = u'2014-{0}, {1}'.format(current_year, author)
+copyright = u'2020-{0}, {1}'.format(current_year, author)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -241,7 +241,7 @@ html_show_copyright = True
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Corrfuncdoc'
+htmlhelp_basename = 'suavedoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -303,8 +303,8 @@ man_pages = [(master_doc, project.lower(), project + u' Documentation',
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Corrfunc', u'Corrfunc Documentation',
-     author, 'Corrfunc', 'One line description of project.',
+    (master_doc, 'suave', u'Suave Documentation',
+     author, 'suave', 'One line description of project.',
      'Miscellaneous'),
 ]
 
