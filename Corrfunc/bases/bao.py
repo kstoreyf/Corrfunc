@@ -1,6 +1,11 @@
 import numpy as np
 from nbodykit.lab import cosmology
 
+'''
+.. module:: suave
+
+Helper routines for BAO basis functions
+'''
 
 def write_bases(rmin, rmax, saveto, ncont=1000, **kwargs):
     bases = get_bases(rmin, rmax, ncont=ncont, **kwargs)
