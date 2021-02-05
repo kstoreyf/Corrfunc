@@ -2,7 +2,7 @@
 Contributors and License
 ************************
 
-Smoothcorrfunc lead developer and coordinator
+Suave lead developer and coordinator
 =============================================
 
 * Kate Storey-Fisher (@kstoreyf)
@@ -17,14 +17,15 @@ Corrfunc package contributors
 Other credits
 =============
 
-* Manodeep Sinha was incredibly helpful in figuring out how to build Smoothcorrfunc on top of the existing Corrfunc. 
-* Lehman Sinha was very helpful in solving issues related to implementing Smoothcorrfunc.
+* Manodeep Sinha was incredibly helpful in figuring out how to build suave within the existing Corrfunc, and continuing to give code advice. 
+* Lehman Sinha was very helpful in solving issues related to implementing suave.
 * David Hogg initiated the idea for this project and came up with the formulation of the estimator.
+* James Cleveland graciously passed on the name "suave" from an old project.
 
-Smoothcorrfunc License
+Suave License
 ======================
 
-Corrfunc comes with a MIT LICENSE - see the LICENSE file.
+Suave comes with a MIT LICENSE - see the LICENSE file.
 
 Copyright (C) 2020 Kate Storey-Fisher (k.sf@nyu.edu)
 

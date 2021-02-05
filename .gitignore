@@ -57,3 +57,4 @@ example*.py
 *.npy
 *.txt
 tables/
+build/

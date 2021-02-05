@@ -1,34 +1,38 @@
-Corrfunc.bases package
+suave.bases package
 ======================
 
-.. automodule:: Corrfunc.bases
+.. automodule:: suave.bases
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Submodules
 ----------
 
-Corrfunc.bases.bao module
+suave.bases.bao module
 -------------------------
 
-.. automodule:: Corrfunc.bases.bao
+.. automodule:: suave.bases.bao
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
-Corrfunc.bases.dcosmo module
+suave.bases.dcosmo module
 ----------------------------
 
-.. automodule:: Corrfunc.bases.dcosmo
+.. automodule:: suave.bases.dcosmo
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
-Corrfunc.bases.spline module
+suave.bases.spline module
 ----------------------------
 
-.. automodule:: Corrfunc.bases.spline
+.. automodule:: suave.bases.spline
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
