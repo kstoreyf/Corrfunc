@@ -26,9 +26,17 @@ if on_rtd:
 
     class Mock(MagicMock):
 
+        # @classmethod
+        # def __getattr__(cls, name):
+        #     return Mock()
+
+        # to fix readthedocs build error, via https://github.com/geoalchemy/geoalchemy2/issues/136
         @classmethod
         def __getattr__(cls, name):
-            return Mock()
+            if x == "_mock_methods":
+                return x._mock_methods
+            else:
+                return Mock()
 
     MOCK_MODULES = ['numpy', 'wurlitzer']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
