@@ -87,7 +87,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'suave'
+project = u'Corrfunc'
 __import__(project)
 package = sys.modules[project]
 author = package.__author__
