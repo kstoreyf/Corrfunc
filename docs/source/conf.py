@@ -33,8 +33,8 @@ if on_rtd:
         # to fix readthedocs build error, via https://github.com/geoalchemy/geoalchemy2/issues/136
         @classmethod
         def __getattr__(cls, name):
-            if x == "_mock_methods":
-                return x._mock_methods
+            if name == "_mock_methods":
+                return name._mock_methods
             else:
                 return Mock()
 
