@@ -38,7 +38,9 @@ if on_rtd:
             else:
                 return Mock()
 
-    MOCK_MODULES = ['numpy', 'wurlitzer', 'scipy', 'nbodykit', 'nbsphinx', 'nbsphinx_link']
+    MOCK_MODULES = ['numpy', 'wurlitzer', 
+                    'scipy.interpolate', 'nbodykit.lab', #for basis function helpers
+                    'nbsphinx', 'nbsphinx_link'] #to suppress warnings for now; need to install nbsphinx
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
