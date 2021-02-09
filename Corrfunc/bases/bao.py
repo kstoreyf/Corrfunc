@@ -1,6 +1,9 @@
 import numpy as np
 from nbodykit.lab import cosmology
 
+'''
+Helper routines for BAO basis functions
+'''
 
 def write_bases(rmin, rmax, saveto, ncont=1000, **kwargs):
     bases = get_bases(rmin, rmax, ncont=ncont, **kwargs)
@@ -9,7 +12,6 @@ def write_bases(rmin, rmax, saveto, ncont=1000, **kwargs):
     return nprojbins, saveto
 
 
-#def bao_bases(s, cf_func, dalpha, alpha_model):
 def bao_bases(s, cf_func, dalpha, alpha, k0=0.1):   
     print("updated bases!!")
     k1 = 10.0
@@ -21,14 +23,9 @@ def bao_bases(s, cf_func, dalpha, alpha, k0=0.1):
     k3 = 0.001
     b3 = k3*np.ones(len(s))
     
-    #cf = cf_func(s, alpha_model=alpha_model)
     cf = cf_func(alpha*s)
     b4 = cf
 
-    #alpha = dalpha/alpha_model + 1
-    #dalpha = alpha_model*alpha - alpha_model
-    #cf_dalpha = cf_func(alpha*s, alpha_model=alpha_model)
-    #dcf_dalpha = partial_derivative(cf, cf_dalpha, dalpha)
     cf_dalpha = cf_func((alpha+dalpha)*s)
     dcf_dalpha = partial_derivative(cf, cf_dalpha, dalpha)
     b5 = k0*dcf_dalpha

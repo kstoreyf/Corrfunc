@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#define API_VERSION          STR("0.0.4")
+#define API_VERSION          STR("0.0.0")
 
 
 /* Macros as mask for the binning_flags */
@@ -347,6 +347,7 @@ typedef struct
 typedef enum {
   NONE=-42, /* default */
   PAIR_PRODUCT=0,
+  PAIR_PRODUCT_GRADIENT=1,
   NUM_WEIGHT_TYPE
 } weight_method_t; // type of weighting to apply
 
@@ -357,6 +358,7 @@ typedef enum {
   POWERLAW=2,
   GENR=3,
   GAUSSIAN_KERNEL=4,
+  GRADIENT=5,
   NUM_PROJ_TYPE
 } proj_method_t; // type of projection to apply
 
@@ -367,6 +369,8 @@ static inline int get_num_weights_by_method(const weight_method_t method){
     switch(method){
         case PAIR_PRODUCT:
             return 1;
+        case PAIR_PRODUCT_GRADIENT:
+            return 4;
         default:
         case NONE:
             return 0;
@@ -385,6 +389,11 @@ static inline int get_weight_method_by_name(const char *name, weight_method_t *m
     // It is still safe because one of the args is a string literal.
     if(strcmp(name, "pair_product") == 0 || strcmp(name, "p") == 0){
         *method = PAIR_PRODUCT;
+        return EXIT_SUCCESS;
+    }
+
+    if(strcmp(name, "pair_product_gradient") == 0 || strcmp(name, "pg") == 0){
+        *method = PAIR_PRODUCT_GRADIENT;
         return EXIT_SUCCESS;
     }
 
@@ -419,6 +428,10 @@ static inline int get_proj_method_by_name(const char *name, proj_method_t *metho
     }
     if(strcmp(name, "gaussian_kernel") == 0 || strcmp(name, "gk") == 0){
       *method = GAUSSIAN_KERNEL;
+      return EXIT_SUCCESS;
+    }
+    if(strcmp(name, "gradient") == 0 || strcmp(name, "gr") == 0){
+      *method = GRADIENT;
       return EXIT_SUCCESS;
     }
    return EXIT_FAILURE;

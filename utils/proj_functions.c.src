@@ -40,13 +40,13 @@
 //////////////////////////////////
 
 //
-void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) s;//to suppress the unused variable warning
 
     // nsbins is number of bins and not edges
     // supp_sqr has length nsbins+1, number of edges
     for(int p=projdata->nsbins-1; p>=0; p--){
-        u[p] = 0;
+        u[p] = ZERO;
     }
     //printf("top %f %f %f\n", sqr_s, projdata->supp_sqr[0], projdata->supp_sqr[1]);
     for(int p=projdata->nsbins-1; p>=0; p--){
@@ -60,7 +60,7 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUB
 }
 
 
-void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
     // Assumes nsbins = nprojbins
     for(int p=0;p<projdata->nprojbins;p++){
@@ -77,7 +77,7 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, D
 }
 
 
-void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
     DOUBLE sigma = 3.0;
     DOUBLE amp = 1.0/(SQRT(2.0*M_PI)*sigma);
@@ -94,7 +94,7 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBL
 }
 
 
-void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
     (void) projdata;
 
@@ -111,7 +111,7 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DO
 }
 
 
-void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s){
+void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
     int nbases = projdata->nbases;
     int nres = projdata->nres;
@@ -152,6 +152,34 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, D
     }
 }
 
+void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, 
+                     DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
+
+    /* this could be whatever function we want to add a gradient to! */
+    // this will fill up the first 1/4 of u
+    // but CAREFUL, for functions that depend on nprojbins we will have to reset it, bc actual is 4x more than assumed in other funcs!
+    //tophat_DOUBLE(projdata, u, s, sqr_s, pair);
+    general_r_DOUBLE(projdata, u, s, sqr_s, pair);
+
+    /* Add gradients */
+    /* u is 4x as long as nbases! */
+    /* the .d is because of the union struct that allows for the other vectorization types */
+    int nconst = projdata->nprojbins/4;
+    DOUBLE xweight, yweight, zweight;
+    
+    /* Take the pair position to be the mean */
+    /* x stored in index 1 of weights, because general weight in 0 (y in 2, z in 3)*/
+    xweight = 0.5*(pair->weights0[1].d + pair->weights1[1].d);
+    yweight = 0.5*(pair->weights0[2].d + pair->weights1[2].d);
+    zweight = 0.5*(pair->weights0[3].d + pair->weights1[3].d);
+
+    for (int j=0; j<nconst; j++){
+        u[nconst+j] = u[j] * xweight;
+        u[2*nconst+j] = u[j] * yweight;
+        u[3*nconst+j] = u[j] * zweight;
+    }
+}
+
 //////////////////////////////////
 // Utility functions
 //////////////////////////////////
@@ -171,6 +199,8 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
             return &general_r_DOUBLE;
         case GAUSSIAN_KERNEL:
             return &gaussian_kernel_DOUBLE;
+        case GRADIENT:
+            return &gradient_DOUBLE;
         default:
         case NONEPROJ:
             return NULL;
@@ -225,7 +255,25 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
 
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
-                      int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
+                      int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn, struct extra_options *extra){
+                          
+    // If no extra options were passed, create dummy options
+    // This allows us to pass arguments like "extra->weights0" below;
+    // they'll just be NULLs, which is the correct behavior
+    struct extra_options dummy_extra;
+    if(extra == NULL){
+        weight_method_t dummy_method = NONE;
+        dummy_extra = get_extra_options(dummy_method);
+        extra = &dummy_extra;
+    }
+
+    /* The metadata for a pair is applied to all r values */
+    pair_struct_DOUBLE pair = {.num_weights = extra->weights0.num_weights};
+    for(int w = 0; w < pair.num_weights; w++){
+        //0 because for evaluate_xi we only have weights for a single pair
+        pair.weights0[w].d = ((DOUBLE *) extra->weights0.weights[w])[0];
+        pair.weights1[w].d = ((DOUBLE *)extra->weights0.weights[w])[0];
+    }
 
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
@@ -254,14 +302,20 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
         //get basis function u for given value of s
         DOUBLE u[nprojbins];
         DOUBLE sqr_s = svals[i]*svals[i];
-        proj_func(projdata, u, svals[i], sqr_s);
+        proj_func(projdata, u, svals[i], sqr_s, &pair);
 		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length nsvals) */
+        // printf("sval: %f\n", svals[i]);
+        // for (int n=0; n<nprojbins; n++){
+        //     printf("u[%d] = %f\n", n, u[n]);
+        // }
+
         DOUBLE xival = 0;
         for (int j=0; j<nprojbins; j++){
             xival += amps[j]*u[j];
         }
         xi[i] = xival;
     }
+
     if (projfn!=NULL) {
       free(projdata->projbases);
     }
@@ -398,7 +452,9 @@ DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p) {
     DOUBLE r_sqr = r*r;
     DOUBLE integrand;
     DOUBLE u[pdata->nprojbins];
-    proj_func(pdata, u, r, r_sqr);
+    /* TODO: actually deal with pair here */
+    pair_struct_DOUBLE pair;
+    proj_func(pdata, u, r, r_sqr, &pair);
     if (params->is_qq) { 
         int j = (params->j);
         integrand = r_sqr * u[i] * u[j]; 

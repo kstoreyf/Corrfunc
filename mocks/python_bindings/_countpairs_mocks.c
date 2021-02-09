@@ -2570,25 +2570,26 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     PyObject *module = self;
 #endif
 
-    PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *rbins_obj=NULL;
+    PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *rbins_obj=NULL, *weights1_obj=NULL, *weights2_obj=NULL;
 
-    int nprojbins, nsvals;
-    int nrbins = NULL;
-    char *proj_method_str = NULL, *projfn = NULL;
+    int nprojbins, nsvals, nrbins;
+    char *proj_method_str = NULL, *projfn = NULL, *weighting_method_str = NULL;
 
     static char *kwlist[] = {
         "nprojbins",
         "amps",
         "nsvals",
         "svals",
-        "proj_type",
+        "proj_type", // end of required params
         "nrbins",
         "rbins",
         "projfn",
+        "weights1",
+        "weights2",
+        "weight_type",
         NULL
     };
-
-    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!s|iO!s", kwlist,
+    if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!s|iO!sO!O!s", kwlist,
                                        &nprojbins,
                                        &PyArray_Type,&amps_obj,
                                        &nsvals,
@@ -2596,7 +2597,10 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
                                        &proj_method_str,
                                        &nrbins,
                                        &PyArray_Type,&rbins_obj,
-                                       &projfn
+                                       &projfn,
+                                       &PyArray_Type,&weights1_obj,
+                                       &PyArray_Type,&weights2_obj,
+                                       &weighting_method_str
                                        )
 
         ) {
@@ -2618,6 +2622,49 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         Py_RETURN_NONE;
     }
 
+    /* Validate the user's choice of weighting method */
+    weight_method_t weighting_method;
+    int wstatus = get_weight_method_by_name(weighting_method_str, &weighting_method);
+    if(wstatus != EXIT_SUCCESS){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: unknown weight_type \"%s\"!", __FUNCTION__, weighting_method_str);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+    
+    if(weighting_method == NONE){
+        // Do not attempt to validate the weights array if it will not be used!
+        weights1_obj = NULL;
+        weights2_obj = NULL;
+    }
+    
+
+    int found_weights = weights1_obj == NULL ? 0 : PyArray_SHAPE(weights1_obj)[0];
+    struct extra_options extra = get_extra_options(weighting_method);
+    if(extra.weights0.num_weights > 0 && extra.weights0.num_weights != found_weights){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: specified weighting method %s which requires %"PRId64" weight(s)-per-particle, but found %d weight(s) instead!\n",
+                 __FUNCTION__, weighting_method_str, extra.weights0.num_weights, found_weights);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+
+    if(extra.weights0.num_weights > 0 && found_weights > MAX_NUM_WEIGHTS){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: Provided %d weights-per-particle, but the code was compiled with MAX_NUM_WEIGHTS=%d.\n",
+                 __FUNCTION__, found_weights, MAX_NUM_WEIGHTS);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+    
+    if((weights1_obj == NULL) != (weights2_obj == NULL)){
+        char msg[1024];
+        snprintf(msg, 1024, "ValueError: In %s: Must pass either zero or two sets of weights.\n",
+                    __FUNCTION__);
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE;
+    }
+    
     proj_method_t proj_method;
     int pstatus = get_proj_method_by_name(proj_method_str, &proj_method);
     if(pstatus != EXIT_SUCCESS){
@@ -2635,6 +2682,27 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     PyObject *amps_array = NULL, *svals_array = NULL, *rbins_array = NULL;
     amps_array = PyArray_FromArray(amps_obj, NOTYPE_DESCR, requirements);
     svals_array = PyArray_FromArray(svals_obj, NOTYPE_DESCR, requirements);
+    
+    PyObject *weights1_array = NULL, *weights2_array = NULL;
+    if(weights1_obj != NULL){
+        weights1_array = PyArray_FromArray(weights1_obj, NOTYPE_DESCR, requirements);
+    }
+    if(weights2_obj != NULL){
+        weights2_array = PyArray_FromArray(weights2_obj, NOTYPE_DESCR, requirements);
+    }
+    void *weights1=NULL, *weights2=NULL;
+    if(weights1_array != NULL){
+        weights1 = PyArray_DATA((PyArrayObject *) weights1_array);
+    }
+    if(weights2_array != NULL){
+        weights2 = PyArray_DATA((PyArrayObject *) weights2_array);
+    }
+    
+    /* Pack the weights into extra_options */
+    for(int64_t w = 0; w < extra.weights0.num_weights; w++){
+        extra.weights0.weights[w] = (char *) weights1 + w*element_size;
+        extra.weights1.weights[w] = (char *) weights2 + w*element_size;
+    }
 
     /* Get pointers to the data as C-types. */
     void *amps=NULL, *svals=NULL, *rbins=NULL;
@@ -2642,6 +2710,8 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     if (amps_array == NULL || svals_array == NULL) {
         Py_XDECREF(amps_array);
         Py_XDECREF(svals_array);
+        Py_XDECREF(weights1_array);
+        Py_XDECREF(weights2_array);
         char msg[1024];
         snprintf(msg, 1024, "TypeError: In %s: Could not convert input to arrays of allowed floating point types (doubles or floats). Are you passing numpy arrays?",
                  __FUNCTION__);
@@ -2662,12 +2732,11 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
-
     double xi[nsvals];
     for(int i=0;i<nsvals;i++){
         xi[i] = 0;
     }
-    evaluate_xi(nprojbins, amps, nsvals, svals, xi, proj_method, element_size, nrbins, rbins, projfn);
+    evaluate_xi(nprojbins, amps, nsvals, svals, xi, proj_method, element_size, nrbins, rbins, projfn, &extra);
 
     NPY_END_THREADS;
 
@@ -2675,6 +2744,12 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     Py_DECREF(amps_array);Py_DECREF(svals_array);
     if (rbins_obj != NULL){
         Py_DECREF(rbins_array);
+    }
+    if (weights1_obj != NULL){
+        Py_DECREF(weights1_array);
+    }
+    if (weights2_obj != NULL){
+        Py_DECREF(weights2_array);
     }
 
     /* Build the output list */
@@ -2706,8 +2781,7 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
 
     PyArrayObject *rbins_obj=NULL;
 
-    int nprojbins, nd;
-    int nrbins = NULL;
+    int nprojbins, nd, nrbins;
     double rmin, rmax, volume;
     char *proj_method_str = NULL, *projfn = NULL;
 

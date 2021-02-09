@@ -19,8 +19,8 @@ else:
 if os.name != 'posix':
     sys.exit("Sorry, Windows is not supported")
 
-base_url = "https://github.com/kstoreyf/Corrfunc"
-projectname = 'smoothcorrfunc'
+base_url = "https://github.com/kstoreyf/suave"
+projectname = 'suave'
 
 # global variables
 version = ''
@@ -554,7 +554,7 @@ def setup_packages():
             provides=[projectname],
             packages=find_packages(),
             #ext_package=projectname,
-            ext_package='Corrfunc', #needs to be Corrfunc to properly pip install smoothcorrfunc
+            ext_package='Corrfunc', #the internal module is still named Corrfunc
             ext_modules=extensions,
             package_data={'': data_files},
             include_package_data=True,

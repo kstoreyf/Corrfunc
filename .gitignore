@@ -38,7 +38,6 @@ test_*period*
 *.tgz
 cov-int
 *.gcno
-*.ipynb
 *.log
 *.out*
 *.d
@@ -52,3 +51,10 @@ cov-int
 .vscode/*
 *.dat
 example*.py
+.ipynb_checkpoints/
+*.pdf
+*.npz
+*.npy
+*.txt
+tables/
+build/

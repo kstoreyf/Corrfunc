@@ -90,6 +90,12 @@ static inline SSE_FLOATS sse_pair_product_DOUBLE(const pair_struct_DOUBLE *pair)
 }
 #endif
 
+/* Gradient-compatible version of pair product */
+// Projection only supports fallback kernel for now, so don't worry about vectorization yet
+static inline DOUBLE pair_product_gradient_DOUBLE(const pair_struct_DOUBLE *pair){
+    return pair->weights0[0].d*pair->weights1[0].d;
+}
+
 //////////////////////////////////
 // Utility functions
 //////////////////////////////////
@@ -102,6 +108,8 @@ static inline weight_func_t_DOUBLE get_weight_func_by_method_DOUBLE(const weight
     switch(method){
         case PAIR_PRODUCT:
             return &pair_product_DOUBLE;
+        case PAIR_PRODUCT_GRADIENT:
+            return &pair_product_gradient_DOUBLE;
         default:
         case NONE:
             return NULL;

@@ -22,15 +22,25 @@ if on_rtd:
     try:
         from unittest.mock import MagicMock
     except ImportError:
-        from mock import Mock as MagicMock
+        from mock import Mock as MagƒicMock
 
     class Mock(MagicMock):
 
+        # @classmethod
+        # def __getattr__(cls, name):
+        #     return Mock()
+
+        # to fix readthedocs build error, via https://github.com/geoalchemy/geoalchemy2/issues/136
         @classmethod
         def __getattr__(cls, name):
-            return Mock()
+            if name == "_mock_methods":
+                return name._mock_methods
+            else:
+                return Mock()
 
-    MOCK_MODULES = ['numpy', 'wurlitzer']
+    MOCK_MODULES = ['numpy', 'wurlitzer', 
+                    'scipy.interpolate', 'nbodykit.lab', #for basis function helpers
+                    'nbsphinx', 'nbsphinx_link'] #to suppress warnings for now; need to install nbsphinx
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
@@ -62,6 +72,9 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon']
 
+# for direct links to example jupyter notebooks 
+extensions += ['nbsphinx',
+               'nbsphinx_link']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -82,7 +95,7 @@ __import__(project)
 package = sys.modules[project]
 author = package.__author__
 current_year = date.today().year
-copyright = u'2014-{0}, {1}'.format(current_year, author)
+copyright = u'2020-{0}, {1}'.format(current_year, author)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -165,12 +178,12 @@ html_title = '{0} v{1}'.format(project, release)
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "corrfunc_logo_320px_240px.png"
+#html_logo = "corrfunc_logo_320px_240px.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = "corrfunc-logo-no-text.ico"
+#html_favicon = "corrfunc-logo-no-text.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -239,7 +252,7 @@ html_show_copyright = True
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Corrfuncdoc'
+htmlhelp_basename = 'suavedoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -301,7 +314,7 @@ man_pages = [(master_doc, project.lower(), project + u' Documentation',
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Corrfunc', u'Corrfunc Documentation',
+    (master_doc, 'Corrfunc', u'Suave Documentation',
      author, 'Corrfunc', 'One line description of project.',
      'Miscellaneous'),
 ]

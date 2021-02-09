@@ -1,5 +1,5 @@
-Comprehensive API reference
-===========================
+Suave API reference
+===================
 
 .. toctree::
    :maxdepth: 4

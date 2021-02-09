@@ -1,5 +1,4 @@
 import numpy as np
-import scipy
 from scipy.interpolate import BSpline
 
 

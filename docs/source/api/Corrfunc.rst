@@ -10,7 +10,9 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
+   Corrfunc.bases
    Corrfunc.mocks
    Corrfunc.theory
 
@@ -29,4 +31,3 @@ Corrfunc.utils module
    :members:
    :undoc-members:
    :show-inheritance:
-
