@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#define API_VERSION          STR("0.0.0")
+#define API_VERSION          STR("0.0.1")
 
 
 /* Macros as mask for the binning_flags */
