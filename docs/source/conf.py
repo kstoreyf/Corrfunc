@@ -38,7 +38,7 @@ if on_rtd:
             else:
                 return Mock()
 
-    MOCK_MODULES = ['numpy', 'wurlitzer']
+    MOCK_MODULES = ['numpy', 'wurlitzer', 'nbsphinx']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
