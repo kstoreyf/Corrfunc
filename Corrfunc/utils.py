@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 A set of utility routines
-
-.. module:: suave
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

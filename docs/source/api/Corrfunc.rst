@@ -5,7 +5,6 @@ Corrfunc package
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Subpackages
 -----------
@@ -17,9 +16,6 @@ Subpackages
    Corrfunc.mocks
    Corrfunc.theory
 
-Submodules
-----------
-
 Corrfunc.io module
 ------------------
 
@@ -27,7 +23,6 @@ Corrfunc.io module
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Corrfunc.utils module
 ---------------------
@@ -36,4 +31,3 @@ Corrfunc.utils module
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:

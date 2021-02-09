@@ -22,7 +22,7 @@ if on_rtd:
     try:
         from unittest.mock import MagicMock
     except ImportError:
-        from mock import Mock as MagicMock
+        from mock import Mock as MagƒicMock
 
     class Mock(MagicMock):
 
@@ -70,8 +70,9 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon']
 
-#extensions += ['nbsphinx',
-#               'nbsphinx_link']
+# for direct links to example jupyter notebooks 
+extensions += ['nbsphinx',
+               'nbsphinx_link']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -311,8 +312,8 @@ man_pages = [(master_doc, project.lower(), project + u' Documentation',
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'suave', u'Suave Documentation',
-     author, 'suave', 'One line description of project.',
+    (master_doc, 'Corrfunc', u'Suave Documentation',
+     author, 'Corrfunc', 'One line description of project.',
      'Miscellaneous'),
 ]
 

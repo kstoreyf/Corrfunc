@@ -67,18 +67,17 @@ Demo notebooks
 .. toctree::
    :maxdepth: 1
 
-   example_theory.nblink
+   ./example_theory.nblink
 
 
-*************
-API Reference
-*************
-
+***************************************
+API Reference: suave-specific functions 
+***************************************
 
 .. toctree::
    :maxdepth: 4
    
-   api/modules
+   api/modules-suave
     
 
 *********************

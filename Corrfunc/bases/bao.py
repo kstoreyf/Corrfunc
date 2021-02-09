@@ -2,8 +2,6 @@ import numpy as np
 from nbodykit.lab import cosmology
 
 '''
-.. module:: suave
-
 Helper routines for BAO basis functions
 '''
 

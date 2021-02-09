@@ -41,8 +41,6 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
 
     .. versionadded:: 2.1.0
 
-    .. module:: suave
-
     Parameters
     ----------
 
