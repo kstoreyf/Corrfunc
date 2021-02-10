@@ -6,6 +6,7 @@ Corrfunc.theory
 .. automodule:: Corrfunc.theory
    :members: DDsmu
    :show-inheritance:
+   :noindex:
 
 Corrfunc.mocks
 **************
@@ -26,5 +27,5 @@ Corrfunc.bases
 
 .. automodule:: Corrfunc.bases
    :members: bao_bases, spline_bases
-   :undoc-members:
    :show-inheritance:
+   :noindex:

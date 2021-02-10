@@ -1,11 +1,9 @@
 import numpy as np
 from scipy.interpolate import BSpline
 from nbodykit.lab import cosmology
-
-'''
+"""
 Helper routines for basis functions for the continuous-function estimator.
-'''
-
+"""
 ################
 # Spline basis #
 ################
@@ -45,14 +43,14 @@ def spline_bases(rmin, rmax, projfn, ncomponents, ncont=2000, order=3):
 
     kvs = _get_knot_vectors(rmin, rmax, ncomponents, order)
     rcont = np.linspace(rmin, rmax, ncont)
-    bases = np.empty((ncomponents+1, ncont))
-    bases[0,:] = rcont
+    bases = np.empty((ncont, ncomponents+1))
+    bases[:,0] = rcont
     for n in range(ncomponents):
         kv = kvs[n]
         b = BSpline.basis_element(kv)
-        bases[n+1,:] = [b(r) if kv[0]<=r<=kv[-1] else 0 for r in rcont]
+        bases[:,n+1] = [b(r) if kv[0]<=r<=kv[-1] else 0 for r in rcont]
 
-    np.savetxt(projfn, bases.T)
+    np.savetxt(projfn, bases)
     return bases
 
 
@@ -132,12 +130,12 @@ def bao_bases(rmin, rmax, projfn, cosmo_base=None, ncont=2000, redshift=0.0,
     bs = _get_bao_components(rcont, cf_model, dalpha, alpha_model, k0=k0)
 
     nbases = len(bs)    
-    bases = np.empty((nbases+1, ncont))
-    bases[0,:] = rcont
-    bases[1:nbases+1,:] = bs
-    
-    np.savetxt(projfn, bases.T)
-    nprojbins = bases.shape[0]-1
+    bases = np.empty((ncont, nbases+1))
+    bases[:,0] = rcont
+    bases[:,1:nbases+1] = bs
+
+    np.savetxt(projfn, bases)
+    nprojbins = bases.shape[1]-1
     return bases
 
 

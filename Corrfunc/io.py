@@ -263,10 +263,10 @@ def read_fortran_catalog(filename, return_dtype=None):
     return x, y, z
 
 
-def read_lognormal_catalog(n='3e-4'):
+def read_lognormal_catalog(n='2e-4'):
 
     filedir = '../theory/tests/data'
-    filepath = pjoin(dirname(abspath(__file__)), filedir, f'cat_L750_n{n}_lognormal_rlz0.bin')
+    filepath = pjoin(dirname(abspath(__file__)), filedir, f'cat_L750_n{n}_z057_patchy_lognormal_rlz0.bin')
     return read_fortran_catalog(filepath)
 
 
