@@ -21,20 +21,7 @@ Corrfunc.utils
 Corrfunc.bases
 ======================
 
-Corrfunc.bases.bao
--------------------------
-
-.. automodule:: Corrfunc.bases.bao
-   :members:
+.. automodule:: Corrfunc.bases
+   :members: bao_bases, spline_bases
    :undoc-members:
    :show-inheritance:
-   :noindex:
-   
-Corrfunc.bases.spline
--------------------------
-
-.. automodule:: Corrfunc.bases.spline
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :noindex:

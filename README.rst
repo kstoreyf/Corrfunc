@@ -1,5 +1,5 @@
 ``suave``: The Continuous-Function Estimator
-=================================
+============================================
 
 |PyPI| |MIT licensed| |RTD| |Continuous-Function Estimator Paper| |Corrfunc Paper I| |Corrfunc Paper II|
 
