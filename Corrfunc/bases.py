@@ -3,7 +3,7 @@ from scipy.interpolate import BSpline
 from nbodykit.lab import cosmology
 
 '''
-Helper routines for basis functions
+Helper routines for basis functions for the continuous-function estimator.
 '''
 
 ################
@@ -20,7 +20,7 @@ def spline_bases(rmin, rmax, projfn, ncomponents, ncont=2000, order=3):
         Minimum r-value for integration 
 
     rmax : double
-        Maximum r-value for integration 
+        Maximum r-value for integration
 
     projfn : string, default=None
        Filename of projection file if necessary
@@ -28,7 +28,7 @@ def spline_bases(rmin, rmax, projfn, ncomponents, ncont=2000, order=3):
     ncomponents : int
        Number of components (basis functions)
 
-    ncont : int, default=1000
+    ncont : int, default=2000
        Number of continuous r-values at which to write the basis function file
 
     order : int, default=3
@@ -74,7 +74,7 @@ def _get_knot_vectors(rmin, rmax, ncomponents, order):
 # BAO basis #
 #############
 
-def bao_bases(rmin, rmax, projfn, cosmo_base=None, ncont=1000, redshift=0.0, 
+def bao_bases(rmin, rmax, projfn, cosmo_base=None, ncont=2000, redshift=0.0, 
                 alpha_model=1.0, dalpha=0.001, bias=1.0, k0=0.1):
     '''
     Compute the 5-component BAO basis functions based on a cosmological model and 
@@ -94,7 +94,7 @@ def bao_bases(rmin, rmax, projfn, cosmo_base=None, ncont=1000, redshift=0.0,
     cosmo_base : nbodykit cosmology object, default=nbodykit.cosmology.Planck15
         Cosmology object for the BAO model.
 
-    ncont : int, default=1000
+    ncont : int, default=2000
         Number of continuous r-values at which to write the basis function file
 
     redshift : double, default=0.0

@@ -17,6 +17,9 @@ import os
 from os.path import abspath, dirname, join as pjoin
 from datetime import date
 
+import sphinx_rtd_theme
+
+
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
     try:
@@ -76,6 +79,9 @@ extensions = [
 extensions += ['nbsphinx',
                'nbsphinx_link']
 
+# for local RTD theme
+extensions += ["sphinx_rtd_theme"]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -90,9 +96,10 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Corrfunc'
-__import__(project)
-package = sys.modules[project]
+project = 'suave'
+project_orig = u'Corrfunc'
+__import__(project_orig)
+package = sys.modules[project_orig]
 author = package.__author__
 current_year = date.today().year
 copyright = u'2020-{0}, {1}'.format(current_year, author)
@@ -158,7 +165,8 @@ todo_include_todos = True
 if on_rtd:
     html_theme = 'default'
 else:
-    html_theme = 'nature'
+    #html_theme = 'nature'
+    html_theme = "sphinx_rtd_theme"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -172,6 +180,7 @@ else:
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
 html_title = '{0} v{1}'.format(project, release)
+#html_title = 'suave v{0}'.format(release)
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -314,8 +323,8 @@ man_pages = [(master_doc, project.lower(), project + u' Documentation',
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Corrfunc', u'Suave Documentation',
-     author, 'Corrfunc', 'One line description of project.',
+    (master_doc, 'suave', u'Suave Documentation',
+     author, 'suave', 'The Continuous-Function Estimator for large-scale structure',
      'Miscellaneous'),
 ]
 
