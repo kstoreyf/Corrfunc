@@ -1567,7 +1567,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     char *binfile, *weighting_method_str = NULL;
     /* Projection */
     char *proj_method_str = NULL, *projfn = NULL;
-    int nprojbins=0;
+    int ncomponents=0;
 
     static char *kwlist[] = {
         "autocorr",
@@ -1598,7 +1598,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         "isa",/* instruction set to use of type enum isa; valid values are AVX512F, AVX, SSE, FALLBACK (enum) */
         "weight_type",
         "proj_type",
-        "nprojbins",
+        "ncomponents",
         "projfn",
         NULL,
     };
@@ -1625,7 +1625,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
                                        &(options.instruction_set),
                                        &weighting_method_str,
                                        &proj_method_str,
-                                       &nprojbins,
+                                       &ncomponents,
                                        &projfn)
 
          ) {
@@ -1758,7 +1758,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
         //fprintf(stdout, "Applying projection requires fallback method, switching instruction set\n");
         options.instruction_set = FALLBACK;
     } 
-    add_extra_options(&extra, proj_method, nprojbins, projfn);
+    add_extra_options(&extra, proj_method, ncomponents, projfn);
     //TODO: perform more validation about inputs to given projection function
     /* End Projection */
 
@@ -1891,15 +1891,15 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     PyObject *projret = PyList_New(0);//create an empty list
     PyObject *projtensorret = PyList_New(0);//create an empty list
 
-    for(int i=0;i<nprojbins;i++) {
+    for(int i=0;i<ncomponents;i++) {
         PyObject *projitem = NULL;
         projitem = Py_BuildValue("d", results.projpairs[i]);
         PyList_Append(projret, projitem);
         Py_XDECREF(projitem);
 
-        for(int j=0;j<nprojbins;j++) {
+        for(int j=0;j<ncomponents;j++) {
             PyObject *projtensoritem = NULL;
-            projtensoritem = Py_BuildValue("d", results.projpairs_tensor[i*nprojbins+j]);
+            projtensoritem = Py_BuildValue("d", results.projpairs_tensor[i*ncomponents+j]);
             PyList_Append(projtensorret, projtensoritem);
             Py_XDECREF(projtensoritem);
 
@@ -2447,10 +2447,10 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
 
     PyArrayObject *dd_obj=NULL, *dr_obj=NULL, *rd_obj=NULL, *rr_obj=NULL, *trr_obj=NULL;
 
-    int nprojbins, ND1, ND2, NR1, NR2;
+    int ncomponents, ND1, ND2, NR1, NR2;
 
     static char *kwlist[] = {
-        "nprojbins",
+        "ncomponents",
         "nd1",
         "nd2",
         "nr1",
@@ -2464,7 +2464,7 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     };
 
     if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iiiiiO!O!O!O!O!", kwlist,
-                                       &nprojbins,&ND1,&ND2,&NR1,&NR2,
+                                       &ncomponents,&ND1,&ND2,&NR1,&NR2,
                                        &PyArray_Type,&dd_obj,
                                        &PyArray_Type,&dr_obj,
                                        &PyArray_Type,&rd_obj,
@@ -2532,11 +2532,11 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
-    double amps[nprojbins];
-    for(int i=0;i<nprojbins;i++){
+    double amps[ncomponents];
+    for(int i=0;i<ncomponents;i++){
         amps[i] = 0;
     }
-    compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, trr, amps, element_size);
+    compute_amplitudes(ncomponents, ND1, ND2, NR1, NR2, dd, dr, rd, rr, trr, amps, element_size);
 
     NPY_END_THREADS;
 
@@ -2547,13 +2547,13 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     /* Build the output list */
     PyObject *aret = PyList_New(0);//create an empty list
 
-    for(int i=0;i<nprojbins;i++) {
+    for(int i=0;i<ncomponents;i++) {
         PyObject *aitem = NULL;
         aitem = Py_BuildValue("d", amps[i]);
         PyList_Append(aret, aitem);
         Py_XDECREF(aitem);
     }
-    //don't think i need to free results bc didn't allocate memory (unless nprojbins gets real big...)
+    //don't think i need to free results bc didn't allocate memory (unless ncomponents gets real big...)
     return Py_BuildValue("O", aret);
 
 
@@ -2572,11 +2572,11 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
 
     PyArrayObject *amps_obj=NULL, *svals_obj=NULL, *rbins_obj=NULL, *weights1_obj=NULL, *weights2_obj=NULL;
 
-    int nprojbins, nsvals, nrbins;
+    int ncomponents, nsvals, nrbins;
     char *proj_method_str = NULL, *projfn = NULL, *weighting_method_str = NULL;
 
     static char *kwlist[] = {
-        "nprojbins",
+        "ncomponents",
         "amps",
         "nsvals",
         "svals",
@@ -2590,7 +2590,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         NULL
     };
     if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "iO!iO!s|iO!sO!O!s", kwlist,
-                                       &nprojbins,
+                                       &ncomponents,
                                        &PyArray_Type,&amps_obj,
                                        &nsvals,
                                        &PyArray_Type,&svals_obj,
@@ -2736,7 +2736,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
     for(int i=0;i<nsvals;i++){
         xi[i] = 0;
     }
-    evaluate_xi(nprojbins, amps, nsvals, svals, xi, proj_method, element_size, nrbins, rbins, projfn, &extra);
+    evaluate_xi(ncomponents, amps, nsvals, svals, xi, proj_method, element_size, nrbins, rbins, projfn, &extra);
 
     NPY_END_THREADS;
 
@@ -2761,7 +2761,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         PyList_Append(xiret, xiitem);
         Py_XDECREF(xiitem);
     }
-    //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
+    //don't need to free results bc didn't allocate memory (unless ncomponents gets real big...)
     return Py_BuildValue("O", xiret);
 
 }
@@ -2781,7 +2781,7 @@ static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObjec
 
     PyArrayObject *rbins_obj=NULL;
 
-    int nprojbins, nd, nrbins;
+    int ncomponents, nd, nrbins;
     double rmin, rmax, volume;
     char *proj_method_str = NULL, *projfn = NULL;
 
@@ -2790,7 +2790,7 @@ static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObjec
         "rmax", 
         "nd",
         "volume",
-        "nprojbins",
+        "ncomponents",
         "proj_type",
         "nrbins", 
         "rbins", 
@@ -2801,7 +2801,7 @@ static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObjec
     if ( ! PyArg_ParseTupleAndKeywords(args, kwargs, "ddidis|iO!s", kwlist,
                                        &rmin,&rmax,
                                        &nd,&volume,
-                                       &nprojbins,
+                                       &ncomponents,
                                        &proj_method_str,
                                        &nrbins,
                                        &PyArray_Type,&rbins_obj,
@@ -2873,17 +2873,17 @@ static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObjec
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
 
-    double rr[nprojbins];
-    for(int i=0;i<nprojbins;i++){
+    double rr[ncomponents];
+    for(int i=0;i<ncomponents;i++){
         rr[i] = 0;
     }
 
-    double trr[nprojbins*nprojbins];
-    for(int i=0;i<nprojbins*nprojbins;i++){
+    double trr[ncomponents*ncomponents];
+    for(int i=0;i<ncomponents*ncomponents;i++){
         trr[i] = 0;
     }
 
-    trr_analytic(rmin, rmax, nd, volume, nprojbins, rr, trr, proj_method, element_size, nrbins, rbins, projfn);
+    trr_analytic(rmin, rmax, nd, volume, ncomponents, rr, trr, proj_method, element_size, nrbins, rbins, projfn);
 
     NPY_END_THREADS;
 
@@ -2895,19 +2895,19 @@ static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObjec
     PyObject *rrret = PyList_New(0);//create an empty list
     PyObject *trrret = PyList_New(0);//create an empty list
 
-    for(int i=0;i<nprojbins;i++) {
+    for(int i=0;i<ncomponents;i++) {
         PyObject *rritem = NULL;
         rritem = Py_BuildValue("d", rr[i]);
         PyList_Append(rrret, rritem);
         Py_XDECREF(rritem);
     }
-    for(int i=0;i<nprojbins*nprojbins;i++) {
+    for(int i=0;i<ncomponents*ncomponents;i++) {
         PyObject *trritem = NULL;
         trritem = Py_BuildValue("d", trr[i]);
         PyList_Append(trrret, trritem);
         Py_XDECREF(trritem);
     }
-    //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
+    //don't need to free results bc didn't allocate memory (unless ncomponents gets real big...)
     //return Py_BuildValue("O", rrret), Py_BuildValue("O", trrret);
     return Py_BuildValue("(OO)", rrret, trrret);
 

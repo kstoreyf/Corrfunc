@@ -135,7 +135,7 @@ def bao_bases(rmin, rmax, projfn, cosmo_base=None, ncont=2000, redshift=0.0,
     bases[:,1:nbases+1] = bs
 
     np.savetxt(projfn, bases)
-    nprojbins = bases.shape[1]-1
+    ncomponents = bases.shape[1]-1
     return bases
 
 

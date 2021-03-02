@@ -16,7 +16,7 @@
 #include "proj_functions_float.h"//actual implementations for float
 
 
-int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
+int compute_amplitudes(int ncomponents, int nd1, int nd2, int nr1, int nr2,
             void *dd, void *dr, void *rd, void *rr, void *trr, void *amps, size_t element_size)
 {
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
@@ -25,16 +25,16 @@ int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
         return EXIT_FAILURE;
     }
     if(element_size == sizeof(float)) {
-        return compute_amplitudes_float(nprojbins, nd1, nd2, nr1, nr2,
+        return compute_amplitudes_float(ncomponents, nd1, nd2, nr1, nr2,
             (float *) dd, (float *) dr, (float *) rd, (float *) rr, (float *) trr, (float *) amps);
     } else {
-        return compute_amplitudes_double(nprojbins, nd1, nd2, nr1, nr2,
+        return compute_amplitudes_double(ncomponents, nd1, nd2, nr1, nr2,
             (double *) dd, (double *) dr, (double *) rd, (double *) rr, (double *) trr, (double *) amps);
     }
 }
 
 
-int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
+int evaluate_xi(int ncomponents, void *amps, int nsvals, void *svals,
                       void *xi, proj_method_t proj_method, size_t element_size, int nsbins, void *sbins, char *projfn, struct extra_options *extra)
 {
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
@@ -44,17 +44,17 @@ int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
     }
 
     if(element_size == sizeof(float)) {
-        return evaluate_xi_float(nprojbins, (float *) amps, nsvals, (float *) svals,
+        return evaluate_xi_float(ncomponents, (float *) amps, nsvals, (float *) svals,
                       (float *) xi, proj_method, nsbins, (float *) sbins, projfn, extra);
     } else {
-        return evaluate_xi_double(nprojbins, (double *) amps, nsvals, (double *) svals,
+        return evaluate_xi_double(ncomponents, (double *) amps, nsvals, (double *) svals,
                       (double *) xi, proj_method, nsbins, (double *) sbins, projfn, extra);
     }
 }
 
 
 
-int trr_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
+int trr_analytic(double rmin, double rmax, int nd, double volume, int ncomponents, 
         void *rr, void *trr, proj_method_t proj_method, 
         size_t element_size, int nsbins, void *sbins, char *projfn)
 {
@@ -66,11 +66,11 @@ int trr_analytic(double rmin, double rmax, int nd, double volume, int nprojbins,
 
     if(element_size == sizeof(float)) {
         return trr_analytic_float((float) rmin, (float) rmax, nd, (float) volume,
-                    nprojbins, (float *) rr, (float *) trr,
+                    ncomponents, (float *) rr, (float *) trr,
                     proj_method, nsbins, (float *) sbins, projfn);
     } else {
         return trr_analytic_double((double) rmin, (double) rmax, nd, (double) volume,
-                    nprojbins, (double *) rr, (double *) trr,
+                    ncomponents, (double *) rr, (double *) trr,
                     proj_method, nsbins, (double *) sbins, projfn);
     }
 }

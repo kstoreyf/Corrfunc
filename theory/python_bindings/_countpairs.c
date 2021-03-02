@@ -2232,7 +2232,7 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         zbin_ref=options.bin_refine_factors[2];
     /* Projection */
     char *proj_method_str = NULL, *projfn = NULL;
-    int nprojbins=0;
+    int ncomponents=0;
 
     static char *kwlist[] = {
         "autocorr",
@@ -2263,7 +2263,7 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         "isa",/* instruction set to use of type enum isa; valid values are AVX512F, AVX, SSE, FALLBACK */
         "weight_type",
         "proj_type",
-        "nprojbins",
+        "ncomponents",
         "projfn",
         NULL
     };
@@ -2291,7 +2291,7 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
                                        &(options.instruction_set),
                                        &weighting_method_str,
                                        &proj_method_str,
-                                       &nprojbins,
+                                       &ncomponents,
                                        &projfn)
 
          ) {
@@ -2422,7 +2422,7 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         //fprintf(stdout, "Applying projection requires fallback method, switching instruction set\n");
         options.instruction_set = FALLBACK;
     }
-    add_extra_options(&extra, proj_method, nprojbins, projfn);
+    add_extra_options(&extra, proj_method, ncomponents, projfn);
     //TODO: perform more validation about inputs to given projection function
     /* End Projection */
 
@@ -2542,15 +2542,15 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
     PyObject *projret = PyList_New(0);//create an empty list
     PyObject *projtensorret = PyList_New(0);//create an empty list
 
-    for(int i=0;i<nprojbins;i++) {
+    for(int i=0;i<ncomponents;i++) {
         PyObject *projitem = NULL;
         projitem = Py_BuildValue("d", results.projpairs[i]);
         PyList_Append(projret, projitem);
         Py_XDECREF(projitem);
 
-        for(int j=0;j<nprojbins;j++) {
+        for(int j=0;j<ncomponents;j++) {
             PyObject *projtensoritem = NULL;
-            projtensoritem = Py_BuildValue("d", results.projpairs_tensor[i*nprojbins+j]);
+            projtensoritem = Py_BuildValue("d", results.projpairs_tensor[i*ncomponents+j]);
             PyList_Append(projtensorret, projtensoritem);
             Py_XDECREF(projtensoritem);
 

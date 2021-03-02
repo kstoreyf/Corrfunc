@@ -60,8 +60,8 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUB
 
 void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
-    // Assumes nsbins = nprojbins
-    for(int p=0;p<projdata->nprojbins;p++){
+    // Assumes nsbins = ncomponents
+    for(int p=0;p<projdata->ncomponents;p++){
         // peaks are bin averages, for now - need to take square roots
         DOUBLE peak = 0.5*(projdata->supp[p] + projdata->supp[p+1]);
         // assumes bins in ascending order
@@ -79,7 +79,7 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBL
     (void) sqr_s;//to suppress the unused variable warning
     DOUBLE sigma = 3.0;
     DOUBLE amp = 1.0/(SQRT(2.0*M_PI)*sigma);
-    for(int p=0;p<projdata->nprojbins;p++){
+    for(int p=0;p<projdata->ncomponents;p++){
         DOUBLE rp = projdata->supp[p];
         if (FABS(rp-s)<4.0*sigma) {
             DOUBLE gaussian = amp * exp( -0.5*( ((rp-s)/sigma)*((rp-s)/sigma)) );
@@ -155,13 +155,13 @@ void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s,
 
     /* this could be whatever function we want to add a gradient to! */
     // this will fill up the first 1/4 of u
-    // but CAREFUL, for functions that depend on nprojbins we will have to reset it, bc actual is 4x more than assumed in other funcs!
+    // but CAREFUL, for functions that depend on ncomponents we will have to reset it, bc actual is 4x more than assumed in other funcs!
     //tophat_DOUBLE(projdata, u, s, sqr_s, pair);
     general_r_DOUBLE(projdata, u, s, sqr_s, pair);
 
     /* Add gradients */
     /* u is 4x as long as nbases! */
-    int nconst = projdata->nprojbins/4;
+    int nconst = projdata->ncomponents/4;
     DOUBLE xweight, yweight, zweight;
     
     /* Take the pair position to be the mean */
@@ -206,32 +206,32 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
 }
 
 
-int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
+int compute_amplitudes_DOUBLE(int ncomponents, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *trr, DOUBLE *amps){
 
     // Computer numerator of estimator
-    DOUBLE numerator[nprojbins];
-    DOUBLE trrnorm[nprojbins*nprojbins];
-    for (int i=0; i<nprojbins; i++){
+    DOUBLE numerator[ncomponents];
+    DOUBLE trrnorm[ncomponents*ncomponents];
+    for (int i=0; i<ncomponents; i++){
         DOUBLE ddnorm = dd[i]/((DOUBLE)nd1*(DOUBLE)nd2);
         DOUBLE drnorm = dr[i]/((DOUBLE)nd1*(DOUBLE)nr2);
         DOUBLE rdnorm = rd[i]/((DOUBLE)nr1*(DOUBLE)nd2);
         DOUBLE rrnorm = rr[i]/((DOUBLE)nr1*(DOUBLE)nr2);
         numerator[i] = ddnorm - drnorm - rdnorm + rrnorm;
-        for (int j=0; j<nprojbins; j++){
-            trrnorm[i*nprojbins+j] = trr[i*nprojbins+j]/((DOUBLE)nr1*(DOUBLE)nr2);
+        for (int j=0; j<ncomponents; j++){
+            trrnorm[i*ncomponents+j] = trr[i*ncomponents+j]/((DOUBLE)nr1*(DOUBLE)nr2);
         }
     }
 
 	int s;
 	// Define all the used matrices
-	gsl_matrix *trr_mat = gsl_matrix_alloc(nprojbins, nprojbins);
-	gsl_matrix *trr_mat_inv = gsl_matrix_alloc(nprojbins, nprojbins);
-	gsl_permutation *perm = gsl_permutation_alloc(nprojbins);
+	gsl_matrix *trr_mat = gsl_matrix_alloc(ncomponents, ncomponents);
+	gsl_matrix *trr_mat_inv = gsl_matrix_alloc(ncomponents, ncomponents);
+	gsl_permutation *perm = gsl_permutation_alloc(ncomponents);
 	// Fill the matrix m
-	for (int i=0; i<nprojbins; i++){
-        for (int j=0; j<nprojbins; j++){
-            gsl_matrix_set(trr_mat, i, j, trrnorm[i*nprojbins+j]);
+	for (int i=0; i<ncomponents; i++){
+        for (int j=0; j<ncomponents; j++){
+            gsl_matrix_set(trr_mat, i, j, trrnorm[i*ncomponents+j]);
         }
     }
 	// Make LU decomposition of matrix m
@@ -241,9 +241,9 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 
     // Take inner product of trrinv * numerator, get amplitude vector
     // TODO: DOUBLE check
-    for (int i=0; i<nprojbins; i++){
+    for (int i=0; i<ncomponents; i++){
         DOUBLE aval = 0;
-        for (int j=0; j<nprojbins; j++){
+        for (int j=0; j<ncomponents; j++){
             aval += gsl_matrix_get(trr_mat_inv, i, j) * numerator[j];
         }
         amps[i] = aval;
@@ -252,7 +252,7 @@ int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
 }
 
 
-int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
+int evaluate_xi_DOUBLE(int ncomponents, DOUBLE *amps,
                       int nsvals, DOUBLE *svals, DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn, struct extra_options *extra){
                           
     // If no extra options were passed, create dummy options
@@ -278,7 +278,7 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
         free(projdata);
         return EXIT_FAILURE;
     }
-    projdata->nprojbins = nprojbins;
+    projdata->ncomponents = ncomponents;
 	projdata->proj_method = proj_method;
     proj_func_t_DOUBLE proj_func = get_proj_func_by_method_DOUBLE(proj_method);
     /* Read in projection file if necessary */
@@ -298,17 +298,17 @@ int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps,
     // nsvals: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
         //get basis function u for given value of s
-        DOUBLE u[nprojbins];
+        DOUBLE u[ncomponents];
         DOUBLE sqr_s = svals[i]*svals[i];
         proj_func(projdata, u, svals[i], sqr_s, &pair);
 		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length nsvals) */
         // printf("sval: %f\n", svals[i]);
-        // for (int n=0; n<nprojbins; n++){
+        // for (int n=0; n<ncomponents; n++){
         //     printf("u[%d] = %f\n", n, u[n]);
         // }
 
         DOUBLE xival = 0;
-        for (int j=0; j<nprojbins; j++){
+        for (int j=0; j<ncomponents; j++){
             xival += amps[j]*u[j];
         }
         xi[i] = xival;
@@ -346,9 +346,9 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     }
     nbases -= 1; //to account for r column
 
-    /* Check nprojbins same as number of bases in file nbases for general_r function */
-    if (nbases != projdata->nprojbins && projdata->proj_method==GENR) {
-        fprintf(stderr, "The value of nprojbins (%ld) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->nprojbins, nbases);
+    /* Check ncomponents same as number of bases in file nbases for general_r function */
+    if (nbases != projdata->ncomponents && projdata->proj_method==GENR) {
+        fprintf(stderr, "The value of ncomponents (%ld) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->ncomponents, nbases);
         return EXIT_FAILURE;
     }
     projdata->nres = nres;
@@ -384,13 +384,13 @@ DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
 }
 
 
-int trr_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, DOUBLE *rr, DOUBLE *trr, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
+int trr_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int ncomponents, DOUBLE *rr, DOUBLE *trr, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn){
     proj_struct_DOUBLE *projdata = malloc(sizeof(proj_struct_DOUBLE));
     if(projdata == NULL){
         free(projdata);
         return EXIT_FAILURE;
     }
-    projdata->nprojbins = nprojbins;
+    projdata->ncomponents = ncomponents;
 	projdata->proj_method = proj_method;
 
     /* Read in projection file if necessary */
@@ -418,16 +418,16 @@ int trr_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int npr
     int_params->j = 0;
     int_params->is_trr = 0;
     DOUBLE prefac = 4*M_PI*nd*(nd-1)/volume;
-    for (int i=0; i<nprojbins; i++){
+    for (int i=0; i<ncomponents; i++){
         int_params->i = i;
         int_params->is_trr = 0;
         DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
         rr[i] = integral*prefac;
-        for (int j=0; j<nprojbins; j++){
+        for (int j=0; j<ncomponents; j++){
             int_params->j = j;
             int_params->is_trr = 1;
             DOUBLE integral = adaptiveSimpsons_DOUBLE(proj_to_integrate_DOUBLE, int_params, rmin, rmax, 1e-6, 100);
-           trr[i*nprojbins+j] = integral*prefac;
+           trr[i*ncomponents+j] = integral*prefac;
         }
     }
 
@@ -448,7 +448,7 @@ DOUBLE proj_to_integrate_DOUBLE(DOUBLE r, integration_params_DOUBLE *p) {
     int i = (params->i);
     DOUBLE r_sqr = r*r;
     DOUBLE integrand;
-    DOUBLE u[pdata->nprojbins];
+    DOUBLE u[pdata->ncomponents];
     /* TODO: actually deal with pair here */
     pair_struct_DOUBLE pair;
     proj_func(pdata, u, r, r_sqr, &pair);
@@ -501,7 +501,7 @@ DOUBLE adaptiveSimpsons_DOUBLE(DOUBLE (*f)(DOUBLE, integration_params_DOUBLE*), 
     // because adaptive integration sometimes fails over whole region
     DOUBLE aa, bb;
     DOUBLE total = 0.0;
-    DOUBLE hh = 5.0;// starting grid width - may need to make a parameter or adjust based on nprojbins
+    DOUBLE hh = 5.0;// starting grid width - may need to make a parameter or adjust based on ncomponents
     aa = a;
     bb = aa+hh;
     while (aa < b){

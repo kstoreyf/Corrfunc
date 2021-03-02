@@ -122,8 +122,8 @@ def benchmark_theory_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.
     boxsize = 420.0
     nthreads = max_threads
 
-    proj_dict = {'None': {'nprojbins': None, 'projfn': None},
-                'tophat': {'nprojbins': nbins, 'projfn': None}
+    proj_dict = {'None': {'ncomponents': None, 'projfn': None},
+                'tophat': {'ncomponents': nbins, 'projfn': None}
                 }
     proj_types = np.array(list(proj_dict.keys()))
 
@@ -173,7 +173,7 @@ def benchmark_theory_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.
                                             isa=run_isa)
                             else:
                                 _, _, _, api_time = DDsmu(autocorr, nthreads, bins, mumax, nmubins, x, y, z,
-                                                proj_type=proj_type, nprojbins=proj['nprojbins'], projfn=proj['projfn'],
+                                                proj_type=proj_type, ncomponents=proj['ncomponents'], projfn=proj['projfn'],
                                                 verbose=True, c_api_timer=True,
                                                 isa=run_isa)
                             t1 = time.time()

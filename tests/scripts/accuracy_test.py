@@ -9,9 +9,9 @@ def main():
 
     savetag = ''
     proj_type = 'tophat'
-    nprojbins = 9
-    r_edges = np.linspace(10., 100., nprojbins+1)
-    proj_dict = {'tophat': {'nprojbins': nprojbins,
+    ncomponents = 9
+    r_edges = np.linspace(10., 100., ncomponents+1)
+    proj_dict = {'tophat': {'ncomponents': ncomponents,
                             'proj_func': tophat_orig,
                             'proj_fn': None,
                             'args':[r_edges],
@@ -34,7 +34,7 @@ def main():
     ### Brute force test
     s = time.time()
     print('brute force')
-    v_dd_correct, T_dd_correct = dd_bruteforce(data, proj['proj_func'], proj['nprojbins'], *proj['args'], **proj['kwargs'])
+    v_dd_correct, T_dd_correct = dd_bruteforce(data, proj['proj_func'], proj['ncomponents'], *proj['args'], **proj['kwargs'])
     e = time.time()
     print(v_dd_correct)
     print(T_dd_correct)
@@ -42,7 +42,7 @@ def main():
 
     s = time.time()
     print('numpy trick')
-    v_dd_correct, T_dd_correct = dd_bruteforce_numpy(data, proj['proj_func'], proj['nprojbins'], *proj['args'], **proj['kwargs'])
+    v_dd_correct, T_dd_correct = dd_bruteforce_numpy(data, proj['proj_func'], proj['ncomponents'], *proj['args'], **proj['kwargs'])
     e = time.time()
     print(v_dd_correct)
     print(T_dd_correct)
@@ -59,8 +59,8 @@ def main():
     mumax = 1.0
     nmubins = 1
     _, v_dd, T_dd = DDsmu(1, nthreads, r_edges, mumax, nmubins, x, y, z,
-                proj_type=proj_type, nprojbins=proj['nprojbins'], projfn=proj['proj_fn'], periodic=False)
-    T_dd = T_dd.reshape((nprojbins, nprojbins)) #make code output it like this?! or maybe i didn't because it makes it easier to pass directly to compute_amps, etc
+                proj_type=proj_type, ncomponents=proj['ncomponents'], projfn=proj['proj_fn'], periodic=False)
+    T_dd = T_dd.reshape((ncomponents, ncomponents)) #make code output it like this?! or maybe i didn't because it makes it easier to pass directly to compute_amps, etc
     print(v_dd)
     print(T_dd)
 
@@ -69,11 +69,11 @@ def main():
     #np.savetxt(f'../output/suave_Tdd_{proj_type}.npy', T_dd, fmt=fmt)
 
 
-def dd_bruteforce(data, proj_func, nprojbins, *args, **kwargs):
+def dd_bruteforce(data, proj_func, ncomponents, *args, **kwargs):
     # data is shape (N, 3)
     N = data.shape[0]
-    v_dd = np.zeros(nprojbins)
-    T_dd = np.zeros((nprojbins, nprojbins))
+    v_dd = np.zeros(ncomponents)
+    T_dd = np.zeros((ncomponents, ncomponents))
     
     for i in range(N): 
         for j in range(N):
@@ -85,13 +85,13 @@ def dd_bruteforce(data, proj_func, nprojbins, *args, **kwargs):
                 T_dd += np.outer(u, u)
     return v_dd, T_dd
 
-def dd_bruteforce_numpy(data, proj_func, nprojbins, *args, **kwargs):
+def dd_bruteforce_numpy(data, proj_func, ncomponents, *args, **kwargs):
     N = data.shape[0]
-    v_dd = np.zeros(nprojbins)
-    T_dd = np.zeros((nprojbins, nprojbins))
+    v_dd = np.zeros(ncomponents)
+    T_dd = np.zeros((ncomponents, ncomponents))
     dists = np.sqrt( -2 * np.dot(data, data.T) + np.sum(data**2, axis=1) + np.sum(data**2, axis=1)[:, np.newaxis] ) 
     print(dists.shape)
-    us = np.empty((N, N, nprojbins))
+    us = np.empty((N, N, ncomponents))
     #proj_func_vect = np.vectorize(tophat_orig,otypes=[np.float],cache=False)
 #j  %timeit list(vectfunc(lst_x,lst_y))
     #us = proj_func_vect(dists, *args, **kwargs)

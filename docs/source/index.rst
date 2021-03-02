@@ -32,8 +32,8 @@ Load in a data catalog (in a periodic cube) and generate a random catalog::
 To use the tophat basis, set the `proj_type` accordingly and choose radial separation bins. To compute the full 3D correlation function, we can use the 2D correlation function DD(s, \mu) with a single \mu bin::
 
     proj_type = 'tophat'
-    rmin, rmax, nprojbins = 40.0, 150.0, 22
-    r_edges = np.linspace(rmin, rmax, nprojbins+1)
+    rmin, rmax, ncomponents = 40.0, 150.0, 22
+    r_edges = np.linspace(rmin, rmax, ncomponents+1)
     nmubins = 1
     mumax = 1.0
     periodic = True
@@ -43,19 +43,19 @@ Compute the component vectors DD, DR, and RR, which in this case are equivalent 
 
     dd_res, dd_proj, _ = DDsmu(1, nthreads, r_edges, mumax, nmubins, 
                                x, y, z, boxsize=boxsize, periodic=periodic, 
-                               proj_type=proj_type, nprojbins=nprojbins)
+                               proj_type=proj_type, ncomponents=ncomponents)
     dr_res, dr_proj, _ = DDsmu(0, nthreads, r_edges, mumax, nmubins, 
                                x, y, z, X2=x_rand, Y2=y_rand, Z2=z_rand,
                                boxsize=boxsize, periodic=periodic,
-                               proj_type=proj_type, nprojbins=nprojbins)
+                               proj_type=proj_type, ncomponents=ncomponents)
     rr_res, rr_proj, trr_proj = DDsmu(1, nthreads, r_edges, mumax, nmubins, 
                                      x_rand, y_rand, z_rand, boxsize=boxsize,
                                      periodic=periodic, proj_type=proj_type,
-                                     nprojbins=nprojbins)
+                                     ncomponents=ncomponents)
 
 From the component vectors, compute the amplitudes, and evaluate the correlation function on a fine r-grid::
 
-    amps = compute_amps(nprojbins, nd, nd, nr, nr, dd_proj, dr_proj, dr_proj, rr_proj, trr_proj)
+    amps = compute_amps(ncomponents, nd, nd, nr, nr, dd_proj, dr_proj, dr_proj, rr_proj, trr_proj)
     r_fine = np.linspace(rmin, rmax, 2000)
     xi = evaluate_xi(amps, r_fine, proj_type, rbins=r_edges)
 

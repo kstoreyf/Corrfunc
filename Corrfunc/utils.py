@@ -1055,7 +1055,7 @@ def sys_pipes():
         yield
 
 
-def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
+def compute_amps(ncomponents, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
     #TODO: make second dataset parameters optional
 
     '''
@@ -1063,7 +1063,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
 
     Parameters
     ----------
-    nprojbins : int
+    ncomponents : int
        Number of basis functions
 
     nd1 : int
@@ -1096,7 +1096,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
     Returns
     -------
     amps: array-like, double
-        Vector of amplitudes, with length nprojbins
+        Vector of amplitudes, with length ncomponents
 
     '''
     try:
@@ -1111,7 +1111,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
 
     #print('Computing amplitudes (Corrfunc/utils.py)')
     with sys_pipes():
-        amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr)
+        amps = amp_extn(ncomponents, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr)
     return np.array(amps)
 
 
@@ -1166,7 +1166,7 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, 
         raise ValueError(msg)
 
     # Will need these in C code, easier to calculate here and pass
-    nprojbins = len(amps)
+    ncomponents = len(amps)
     nrvals = len(rvals)
     if rbins is not None:
         nrbins = len(rbins)-1
@@ -1181,13 +1181,13 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, 
 
     #print('Evaluating xi (Corrfunc/utils.py)')
     with sys_pipes():
-        xi = eval_extn(nprojbins, amps, nrvals, rvals, proj_type, **kwargs)
+        xi = eval_extn(ncomponents, amps, nrvals, rvals, proj_type, **kwargs)
 
     return np.array(xi)
 
 
 # may not need nsbins and sbins
-def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn=None):
+def trr_analytic(rmin, rmax, nd, volume, ncomponents, proj_type, rbins=None, projfn=None):
     '''
     Compute the T_RR tensor analytically for a periodic box, for the given set of basis functions.
 
@@ -1205,7 +1205,7 @@ def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projf
     volume : double
         Volume of data cube, in the same units as the r-values (cubed)
     
-    nprojbins : int
+    ncomponents : int
        Number of basis functions
 
     proj_type : string
@@ -1220,7 +1220,7 @@ def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projf
     Returns
     -------
     trr: array-like, double
-        Tensor of T_RR values, with size (nprojbins, nprojbins) 
+        Tensor of T_RR values, with size (ncomponents, ncomponents) 
 
     '''
     try:
@@ -1242,7 +1242,7 @@ def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projf
     rmax = float(rmax) #breaks if passed as int
     nd = int(nd)
     volume = float(volume)
-    nprojbins = int(nprojbins)
+    ncomponents = int(ncomponents)
     if rbins is not None:
         nrbins = len(rbins)-1
     else:
@@ -1258,7 +1258,7 @@ def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projf
     #print('Evaluating trr_analytic (Corrfunc/utils.py)')
 
     with sys_pipes():
-        extn_results = eval_extn(rmin, rmax, nd, volume, nprojbins, proj_type, **kwargs)
+        extn_results = eval_extn(rmin, rmax, nd, volume, ncomponents, proj_type, **kwargs)
 
     if extn_results is None:
         msg = "RuntimeError occurred"
@@ -1266,9 +1266,9 @@ def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projf
     else:
         rr, trr = extn_results
 
-    trr = np.array(trr).reshape((nprojbins, nprojbins))
+    trr = np.array(trr).reshape((ncomponents, ncomponents))
     return np.array(rr), trr 
-    #return np.ones(nprojbins), np.ones((nprojbins, nprojbins))
+    #return np.ones(ncomponents), np.ones((ncomponents, ncomponents))
 
 if __name__ == '__main__':
     import doctest

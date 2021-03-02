@@ -22,7 +22,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
           zbin_refine_factor=1, max_cells_per_dim=100,
           copy_particles=True, enable_min_sep_opt=True,
           c_api_timer=False, isa=r'fastest', weight_type=None,
-          proj_type=None, nprojbins=None, projfn=None):
+          proj_type=None, ncomponents=None, projfn=None):
     """
     Calculate the 2-D component values (e.g. pair-counts for the tophat basis) corresponding to the redshift-space
     correlation function, :math:`\\xi(s, \mu)` Pairs which are separated
@@ -166,7 +166,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
     proj_type : string (default None)
        Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
 
-    nprojbins : int (default None)
+    ncomponents : int (default None)
        Number of basis functions; necessary if projection method is defined
 
     projfn : string (default None)
@@ -188,10 +188,10 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
         the time spent within the C library and ignores all python overhead.
 
     proj : array-like, double, optional
-        Only returned if proj_type is not None. An array of length nprojbins of the computed component values (e.g. pair counts for the tophat basis)
+        Only returned if proj_type is not None. An array of length ncomponents of the computed component values (e.g. pair counts for the tophat basis)
 
     projt : array-like, double, optional
-        Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length nprojbins*nprojbins, with the computed component values (e.g. pair counts for the tophat basis)
+        Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length ncomponents*ncomponents, with the computed component values (e.g. pair counts for the tophat basis)
         
     Example
     -------
@@ -303,7 +303,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
 
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
-    for k in ['weights1', 'weights2', 'weight_type', 'proj_type', 'nprojbins', 'projfn', 'X2', 'Y2', 'Z2']:
+    for k in ['weights1', 'weights2', 'weight_type', 'proj_type', 'ncomponents', 'projfn', 'X2', 'Y2', 'Z2']:
         v = locals()[k]
         if v is not None:
             kwargs[k] = v

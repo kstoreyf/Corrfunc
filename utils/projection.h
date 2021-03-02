@@ -13,12 +13,12 @@ extern "C" {
 
 #include "defs.h"
 
-int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
+int compute_amplitudes(int ncomponents, int nd1, int nd2, int nr1, int nr2,
             void *dd, void *dr, void *rd, void *rr, void *trr, void *amps, size_t element_size);
 
-int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals, void *xi, proj_method_t proj_method, size_t element_size, int nsbins, 
+int evaluate_xi(int ncomponents, void *amps, int nsvals, void *svals, void *xi, proj_method_t proj_method, size_t element_size, int nsbins, 
           void *sbins, char *projfn, struct extra_options *extra);
 
-int trr_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
+int trr_analytic(double rmin, double rmax, int nd, double volume, int ncomponents, 
         void *rr, void *trr, proj_method_t proj_method, 
         size_t element_size, int nsbins, void *sbins,  char *projfn);
