@@ -15,13 +15,13 @@ def spline_bases(rmin, rmax, projfn, ncomponents, ncont=2000, order=3):
     Parameters
     ----------
     rmin : double
-        Minimum r-value for integration 
+        Minimum r-value for basis functions 
 
     rmax : double
-        Maximum r-value for integration
+        Maximum r-value for basis functions 
 
     projfn : string, default=None
-       Filename of projection file if necessary
+       Path to projection file if necessary
 
     ncomponents : int
        Number of components (basis functions)
@@ -30,7 +30,7 @@ def spline_bases(rmin, rmax, projfn, ncomponents, ncont=2000, order=3):
        Number of continuous r-values at which to write the basis function file
 
     order : int, default=3
-       Order of spline to use; default is cubic spline (order=3)
+       Order of spline to use; default is cubic spline
 
     Returns
     -------
@@ -81,13 +81,13 @@ def bao_bases(rmin, rmax, projfn, cosmo_base=None, ncont=2000, redshift=0.0,
     Parameters
     ----------
     rmin : double
-        Minimum r-value for integration 
+        Minimum r-value for basis functions
 
     rmax : double
-        Maximum r-value for integration 
+        Maximum r-value for basis functions 
 
     projfn : string, default=None
-        Filename of projection file if necessary
+        Path to projection file if necessary
 
     cosmo_base : nbodykit cosmology object, default=nbodykit.cosmology.Planck15
         Cosmology object for the BAO model.

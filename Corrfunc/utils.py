@@ -1079,19 +1079,19 @@ def compute_amps(ncomponents, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
        Number of particles in random2
 
     dd: array-like, double
-       Component vector for data-data cross-correlation
+       Projection vector for data-data cross-correlation
 
     dr: array-like, double
-       Component vector for data-random cross-correlation
+       Projection vector for data-random cross-correlation
 
     rd: array-like, double
-       Component vector for random-data cross-correlation
+       Projection vector for random-data cross-correlation
 
     rr: array-like, double
-       Component vector for random-random cross-correlation
+       Projection vector for random-random cross-correlation
 
     trr: array-like, double
-       Component tensor for random-random cross-correlation
+       Projection tensor for random-random cross-correlation
 
     Returns
     -------
@@ -1128,13 +1128,13 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, 
        Array of radial separation values at which to evaluate the correlation function
 
     proj_type : string
-       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel', 'gradient']
 
     rbins : array-like, double, default=None
-        Bin edges for tophat or piecewise bases (or custom basis)
+        Bin edges; necessary for tophat or piecewise bases
 
     projfn : string, default=None
-       Filename of projection file; necessary for proj_type='generalr'
+       Path to projection file; necessary for proj_type='generalr'
 
     weights1 : array-like, double, default=None
         Weights/metadata for custom basis functions, for first set of imaginary galaxies
@@ -1143,7 +1143,7 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, 
         Weights/metadata for custom basis functions, for second set of imaginary galaxies
 
     weight_type : string, default=None
-        Name of weight function
+        Name of weight function. If using 'gradient', must set ``weight_type="pair_product_gradient"``.  
 
     Returns
     -------
@@ -1209,13 +1209,13 @@ def trr_analytic(rmin, rmax, nd, volume, ncomponents, proj_type, rbins=None, pro
        Number of basis functions
 
     proj_type : string
-       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel', 'gradient']
 
     rbins : array-like, double, default=None
        Edges of r-bins for tophat or piecewise projections
 
     projfn : string, default=None
-       Filename of projection file if necessary
+       Path to projection file if necessary
 
     Returns
     -------

@@ -34,6 +34,8 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
     ``"npairs"`` field are not weighted.  The weighting scheme depends on
     ``weight_type``.
 
+    To use the projection capability with suave, set the ``proj_type`` parameter for the desired basis functions, and set ``ncomponents`` and ``projfn`` accordingly.
+
     .. note:: This module only returns pair counts and not the actual
         correlation function :math:`\\xi(s, \mu)`. See the
         utilities :py:mod:`Corrfunc.utils.convert_3d_counts_to_cf`
@@ -164,19 +166,19 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
         Options: "pair_product", "pair_product_gradient", None; Default: None.
 
     proj_type : string (default None)
-       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel', 'gradient']
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel', 'gradient']. If using 'gradient', must set ``weight_type="pair_product_gradient"``.
 
-        .. versionadded:: suave
+       .. versionadded:: suave
 
     ncomponents : int (default None)
-       Number of basis functions; necessary if projection method is defined
+       Number of basis functions; necessary if projection method ``proj_type`` is defined.
 
-        .. versionadded:: suave
+       .. versionadded:: suave
 
     projfn : string (default None)
-       Filename of projection file; necessary for proj_type='generalr'
+       File path of projection file; necessary for ``proj_type='generalr'``.
 
-        .. versionadded:: suave
+       .. versionadded:: suave
 
 
     Returns

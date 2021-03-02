@@ -37,6 +37,7 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
     Returns a numpy structured array containing the pair counts for the
     specified bins.
 
+    To use the projection capability with suave, set the ``proj_type`` parameter for the desired basis functions, and set ``ncomponents`` and ``projfn`` accordingly.
 
     .. note:: This module only returns pair counts and not the actual
        correlation function :math:`\\xi(s, \mu)`. See the
@@ -220,16 +221,22 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
        ``enum`` for the instruction set defined in ``utils/defs.h``.
 
     weight_type: string, optional (default None)
-        The type of weighting to apply.  One of ["pair_product", None].
+        The type of weighting to apply.  One of ["pair_product", "pair_product_gradient", None].
 
     proj_type : string (default None)
-       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel', 'gradient']. If using 'gradient', must set ``weight_type="pair_product_gradient"``.
+
+       .. versionadded:: suave
 
     ncomponents : int (default None)
-       Number of basis functions; necessary if projection method is defined
+       Number of basis functions; necessary if projection method ``proj_type`` is defined.
+
+       .. versionadded:: suave
 
     projfn : string (default None)
-       Filename of projection file; necessary for proj_type='generalr'
+       Path to projection file; necessary for ``proj_type='generalr'``.
+
+       .. versionadded:: suave
 
     Returns
     --------
@@ -249,10 +256,10 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
         the time spent within the C library and ignores all python overhead.
 
     v_proj : array-like, double, optional
-        Only returned if proj_type is not None. An array of length ncomponents of the computed component values (e.g. pair counts for the tophat basis)
+        Only returned if proj_type is not None. The projection vector, an array of length ``ncomponents``.
 
     t_proj : array-like, double, optional
-        Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length ncomponents*ncomponents, with the computed component values (e.g. pair counts for the tophat basis)
+        Only returned if proj_type is not None. The projection tensor, unrolled in the form of an array with length ``ncomponents``*``ncomponents``.
     """
     try:
         from Corrfunc._countpairs_mocks import countpairs_s_mu_mocks as\
