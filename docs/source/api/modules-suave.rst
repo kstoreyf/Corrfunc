@@ -18,7 +18,7 @@ Corrfunc.mocks
 Corrfunc.utils
 **************
 .. automodule:: Corrfunc.utils
-   :members: compute_amps, evaluate_xi, qq_analytic
+   :members: compute_amps, evaluate_xi, trr_analytic
    :show-inheritance:
    :noindex:
 

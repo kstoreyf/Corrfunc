@@ -13,7 +13,7 @@ from contextlib import contextmanager
 __all__ = ['convert_3d_counts_to_cf', 'convert_rp_pi_counts_to_wp',
            'translate_isa_string_to_enum', 'return_file_with_rbins',
            'fix_ra_dec', 'fix_cz', 'compute_nbins', 'gridlink_sphere', 
-           'compute_amps', 'evaluate_xi', 'qq_analytic', ]
+           'compute_amps', 'evaluate_xi', 'trr_analytic', ]
 if sys.version_info[0] < 3:
     __all__ = [n.encode('ascii') for n in __all__]
 
@@ -1055,7 +1055,7 @@ def sys_pipes():
         yield
 
 
-def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
+def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr):
     #TODO: make second dataset parameters optional
 
     '''
@@ -1090,7 +1090,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
     rr: array-like, double
        Component vector for random-random cross-correlation
 
-    qq: array-like, double
+    trr: array-like, double
        Component tensor for random-random cross-correlation
 
     Returns
@@ -1111,7 +1111,7 @@ def compute_amps(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq):
 
     #print('Computing amplitudes (Corrfunc/utils.py)')
     with sys_pipes():
-        amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, qq)
+        amps = amp_extn(nprojbins, nd1, nd2, nr1, nr2, dd, dr, rd, rr, trr)
     return np.array(amps)
 
 
@@ -1187,9 +1187,9 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, 
 
 
 # may not need nsbins and sbins
-def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn=None):
+def trr_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn=None):
     '''
-    Compute the QQ tensor analytically for a periodic box, for the given set of basis functions.
+    Compute the T_RR tensor analytically for a periodic box, for the given set of basis functions.
 
     Parameters
     ----------
@@ -1219,22 +1219,22 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn
 
     Returns
     -------
-    qq: array-like, double
-        Tensor of QQ values, with size (nprojbins, nprojbins) 
+    trr: array-like, double
+        Tensor of T_RR values, with size (nprojbins, nprojbins) 
 
     '''
     try:
-        from Corrfunc._countpairs_mocks import qq_analytic as \
+        from Corrfunc._countpairs_mocks import trr_analytic as \
             eval_extn
     except ImportError:
-        msg = "Could not import the C extension for computing QQ analytically."
+        msg = "Could not import the C extension for computing T_RR analytically."
         raise ImportError(msg)
 
     import numpy as np
     from Corrfunc.utils import sys_pipes
 
     if not proj_type:
-        msg = "Cannot pass a null project type to qq_analytic"
+        msg = "Cannot pass a null project type to trr_analytic"
         raise ValueError(msg)
 
     # TODO: proper way/place to typecheck and cast?
@@ -1255,7 +1255,7 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn
         if v is not None:
             kwargs[k] = v
 
-    #print('Evaluating qq_analytic (Corrfunc/utils.py)')
+    #print('Evaluating trr_analytic (Corrfunc/utils.py)')
 
     with sys_pipes():
         extn_results = eval_extn(rmin, rmax, nd, volume, nprojbins, proj_type, **kwargs)
@@ -1264,10 +1264,10 @@ def qq_analytic(rmin, rmax, nd, volume, nprojbins, proj_type, rbins=None, projfn
         msg = "RuntimeError occurred"
         raise RuntimeError(msg)
     else:
-        rr, qq = extn_results
+        rr, trr = extn_results
 
-    qq = np.array(qq).reshape((nprojbins, nprojbins))
-    return np.array(rr), qq 
+    trr = np.array(trr).reshape((nprojbins, nprojbins))
+    return np.array(rr), trr 
     #return np.ones(nprojbins), np.ones((nprojbins, nprojbins))
 
 if __name__ == '__main__':

@@ -72,7 +72,7 @@ static PyObject *countpairs_countpairs_theta_mocks(PyObject *self, PyObject *arg
 static PyObject *countpairs_countspheres_vpf_mocks(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *countpairs_mocks_error_out(PyObject *module, const char *msg);
 
 static PyMethodDef module_methods[] = {
@@ -806,7 +806,7 @@ static PyMethodDef module_methods[] = {
     },
     {"convert_3d_proj_counts_to_amplitude"       ,(PyCFunction) countpairs_convert_3d_proj_counts_to_amplitude ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
     {"evaluate_xi"       ,(PyCFunction) countpairs_evaluate_xi ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
-    {"qq_analytic"       ,(PyCFunction) countpairs_qq_analytic ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
+    {"trr_analytic"       ,(PyCFunction) countpairs_trr_analytic ,METH_VARARGS | METH_KEYWORDS, "docstring: TODO!"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -1116,7 +1116,7 @@ static int64_t check_dims_and_datatype_paircounts(PyObject *module, PyArrayObjec
     const int nqdims = PyArray_NDIM(q1_obj);
 
     if(nwdims != 1 || nxdims != 1 || nydims != 1 || nzdims != 1 || nqdims != 1) {
-        snprintf(msg, 1024, "ERROR: Expected 1-D numpy arrays.\nFound (dddims, drdims, rddims, rrdims, qqdims) = (%d, %d, %d, %d, %d) instead",
+        snprintf(msg, 1024, "ERROR: Expected 1-D numpy arrays.\nFound (dddims, drdims, rddims, rrdims, trrdims) = (%d, %d, %d, %d, %d) instead",
                  nwdims, nxdims, nydims, nzdims, nqdims);
         countpairs_mocks_error_out(module, msg);
         return -1;
@@ -1189,10 +1189,10 @@ static int64_t check_dims_and_datatype_paircounts(PyObject *module, PyArrayObjec
       return -1;
     }
 
-    // The last dimension, qq, must be the square of the number of other counts
+    // The last dimension, trr, must be the square of the number of other counts
     const int64_t nq1 = (int64_t)PyArray_SIZE(q1_obj);
     if(nq1 != nw1*nw1){
-        snprintf(msg, 1024, "ERROR: the qq term must have a size of the square of the other paircounts. Instead found n_qq=%"PRId64", n_dd=%"PRId64,
+        snprintf(msg, 1024, "ERROR: the trr term must have a size of the square of the other paircounts. Instead found n_trr=%"PRId64", n_dd=%"PRId64,
                 nq1, nw1);
         countpairs_mocks_error_out(module, msg);
         return -1;
@@ -2445,7 +2445,7 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     PyObject *module = self;
 #endif
 
-    PyArrayObject *dd_obj=NULL, *dr_obj=NULL, *rd_obj=NULL, *rr_obj=NULL, *qq_obj=NULL;
+    PyArrayObject *dd_obj=NULL, *dr_obj=NULL, *rd_obj=NULL, *rr_obj=NULL, *trr_obj=NULL;
 
     int nprojbins, ND1, ND2, NR1, NR2;
 
@@ -2459,7 +2459,7 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
         "dr",
         "rd",
         "rr",
-        "qq",
+        "trr",
         NULL
     };
 
@@ -2469,7 +2469,7 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
                                        &PyArray_Type,&dr_obj,
                                        &PyArray_Type,&rd_obj,
                                        &PyArray_Type,&rr_obj,
-                                       &PyArray_Type,&qq_obj
+                                       &PyArray_Type,&trr_obj
                                        )
 
         ) {
@@ -2492,27 +2492,27 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     }
 
     size_t element_size;
-    const int64_t npb = check_dims_and_datatype_paircounts(module, dd_obj, dr_obj, rd_obj, rr_obj, qq_obj, &element_size);
+    const int64_t npb = check_dims_and_datatype_paircounts(module, dd_obj, dr_obj, rd_obj, rr_obj, trr_obj, &element_size);
     if(npb == -1) {
         //Error has already been set -> simply return
         Py_RETURN_NONE;
     }
      /* Interpret the input objects as numpy arrays. */
     const int requirements = NPY_ARRAY_IN_ARRAY;
-    PyObject *dd_array = NULL, *dr_array = NULL, *rd_array = NULL, *rr_array = NULL, *qq_array = NULL;
+    PyObject *dd_array = NULL, *dr_array = NULL, *rd_array = NULL, *rr_array = NULL, *trr_array = NULL;
     dd_array = PyArray_FromArray(dd_obj, NOTYPE_DESCR, requirements);
     dr_array = PyArray_FromArray(dr_obj, NOTYPE_DESCR, requirements);
     rd_array = PyArray_FromArray(rd_obj, NOTYPE_DESCR, requirements);
     rr_array = PyArray_FromArray(rr_obj, NOTYPE_DESCR, requirements);
-    qq_array = PyArray_FromArray(qq_obj, NOTYPE_DESCR, requirements);
+    trr_array = PyArray_FromArray(trr_obj, NOTYPE_DESCR, requirements);
 
     if (dd_array == NULL || dr_array == NULL || rd_array == NULL ||
-        rr_array == NULL || qq_array == NULL ) {
+        rr_array == NULL || trr_array == NULL ) {
         Py_XDECREF(dd_array);
         Py_XDECREF(dr_array);
         Py_XDECREF(rd_array);
         Py_XDECREF(rr_array);
-        Py_XDECREF(qq_array);
+        Py_XDECREF(trr_array);
         char msg[1024];
         snprintf(msg, 1024, "TypeError: In %s: Could not convert input to arrays of allowed floating point types (doubles or floats). Are you passing numpy arrays?",
                  __FUNCTION__);
@@ -2521,13 +2521,13 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     }
 
     /* Get pointers to the data as C-types. */
-    void *dd=NULL, *dr=NULL, *rd=NULL, *rr=NULL, *qq=NULL;
+    void *dd=NULL, *dr=NULL, *rd=NULL, *rr=NULL, *trr=NULL;
 
     dd   = PyArray_DATA((PyArrayObject *) dd_array);
     dr   = PyArray_DATA((PyArrayObject *) dr_array);
     rd   = PyArray_DATA((PyArrayObject *) rd_array);
     rr   = PyArray_DATA((PyArrayObject *) rr_array);
-    qq   = PyArray_DATA((PyArrayObject *) qq_array);
+    trr   = PyArray_DATA((PyArrayObject *) trr_array);
 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
@@ -2536,13 +2536,13 @@ static PyObject *countpairs_convert_3d_proj_counts_to_amplitude(PyObject *self, 
     for(int i=0;i<nprojbins;i++){
         amps[i] = 0;
     }
-    compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, qq, amps, element_size);
+    compute_amplitudes(nprojbins, ND1, ND2, NR1, NR2, dd, dr, rd, rr, trr, amps, element_size);
 
     NPY_END_THREADS;
 
     /* Clean up. */
     Py_DECREF(dd_array);Py_DECREF(dr_array);Py_DECREF(rd_array);
-    Py_DECREF(rr_array);Py_DECREF(qq_array);;
+    Py_DECREF(rr_array);Py_DECREF(trr_array);;
 
     /* Build the output list */
     PyObject *aret = PyList_New(0);//create an empty list
@@ -2768,7 +2768,7 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
 
 
 
-static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject *kwargs)
+static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     //Error-handling is global in python2 -> stored in struct module_state _struct declared at the top of this file
 #if PY_MAJOR_VERSION < 3
@@ -2814,7 +2814,7 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         fprintf(stdout, "\n");
 
         char msg[1024];
-        int len=snprintf(msg, 1024,"ArgumentError: In qq_analytic> Could not parse the arguments. Input parameters are: \n");
+        int len=snprintf(msg, 1024,"ArgumentError: In trr_analytic> Could not parse the arguments. Input parameters are: \n");
 
         /* How many keywords do we have? Subtract 1 because of the last NULL */
         const size_t nitems = sizeof(kwlist)/sizeof(*kwlist) - 1;
@@ -2878,12 +2878,12 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         rr[i] = 0;
     }
 
-    double qq[nprojbins*nprojbins];
+    double trr[nprojbins*nprojbins];
     for(int i=0;i<nprojbins*nprojbins;i++){
-        qq[i] = 0;
+        trr[i] = 0;
     }
 
-    qq_analytic(rmin, rmax, nd, volume, nprojbins, rr, qq, proj_method, element_size, nrbins, rbins, projfn);
+    trr_analytic(rmin, rmax, nd, volume, nprojbins, rr, trr, proj_method, element_size, nrbins, rbins, projfn);
 
     NPY_END_THREADS;
 
@@ -2893,7 +2893,7 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
     }
     /* Build the output list */
     PyObject *rrret = PyList_New(0);//create an empty list
-    PyObject *qqret = PyList_New(0);//create an empty list
+    PyObject *trrret = PyList_New(0);//create an empty list
 
     for(int i=0;i<nprojbins;i++) {
         PyObject *rritem = NULL;
@@ -2902,13 +2902,13 @@ static PyObject *countpairs_qq_analytic(PyObject *self, PyObject *args, PyObject
         Py_XDECREF(rritem);
     }
     for(int i=0;i<nprojbins*nprojbins;i++) {
-        PyObject *qqitem = NULL;
-        qqitem = Py_BuildValue("d", qq[i]);
-        PyList_Append(qqret, qqitem);
-        Py_XDECREF(qqitem);
+        PyObject *trritem = NULL;
+        trritem = Py_BuildValue("d", trr[i]);
+        PyList_Append(trrret, trritem);
+        Py_XDECREF(trritem);
     }
     //don't need to free results bc didn't allocate memory (unless nprojbins gets real big...)
-    //return Py_BuildValue("O", rrret), Py_BuildValue("O", qqret);
-    return Py_BuildValue("(OO)", rrret, qqret);
+    //return Py_BuildValue("O", rrret), Py_BuildValue("O", trrret);
+    return Py_BuildValue("(OO)", rrret, trrret);
 
 }

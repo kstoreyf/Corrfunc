@@ -39,7 +39,7 @@ To use the tophat basis, set the `proj_type` accordingly and choose radial separ
     periodic = True
     nthreads = 1
 
-Compute the component vectors DD, DR, and RR, which in this case are equivalent to the pair counts, and the component tensor QQ::
+Compute the component vectors DD, DR, and RR, which in this case are equivalent to the pair counts, and the component tensor T_RR::
 
     dd_res, dd_proj, _ = DDsmu(1, nthreads, r_edges, mumax, nmubins, 
                                x, y, z, boxsize=boxsize, periodic=periodic, 
@@ -48,14 +48,14 @@ Compute the component vectors DD, DR, and RR, which in this case are equivalent 
                                x, y, z, X2=x_rand, Y2=y_rand, Z2=z_rand,
                                boxsize=boxsize, periodic=periodic,
                                proj_type=proj_type, nprojbins=nprojbins)
-    rr_res, rr_proj, qq_proj = DDsmu(1, nthreads, r_edges, mumax, nmubins, 
+    rr_res, rr_proj, trr_proj = DDsmu(1, nthreads, r_edges, mumax, nmubins, 
                                      x_rand, y_rand, z_rand, boxsize=boxsize,
                                      periodic=periodic, proj_type=proj_type,
                                      nprojbins=nprojbins)
 
 From the component vectors, compute the amplitudes, and evaluate the correlation function on a fine r-grid::
 
-    amps = compute_amps(nprojbins, nd, nd, nr, nr, dd_proj, dr_proj, dr_proj, rr_proj, qq_proj)
+    amps = compute_amps(nprojbins, nd, nd, nr, nr, dd_proj, dr_proj, dr_proj, rr_proj, trr_proj)
     r_fine = np.linspace(rmin, rmax, 2000)
     xi = evaluate_xi(amps, r_fine, proj_type, rbins=r_edges)
 

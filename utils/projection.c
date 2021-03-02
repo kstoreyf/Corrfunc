@@ -17,7 +17,7 @@
 
 
 int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
-            void *dd, void *dr, void *rd, void *rr, void *qq, void *amps, size_t element_size)
+            void *dd, void *dr, void *rd, void *rr, void *trr, void *amps, size_t element_size)
 {
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
         fprintf(stderr,"ERROR: In %s> Can only handle doubles or floats. Got an array of size = %zu\n",
@@ -26,10 +26,10 @@ int compute_amplitudes(int nprojbins, int nd1, int nd2, int nr1, int nr2,
     }
     if(element_size == sizeof(float)) {
         return compute_amplitudes_float(nprojbins, nd1, nd2, nr1, nr2,
-            (float *) dd, (float *) dr, (float *) rd, (float *) rr, (float *) qq, (float *) amps);
+            (float *) dd, (float *) dr, (float *) rd, (float *) rr, (float *) trr, (float *) amps);
     } else {
         return compute_amplitudes_double(nprojbins, nd1, nd2, nr1, nr2,
-            (double *) dd, (double *) dr, (double *) rd, (double *) rr, (double *) qq, (double *) amps);
+            (double *) dd, (double *) dr, (double *) rd, (double *) rr, (double *) trr, (double *) amps);
     }
 }
 
@@ -54,8 +54,8 @@ int evaluate_xi(int nprojbins, void *amps, int nsvals, void *svals,
 
 
 
-int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
-        void *rr, void *qq, proj_method_t proj_method, 
+int trr_analytic(double rmin, double rmax, int nd, double volume, int nprojbins, 
+        void *rr, void *trr, proj_method_t proj_method, 
         size_t element_size, int nsbins, void *sbins, char *projfn)
 {
     if( ! (element_size == sizeof(float) || element_size == sizeof(double))){
@@ -65,12 +65,12 @@ int qq_analytic(double rmin, double rmax, int nd, double volume, int nprojbins,
     }
 
     if(element_size == sizeof(float)) {
-        return qq_analytic_float((float) rmin, (float) rmax, nd, (float) volume,
-                    nprojbins, (float *) rr, (float *) qq,
+        return trr_analytic_float((float) rmin, (float) rmax, nd, (float) volume,
+                    nprojbins, (float *) rr, (float *) trr,
                     proj_method, nsbins, (float *) sbins, projfn);
     } else {
-        return qq_analytic_double((double) rmin, (double) rmax, nd, (double) volume,
-                    nprojbins, (double *) rr, (double *) qq,
+        return trr_analytic_double((double) rmin, (double) rmax, nd, (double) volume,
+                    nprojbins, (double *) rr, (double *) trr,
                     proj_method, nsbins, (double *) sbins, projfn);
     }
 }

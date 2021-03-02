@@ -40,7 +40,7 @@ typedef struct
     proj_struct_DOUBLE *projdata;
     int i;
     int j;
-    int is_qq;
+    int is_trr;
 } integration_params_DOUBLE;
 
 typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE, DOUBLE, const pair_struct_DOUBLE*);
@@ -68,14 +68,14 @@ void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DO
 extern proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method);
 
 int compute_amplitudes_DOUBLE(int nprojbins, int nd1, int nd2, int nr1, int nr2,
-            DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *qq, DOUBLE *amps);
+            DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *trr, DOUBLE *amps);
 
 int evaluate_xi_DOUBLE(int nprojbins, DOUBLE *amps, int nsvals, DOUBLE *svals,
             DOUBLE *xi, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn, struct extra_options *extra);
 
 int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata);
 
-int qq_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, DOUBLE *rr, DOUBLE *qq, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn);
+int trr_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nprojbins, DOUBLE *rr, DOUBLE *trr, proj_method_t proj_method, int nsbins, DOUBLE *sbins, char *projfn);
 
 DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr);
 

@@ -33,7 +33,7 @@
 //for unicode characters
 #include "macros.h"
 
-//for qq_analytic only, for now
+//for trr_analytic only, for now
 //#include "projection.h"
 
 struct module_state {
