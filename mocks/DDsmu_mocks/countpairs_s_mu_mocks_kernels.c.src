@@ -1149,11 +1149,11 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     }
 
     /* Projection */ 
-    int nprojbins = projdata->nprojbins;
+    int ncomponents = projdata->ncomponents;
     proj_method_t proj_method = projdata->proj_method;
     const int32_t need_proj = src_projpairs != NULL;
     const int32_t need_tensor = src_projpairs_tensor != NULL;
-    DOUBLE projpairs[nprojbins], projpairs_tensor[nprojbins*nprojbins];
+    DOUBLE projpairs[ncomponents], projpairs_tensor[ncomponents*ncomponents];
 
     //TODO: only do this if need_proj?
     if(need_proj) {
@@ -1164,15 +1164,15 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
       projdata->supp_sqr = supp_sqr;    
     }
     if(need_proj && need_tensor){
-        for(int i=0;i<nprojbins;i++) {
+        for(int i=0;i<ncomponents;i++) {
             projpairs[i] = ZERO;
-            for(int j=0;j<nprojbins;j++) {
-                projpairs_tensor[i*nprojbins+j] = ZERO;
+            for(int j=0;j<ncomponents;j++) {
+                projpairs_tensor[i*ncomponents+j] = ZERO;
             }
         }
     }
     if (need_proj && !need_tensor){
-        for(int i=0;i<nprojbins;i++) {
+        for(int i=0;i<ncomponents;i++) {
             projpairs[i] = ZERO;
         }
     }
@@ -1328,30 +1328,30 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
             proj_func_t_DOUBLE proj_func = NULL;
             if(need_proj){
                 proj_func = get_proj_func_by_method_DOUBLE(proj_method);
-                DOUBLE u[nprojbins];
+                DOUBLE u[ncomponents];
                 proj_func(projdata, u, s, sqr_s, &pair);
                 //outer product to get tensor value
                 if (need_tensor) { 
-                    for(int p1=0;p1<nprojbins;p1++){
+                    for(int p1=0;p1<ncomponents;p1++){
                         if (need_weightavg){
                             projpairs[p1] += u[p1]*pairweight;
                         }
                         else{
                             projpairs[p1] += u[p1];
                         }
-                        for(int p2=0;p2<nprojbins;p2++){
+                        for(int p2=0;p2<ncomponents;p2++){
                             //figure out why this is not *pairweight^2
                             if (need_weightavg){
-                                projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2]*pairweight;
+                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2]*pairweight;
                             }
                             else{
-                                projpairs_tensor[p1*nprojbins+p2] += u[p1]*u[p2];
+                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2];
                             }
                         }
                     }
                 }
                 else {
-                    for(int p1=0;p1<nprojbins;p1++){
+                    for(int p1=0;p1<ncomponents;p1++){
                         if (need_weightavg){
                             projpairs[p1] += u[p1]*pairweight;
                         }
@@ -1378,15 +1378,15 @@ static inline int countpairs_s_mu_mocks_fallback_DOUBLE(const int64_t N0, DOUBLE
     }
     /* Projection */ 
     if(need_proj && need_tensor) {
-        for(int i=0;i<nprojbins;i++) {
+        for(int i=0;i<ncomponents;i++) {
             src_projpairs[i] += projpairs[i];
-            for(int j=0;j<nprojbins;j++) {
-                src_projpairs_tensor[i*nprojbins+j] += projpairs_tensor[i*nprojbins+j];
+            for(int j=0;j<ncomponents;j++) {
+                src_projpairs_tensor[i*ncomponents+j] += projpairs_tensor[i*ncomponents+j];
             }
         }
     }
     if(need_proj && !need_tensor) {
-        for(int i=0;i<nprojbins;i++) {
+        for(int i=0;i<ncomponents;i++) {
             src_projpairs[i] += projpairs[i];
         }
     }
