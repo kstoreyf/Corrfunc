@@ -161,16 +161,22 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
 
     weight_type : str, optional
         The type of pair weighting to apply.
-        Options: "pair_product", None; Default: None.
+        Options: "pair_product", "pair_product_gradient", None; Default: None.
 
     proj_type : string (default None)
-       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel']
+       Projection method to use; currently supported methods are ['tophat', 'piecewise', 'generalr', 'gaussian_kernel', 'gradient']
+
+        .. versionadded:: suave
 
     ncomponents : int (default None)
        Number of basis functions; necessary if projection method is defined
 
+        .. versionadded:: suave
+
     projfn : string (default None)
        Filename of projection file; necessary for proj_type='generalr'
+
+        .. versionadded:: suave
 
 
     Returns
@@ -187,11 +193,11 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
         Only returned if ``c_api_timer`` is set.  ``api_time`` measures only
         the time spent within the C library and ignores all python overhead.
 
-    proj : array-like, double, optional
-        Only returned if proj_type is not None. An array of length ncomponents of the computed component values (e.g. pair counts for the tophat basis)
+    v_proj : array-like, double, optional
+        Only returned if proj_type is not None. The projection vector, an array of length ``ncomponents``.
 
-    projt : array-like, double, optional
-        Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length ncomponents*ncomponents, with the computed component values (e.g. pair counts for the tophat basis)
+    t_proj : array-like, double, optional
+        Only returned if proj_type is not None. The projection tensor, unrolled in the form of an array with length ``ncomponents``*``ncomponents``.
         
     Example
     -------
@@ -310,7 +316,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
 
     integer_isa = translate_isa_string_to_enum(isa)
     
-    #TODO: make sbinfile optional, may not need for proj
+    #TODO: make sbinfile optional, may not need for v_proj
     sbinfile, delete_after_use = return_file_with_rbins(binfile)
 
     with sys_pipes():
@@ -335,7 +341,7 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
         msg = "RuntimeError occurred"
         raise RuntimeError(msg)
     else:
-        extn_results, proj, proj_tensor, api_time = extn_results
+        extn_results, v_proj, proj_tensor, api_time = extn_results
 
     if delete_after_use:
         import os
@@ -349,13 +355,13 @@ def DDsmu(autocorr, nthreads, binfile, mu_max, nmu_bins,
                               (bytes_to_native_str(b'weightavg'), np.float),])
     results = np.array(extn_results, dtype=results_dtype)
 
-    proj = np.array(proj)
-    projt = np.array(proj_tensor)
+    v_proj = np.array(v_proj)
+    t_proj = np.array(proj_tensor)
 
     if not c_api_timer:
-        return results, proj, projt
+        return results, v_proj, t_proj
     else:
-        return results, proj, projt, api_time
+        return results, v_proj, t_proj, api_time
 
 
 if __name__ == '__main__':

@@ -248,10 +248,10 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
         Only returned if ``c_api_timer`` is set.  ``api_time`` measures only
         the time spent within the C library and ignores all python overhead.
 
-    proj : array-like, double, optional
+    v_proj : array-like, double, optional
         Only returned if proj_type is not None. An array of length ncomponents of the computed component values (e.g. pair counts for the tophat basis)
 
-    projt : array-like, double, optional
+    t_proj : array-like, double, optional
         Only returned if proj_type is not None. A tensor that is unrolled in the form of an array with length ncomponents*ncomponents, with the computed component values (e.g. pair counts for the tophat basis)
     """
     try:
@@ -333,7 +333,7 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
         msg = "RuntimeError occurred"
         raise RuntimeError(msg)
     else:
-        extn_results, proj, proj_tensor, api_time = extn_results
+        extn_results, v_proj, proj_tensor, api_time = extn_results
 
     if delete_after_use:
         import os
@@ -357,13 +357,13 @@ def DDsmu_mocks(autocorr, cosmology, nthreads, mu_max, nmu_bins, binfile,
         results['npairs'][ii] = r[4]
         results['weightavg'][ii] = r[5]
 
-    proj = np.array(proj)
-    projt = np.array(proj_tensor)
+    v_proj = np.array(v_proj)
+    t_proj = np.array(proj_tensor)
 
     if not c_api_timer:
-        return results, proj, projt
+        return results, v_proj, t_proj
     else:
-        return results, proj, projt, api_time
+        return results, v_proj, t_proj, api_time
 
 if __name__ == '__main__':
     import doctest
