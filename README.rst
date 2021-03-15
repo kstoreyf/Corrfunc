@@ -106,6 +106,11 @@ Project URLs
 -  Original Corrfunc Documentation (http://corrfunc.rtfd.io/)
 -  Original Corrfunc Source Repository (https://github.com/manodeep/Corrfunc)
 
+Support
+=======
+
+This work was supported by a NASA FINESST grant under award 80NSSC20K1545.
+
 
 .. |logo| image:: https://github.com/manodeep/Corrfunc/blob/master/corrfunc_logo.png
     :target: https://github.com/manodeep/Corrfunc
