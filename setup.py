@@ -566,7 +566,8 @@ def setup_packages():
                               'future',
                               'wurlitzer',
                               'scipy', #for spline bases functions in suave
-                              'colossus'], #for BAO bases functions in suave
+                              'colossus', #for BAO bases functions in suave
+                              'six'], #colossus requires six
             python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
             zip_safe=False,
             cmdclass={'build_ext': BuildExtSubclass})
