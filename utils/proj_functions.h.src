@@ -30,8 +30,6 @@ typedef struct
     const DOUBLE *supp;
     const DOUBLE *supp_sqr;
     DOUBLE *projbases;
-    // DOUBLE *locations1;
-    // DOUBLE *locations2;
     proj_method_t proj_method;
 } proj_struct_DOUBLE;
 

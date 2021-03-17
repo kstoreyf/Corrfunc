@@ -42,6 +42,7 @@
 //
 void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) s;//to suppress the unused variable warning
+    (void) pair;
 
     // nsbins is number of bins and not edges
     // supp_sqr has length nsbins+1, number of edges
@@ -60,6 +61,8 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUB
 
 void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
+    (void) pair;
+
     // Assumes nsbins = ncomponents
     for(int p=0;p<projdata->ncomponents;p++){
         // peaks are bin averages, for now - need to take square roots
@@ -77,6 +80,8 @@ void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, D
 
 void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
+    (void) pair;
+
     DOUBLE sigma = 3.0;
     DOUBLE amp = 1.0/(SQRT(2.0*M_PI)*sigma);
     for(int p=0;p<projdata->ncomponents;p++){
@@ -95,6 +100,7 @@ void gaussian_kernel_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBL
 void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
     (void) projdata;
+    (void) pair;
 
     double gamma=2.7, s0=15.0;
     double powlaw = POW(s/s0, -gamma);
@@ -111,6 +117,8 @@ void powerlaw_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DO
 
 void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
+    (void) pair;
+
     int nbases = projdata->nbases;
     int nres = projdata->nres;
     DOUBLE sval;
@@ -119,7 +127,7 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, D
     /* if not in r range, return 0s */
     if (s<projdata->projbases[0] || s>=projdata->projbases[(nres-1)*(nbases+1)]){
       for (int j=0; j<nbases; j++){
-        u[j] = 0;
+        u[j] = 0.0;
       }
       return;
     }
@@ -209,7 +217,7 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
 int compute_amplitudes_DOUBLE(int ncomponents, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *trr, DOUBLE *amps){
 
-    // Computer numerator of estimator
+    /* Compute numerator of estimator */
     DOUBLE numerator[ncomponents];
     DOUBLE trrnorm[ncomponents*ncomponents];
     for (int i=0; i<ncomponents; i++){
@@ -224,23 +232,24 @@ int compute_amplitudes_DOUBLE(int ncomponents, int nd1, int nd2, int nr1, int nr
     }
 
 	int s;
-	// Define all the used matrices
+
+	/* Define all the used matrices */
 	gsl_matrix *trr_mat = gsl_matrix_alloc(ncomponents, ncomponents);
 	gsl_matrix *trr_mat_inv = gsl_matrix_alloc(ncomponents, ncomponents);
 	gsl_permutation *perm = gsl_permutation_alloc(ncomponents);
-	// Fill the matrix m
+
+	/* Fill the matrix m */
 	for (int i=0; i<ncomponents; i++){
         for (int j=0; j<ncomponents; j++){
             gsl_matrix_set(trr_mat, i, j, trrnorm[i*ncomponents+j]);
         }
     }
-	// Make LU decomposition of matrix m
+	/* Make LU decomposition of matrix m */
 	gsl_linalg_LU_decomp(trr_mat, perm, &s);
-	// Invert the matrix m
+	/* Invert the matrix m */
 	gsl_linalg_LU_invert(trr_mat, perm, trr_mat_inv);
 
-    // Take inner product of trrinv * numerator, get amplitude vector
-    // TODO: DOUBLE check
+    /* Take inner product of trrinv * numerator, get amplitude vector */
     for (int i=0; i<ncomponents; i++){
         DOUBLE aval = 0;
         for (int j=0; j<ncomponents; j++){
@@ -285,16 +294,22 @@ int evaluate_xi_DOUBLE(int ncomponents, DOUBLE *amps,
     if (projfn != NULL) {
         read_projfile_DOUBLE(projfn, projdata);
     }
-    
-    // If nsbins given, add to projdata
-    projdata->nsbins = nsbins;
-    projdata->supp = sbins;
+
+    /* If sbins is given, add to projdata */
+    // When sbins is null, nsbins=1, and this will be a dummy variable
+    // (Needed to make compatible with sbins not null)
     DOUBLE supp_sqr[nsbins];
-    //plus 1 because one more edge than number of bins
-    for (int i=0; i<nsbins+1; i++){
-        supp_sqr[i] = sbins[i]*sbins[i];
+    if (sbins != NULL) {
+        projdata->nsbins = nsbins;
+        projdata->supp = sbins;
+        //plus 1 because one more edge than number of bins
+        for (int i=0; i<nsbins+1; i++){
+            supp_sqr[i] = sbins[i]*sbins[i];
+        }
+        projdata->supp_sqr = supp_sqr;
     }
-    projdata->supp_sqr = supp_sqr;
+
+    /* Evaluate xi */
     // nsvals: number of s values at which to evaluate xi
     for (int i=0; i<nsvals; i++){
         //get basis function u for given value of s
@@ -302,11 +317,6 @@ int evaluate_xi_DOUBLE(int ncomponents, DOUBLE *amps,
         DOUBLE sqr_s = svals[i]*svals[i];
         proj_func(projdata, u, svals[i], sqr_s, &pair);
 		/* Multiply u by the amplitudes to get xi in that s bin (xi is vector of length nsvals) */
-        // printf("sval: %f\n", svals[i]);
-        // for (int n=0; n<ncomponents; n++){
-        //     printf("u[%d] = %f\n", n, u[n]);
-        // }
-
         DOUBLE xival = 0;
         for (int j=0; j<ncomponents; j++){
             xival += amps[j]*u[j];
@@ -314,6 +324,7 @@ int evaluate_xi_DOUBLE(int ncomponents, DOUBLE *amps,
         xi[i] = xival;
     }
 
+    /* Clean up */
     if (projfn!=NULL) {
       free(projdata->projbases);
     }
@@ -348,7 +359,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
 
     /* Check ncomponents same as number of bases in file nbases for general_r function */
     if (nbases != projdata->ncomponents && projdata->proj_method==GENR) {
-        fprintf(stderr, "The value of ncomponents (%ld) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->ncomponents, nbases);
+        fprintf(stderr, "The value of ncomponents (%d) must be the same as nbases (%d), the number of columns in your basis file. (If off-by-one, did you forget r column in your basis file?)\n", projdata->ncomponents, nbases);
         return EXIT_FAILURE;
     }
     projdata->nres = nres;
@@ -373,6 +384,7 @@ int read_projfile_DOUBLE(char *projfn, proj_struct_DOUBLE *projdata){
     fclose(projfile);
     return EXIT_SUCCESS;
 }
+
 
 DOUBLE linspace_DOUBLE(DOUBLE xmin, DOUBLE xmax, int xnum, DOUBLE* xarr){
     DOUBLE space = (xmax - xmin)/(xnum-1);
@@ -402,18 +414,23 @@ int trr_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nco
         free(int_params);
         return EXIT_FAILURE;
     }
-    projdata->nsbins = nsbins;
-    projdata->supp = sbins;
+
+    /* If sbins is given, add to projdata */
+    // When sbins is null, nsbins=1, and this will be a dummy variable
+    // (Needed to make compatible with sbins not null)
     DOUBLE supp_sqr[nsbins];
-    //plus 1 because one more edge than number of bins
-    //if nsbins=-1, means none needed; this loop just won't run
-    for (int i=0; i<nsbins+1; i++){
-        supp_sqr[i] = sbins[i]*sbins[i];
+    if (sbins != NULL) {
+        projdata->nsbins = nsbins;
+        projdata->supp = sbins;
+        //plus 1 because one more edge than number of bins
+        for (int i=0; i<nsbins+1; i++){
+            supp_sqr[i] = sbins[i]*sbins[i];
+        }
+        projdata->supp_sqr = supp_sqr;
     }
-    projdata->supp_sqr = supp_sqr;
 
+    /* Perform integration */
     int_params->projdata = projdata;
-
     int_params->i = 0;
     int_params->j = 0;
     int_params->is_trr = 0;
@@ -431,12 +448,12 @@ int trr_analytic_DOUBLE(DOUBLE rmin, DOUBLE rmax, int nd, DOUBLE volume, int nco
         }
     }
 
+    /* Clean up */
     if (projfn!=NULL) {
       free(projdata->projbases);
     }
     free(projdata);
     free(int_params);
-    //do i also need to free int_params's pointer to projdata?
 	return EXIT_SUCCESS;
 }
 

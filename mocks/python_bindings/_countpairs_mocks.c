@@ -1747,7 +1747,7 @@ static PyObject *countpairs_countpairs_s_mu_mocks(PyObject *self, PyObject *args
     }
     if (proj_method==GENR && projfn==NULL) {
         char msg[1024];
-        snprintf(msg, 1024, "Argument Error: For generalr projection type, must provide projection basis filename.");
+        snprintf(msg, 1024, "Argument Error: For general_r projection type, must provide projection basis filename.");
         countpairs_mocks_error_out(module, msg);
         Py_RETURN_NONE; 
     }
@@ -2673,6 +2673,13 @@ static PyObject *countpairs_evaluate_xi(PyObject *self, PyObject *args, PyObject
         countpairs_mocks_error_out(module, msg);
         Py_RETURN_NONE;
     }
+    if (proj_method==GENR && projfn==NULL) {
+        char msg[1024];
+        snprintf(msg, 1024, "Argument Error: For general_r projection type, must provide projection basis filename.");
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE; 
+    }
+    
 
     size_t element_size;
     check_datatype(amps_obj, &element_size);
@@ -2834,6 +2841,12 @@ static PyObject *countpairs_trr_analytic(PyObject *self, PyObject *args, PyObjec
         snprintf(msg, 1024, "ValueError: In %s: unknown proj_type %s!", __FUNCTION__, proj_method_str);
         countpairs_mocks_error_out(module, msg);
         Py_RETURN_NONE;
+    }
+    if (proj_method==GENR && projfn==NULL) {
+        char msg[1024];
+        snprintf(msg, 1024, "Argument Error: For general_r projection type, must provide projection basis filename.");
+        countpairs_mocks_error_out(module, msg);
+        Py_RETURN_NONE; 
     }
 
     size_t element_size;

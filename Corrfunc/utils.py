@@ -1171,7 +1171,7 @@ def evaluate_xi(amps, rvals, proj_type, rbins=None, projfn=None, weights1=None, 
     if rbins is not None:
         nrbins = len(rbins)-1
     else:
-        nrbins = -1
+        nrbins = 1 # To make compatible with rbins not null (see evaluate_xi in proj_functions.c.src)
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
     for k in ['nrbins', 'rbins', 'projfn', 'weights1', 'weights2', 'weight_type']:
@@ -1246,7 +1246,7 @@ def trr_analytic(rmin, rmax, nd, volume, ncomponents, proj_type, rbins=None, pro
     if rbins is not None:
         nrbins = len(rbins)-1
     else:
-        nrbins = -1
+        nrbins = 1 # To make compatible with rbins not null (see evaluate_xi in proj_functions.c.src)
 
     # Passing None parameters breaks the parsing code, so avoid this
     kwargs = {}
