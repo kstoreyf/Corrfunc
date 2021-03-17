@@ -30,18 +30,15 @@ Pre-requisites
 --------------
 
 Suave has most of the same pre-reqs as Corrfunc, as well as a couple more:
+
 - ``make >= 3.80``
 - OpenMP capable compiler like ``icc``, ``gcc>=4.6`` or ``clang >= 3.7``. You should already have a system install, but on mac/linux you can install gcc with ``conda install gcc``.
-- ``gsl >= 2.4``. Use either
-   ``conda install -c conda-forge gsl``
-   (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl``
-   if necessary.
+- ``gsl >= 2.4``. Use either ``conda install -c conda-forge gsl`` (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl`` if necessary.
 - ``python >= 2.7`` or ``python>=3.4`` for compiling the C extensions.
 - ``numpy>=1.7`` for compiling the C extensions.
-- ``scipy>`` for the spline basis functions for suave
-- ``colossus>=1.2`` for the BAO basis functions for suave (lower versions untested)  
-- ``six`` (colossus dependency)
-
+- ``scipy>=1.6`` for the spline basis functions for suave (lower versions may work but untested) 
+- ``colossus>=1.2`` for the BAO basis functions for suave (lower versions may work but untested)  
+- ``six>=1.15`` (colossus dependency, lower versions may work but untested)
 
 Install with pip
 -----------------
@@ -51,24 +48,27 @@ You can install suave via pip. We recommend doing this into a clean conda enviro
 ::
 
    $ conda create -n suaveenv
+   $ conda activate suaveenv
    $ conda install -c conda-forge gsl
-   $ conda install numpy scipy six
-   $ pip install colossus
+   $ conda install pip
    $ pip install suave
-
 
 Install from source
 -----------------
 
-You should also be able to install from source:
+You should also be able to install from source. Once again you can do this in a clean conda environment:
 
 ::
 
-    $ git clone https://github.com/manodeep/Corrfunc/
-    $ make
-    $ make install
-    $ python -m pip install . (--user)
-
+   $ conda create -n suaveenv
+   $ conda activate suaveenv
+   $ conda install -c conda-forge gsl
+   $ conda install pip
+   $ git clone https://github.com/kstoreyf/suave/
+   $ cd suave
+   $ make
+   $ make install
+   $ python -m pip install . (--user)
 
 Author & Maintainers
 =====================
@@ -136,7 +136,6 @@ Finally, if you benefit from the enhanced vectorised kernels in ``Corrfunc`` (no
           isbn="978-981-13-7729-7",
           url={https://doi.org/10.1007/978-981-13-7729-7_1}
       }
-
 
 LICENSE
 =======
