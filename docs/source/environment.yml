@@ -1,0 +1,14 @@
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - gsl
+  - numpy
+  - scipy
+  - wurlitzer
+  - six
+  - colossus
+  - pip:
+    - nbsphinx
+    - nbsphinx_link

@@ -43,7 +43,6 @@ if on_rtd:
 
     MOCK_MODULES = ['numpy', 'wurlitzer', 
                     'scipy.interpolate', 'colossus', #for basis function helpers
-                    'gsl',
                     #'nbsphinx', 'nbsphinx_link' #to suppress warnings for now; need to install nbsphinx
                     ] 
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
