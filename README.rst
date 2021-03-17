@@ -10,7 +10,7 @@ It is built within the `Corrfunc <https://github.com/manodeep/Corrfunc>`_  packa
 The 2-point correlation function measures the clustering of galaxies (or other tracers) as a function of scale. 
 Traditionally, this is done by counting the pairs of galaxies in a given separation bin, and normalizing by the pairs in a uniform random catalog. 
 
-The continuous-function estimator eliminates the need for binning, in separation or any other quantity. 
+The Continuous-Function Estimator eliminates the need for binning, in separation or any other quantity. 
 Rather, it projects the pairs onto any user-defined set of basis functions.
 It replaces the pair counts with vectors, and the random normalization vector term with a matrix, that describe the contribution of the pairs to each basis function.
 The correlation function can then be directly evaluated at any separation, resulting in a continuous estimation.
@@ -22,6 +22,52 @@ General r-dependent basis functions can be read in from a file; helper routines 
 
 The paper presenting this method can be found at https://arxiv.org/abs/2011.01836 (Storey-Fisher \& Hogg, Accepted to ApJ). 
 Feel free to email `k.sf@nyu.edu <mailto:k.sf@nyu.edu>`_ with any comments or questions, or `submit an issue <https://github.com/kstoreyf/Corrfunc/issues/new/choose>`_.
+
+Installation
+============
+
+Pre-requisites
+--------------
+
+Suave has most of the same pre-reqs as Corrfunc, as well as a couple more:
+- ``make >= 3.80``
+- OpenMP capable compiler like ``icc``, ``gcc>=4.6`` or ``clang >= 3.7``. You should already have a system install, but on mac/linux you can install gcc with ``conda install gcc``.
+- ``gsl >= 2.4``. Use either
+   ``conda install -c conda-forge gsl``
+   (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl``
+   if necessary.
+- ``python >= 2.7`` or ``python>=3.4`` for compiling the C extensions.
+- ``numpy>=1.7`` for compiling the C extensions.
+- ``scipy>`` for the spline basis functions for suave
+- ``colossus>=1.2`` for the BAO basis functions for suave (lower versions untested)  
+- ``six`` (colossus dependency)
+
+
+Install with pip
+-----------------
+
+You can install suave via pip. We recommend doing this into a clean conda environment. You can do this and install the dependencies with the following set of commands:
+
+::
+
+   $ conda create -n suaveenv
+   $ conda install -c conda-forge gsl
+   $ conda install numpy scipy six
+   $ pip install colossus
+   $ pip install suave
+
+
+Install from source
+-----------------
+
+You should also be able to install from source:
+
+::
+
+    $ git clone https://github.com/manodeep/Corrfunc/
+    $ make
+    $ make install
+    $ python -m pip install . (--user)
 
 
 Author & Maintainers
