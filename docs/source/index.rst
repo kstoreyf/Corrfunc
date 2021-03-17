@@ -6,6 +6,9 @@ suave: The Continuous-Function Estimator
 Introduction
 ************
 
+.. toctree::
+   :maxdepth: 1
+
 The suave package is an implementation generalized estimator of the two-point correlation function (2pcf) for cosmology. The 2pcf is the most important statistic for the analysis of large-scale structure; it measures the strength of clustering (e.g. of galaxies) as a function of separation. Suave replaces the standard binning in separation with a projection of galaxy pair counts onto any set of basis functions. The choice of basis functions can preserve more information for improved bias and variance properties, include other galaxy information, and be specific to the science use case.
 
 The source code is publicly available at https://github.com/kstoreyf/suave. The paper is available on the arXiv at https://arxiv.org/abs/2011.01836.
@@ -16,6 +19,9 @@ This implementation of the suave estimator is built on top of the Corrfunc packa
 ***********
 Basic Usage
 ***********
+
+.. toctree::
+   :maxdepth: 1
 
 Here we demonstrate the basic usage of the estimator by computing a typical correlation function with tophat bins, but in a continuous basis.
 
@@ -68,6 +74,7 @@ Demo notebooks
    :maxdepth: 1
 
    ./example_theory.nblink
+   ./example_bao_theory.nblink
 
 
 ***************************************

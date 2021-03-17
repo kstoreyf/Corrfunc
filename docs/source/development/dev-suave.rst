@@ -3,7 +3,7 @@ Contributors and License
 ************************
 
 Suave lead developer and coordinator
-=============================================
+====================================
 
 * Kate Storey-Fisher (@kstoreyf)
 
@@ -23,7 +23,7 @@ Other credits
 * James Cleveland graciously passed on the name "suave" from an old project.
 
 Suave License
-======================
+=============
 
 Suave comes with a MIT LICENSE - see the LICENSE file.
 
