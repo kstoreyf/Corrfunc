@@ -1,13 +1,9 @@
-========================================
+****************************************
 suave: The Continuous-Function Estimator
-========================================
+****************************************
 
-************
 Introduction
-************
-
-.. toctree::
-   :maxdepth: 1
+============
 
 The suave package is an implementation generalized estimator of the two-point correlation function (2pcf) for cosmology. The 2pcf is the most important statistic for the analysis of large-scale structure; it measures the strength of clustering (e.g. of galaxies) as a function of separation. Suave replaces the standard binning in separation with a projection of galaxy pair counts onto any set of basis functions. The choice of basis functions can preserve more information for improved bias and variance properties, include other galaxy information, and be specific to the science use case.
 
@@ -16,12 +12,8 @@ The source code is publicly available at https://github.com/kstoreyf/suave. The 
 This implementation of the suave estimator is built on top of the Corrfunc package (https://github.com/manodeep/Corrfunc). As such, all of the Corrfunc functionality is accessible through suave. Here we only document the new and updated functionality of suave; for full Corrfunc usage, see https://corrfunc.readthedocs.io.
 
 
-***********
 Basic Usage
-***********
-
-.. toctree::
-   :maxdepth: 1
+===========
 
 Here we demonstrate the basic usage of the estimator by computing a typical correlation function with tophat bins, but in a continuous basis.
 
@@ -66,9 +58,8 @@ From the component vectors, compute the amplitudes, and evaluate the correlation
     xi = evaluate_xi(amps, r_fine, proj_type, rbins=r_edges)
 
 
-**************
 Demo notebooks
-**************
+==============
 
 .. toctree::
    :maxdepth: 1
@@ -77,9 +68,8 @@ Demo notebooks
    ./example_bao_theory.nblink
 
 
-***************************************
 API Reference: suave-specific functions 
-***************************************
+=======================================
 
 .. toctree::
    :maxdepth: 4
@@ -87,9 +77,8 @@ API Reference: suave-specific functions
    api/modules-suave
     
 
-*********************
 License and Credits
-*********************
+===================
 
 .. toctree::
    :maxdepth: 1
