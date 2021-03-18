@@ -22,6 +22,11 @@ Other credits
 * David Hogg initiated the idea for this project and came up with the formulation of the estimator.
 * James Cleveland graciously passed on the name "suave" from an old project.
 
+Support
+=======
+
+This work was supported by a NASA FINESST grant under award 80NSSC20K1545.
+
 Suave License
 =============
 

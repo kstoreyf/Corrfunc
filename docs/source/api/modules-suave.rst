@@ -1,5 +1,5 @@
-API: Continuous-Function Estimation
-===================================
+API: suave-specific routines 
+============================
 
 Corrfunc.theory
 ***************
