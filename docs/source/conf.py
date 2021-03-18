@@ -43,7 +43,6 @@ if on_rtd:
 
     MOCK_MODULES = ['numpy', 'wurlitzer', 
                     'scipy.interpolate', 'colossus.cosmology', #for basis function helpers
-                    'ipython'
                     ] 
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
