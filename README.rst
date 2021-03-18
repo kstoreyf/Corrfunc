@@ -35,10 +35,10 @@ Suave has most of the same pre-reqs as Corrfunc, as well as a couple more:
 - OpenMP capable compiler like ``icc``, ``gcc>=4.6`` or ``clang >= 3.7``. You should already have a system install, but on mac/linux you can install gcc with ``conda install gcc``.
 - ``gsl >= 2.4``. Use either ``conda install -c conda-forge gsl`` (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl`` if necessary.
 - ``python >= 2.7`` or ``python>=3.4`` for compiling the C extensions.
-- ``numpy>=1.7`` for compiling the C extensions.
-- ``scipy>=1.6`` for the spline basis functions for suave (lower versions may work but untested) 
-- ``colossus>=1.2`` for the BAO basis functions for suave (lower versions may work but untested)  
-- ``six>=1.15`` (colossus dependency, lower versions may work but untested)
+- ``numpy >= 1.7`` for compiling the C extensions.
+- ``scipy >= 1.6`` for the spline basis functions for suave (lower versions may work but untested) 
+- ``colossus >= 1.2`` for the BAO basis functions for suave (lower versions may work but untested)  
+- ``six >= 1.15`` (colossus dependency, lower versions may work but untested)
 
 Install with pip
 -----------------
