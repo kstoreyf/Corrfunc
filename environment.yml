@@ -8,7 +8,9 @@ dependencies:
   - scipy
   - wurlitzer
   - six
+  - pip
   - pip:
     - colossus
+    - ipython==7.16.1
     - nbsphinx
     - nbsphinx_link
