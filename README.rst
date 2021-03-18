@@ -49,8 +49,8 @@ You can install suave via pip. We recommend doing this into a clean conda enviro
 
    $ conda create -n suaveenv
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl
-   $ conda install pip
+   $ conda install -c conda-forge gsl numpy scipy six pip
+   $ pip install colossus
    $ pip install suave
 
 Install from source
@@ -62,8 +62,8 @@ You should also be able to install from source. Once again you can do this in a 
 
    $ conda create -n suaveenv
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl
-   $ conda install pip
+   $ conda install -c conda-forge gsl numpy scipy six pip
+   $ pip install colossus
    $ git clone https://github.com/kstoreyf/suave/
    $ cd suave
    $ make
@@ -120,7 +120,7 @@ bibtex entry:
    }
 
 
-Finally, if you benefit from the enhanced vectorised kernels in ``Corrfunc`` (not currently used in ``suave`` but likely used if you're also using out-of-the-box ``Corrfunc``, then please also cite this paper:
+Finally, if you benefit from the enhanced vectorised kernels in ``Corrfunc`` (not currently used in ``suave`` but likely used if you're also using out-of-the-box ``Corrfunc``), then please also cite this paper:
 
 ::
 
