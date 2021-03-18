@@ -68,7 +68,7 @@ You should also be able to install from source. Once again you can do this in a 
    $ cd suave
    $ make
    $ make install
-   $ python -m pip install . (--user)
+   $ pip install . (--user)
 
 Author & Maintainers
 =====================
