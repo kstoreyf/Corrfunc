@@ -77,7 +77,8 @@ extensions = [
 
 # for direct links to example jupyter notebooks 
 extensions += ['nbsphinx',
-               'nbsphinx_link']
+               'nbsphinx_link',
+               'IPython.sphinxext.ipython_console_highlighting']
 
 # for local RTD theme
 extensions += ["sphinx_rtd_theme"]
