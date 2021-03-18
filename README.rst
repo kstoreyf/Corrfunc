@@ -1,5 +1,5 @@
-``suave``: The Continuous-Function Estimator
-============================================
+`suave`: The Continuous-Function Estimator
+==========================================
 
 |PyPI| |MIT licensed| |RTD| |Continuous-Function Estimator Paper| |Corrfunc Paper I| |Corrfunc Paper II|
 
@@ -16,7 +16,7 @@ It replaces the pair counts with vectors, and the random normalization vector te
 The correlation function can then be directly evaluated at any separation, resulting in a continuous estimation.
 
 An example script for using the estimator is in `example_theory.ipynb <https://github.com/kstoreyf/Corrfunc/blob/master/examples/example_theory.ipynb>`_.
-The Continuous-Function Estimator is currenly implemented in the DD(s, mu) pair counting statistic for both mock and theory data.
+The Continuous-Function Estimator is currently implemented in the DD(s, mu) pair counting statistic for both mock and theory data.
 Currently implemented bases are tophat and piecewise.
 General r-dependent basis functions can be read in from a file; helper routines for these include spline basis functions of any order and a baryon acoustic oscillation fitting function.
 
@@ -35,13 +35,13 @@ Suave has most of the same pre-reqs as Corrfunc, as well as a couple more:
 - OpenMP capable compiler like ``icc``, ``gcc>=4.6`` or ``clang >= 3.7``. You should already have a system install, but on mac/linux you can install gcc with ``conda install gcc``.
 - ``gsl >= 2.4``. Use either ``conda install -c conda-forge gsl`` (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl`` if necessary.
 - ``python >= 2.7`` or ``python>=3.4`` for compiling the C extensions.
-- ``numpy>=1.7`` for compiling the C extensions.
-- ``scipy>=1.6`` for the spline basis functions for suave (lower versions may work but untested) 
-- ``colossus>=1.2`` for the BAO basis functions for suave (lower versions may work but untested)  
-- ``six>=1.15`` (colossus dependency, lower versions may work but untested)
+- ``numpy >= 1.7`` for compiling the C extensions.
+- ``scipy >= 1.6`` for the spline basis functions for suave (lower versions may work but untested) 
+- ``colossus >= 1.2`` for the BAO basis functions for suave (lower versions may work but untested)  
+- ``six >= 1.15`` (colossus dependency, lower versions may work but untested)
 
 Install with pip
------------------
+----------------
 
 You can install suave via pip. We recommend doing this into a clean conda environment. You can do this and install the dependencies with the following set of commands:
 
@@ -49,12 +49,12 @@ You can install suave via pip. We recommend doing this into a clean conda enviro
 
    $ conda create -n suaveenv
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl
-   $ conda install pip
+   $ conda install -c conda-forge gsl numpy scipy six pip
+   $ pip install colossus
    $ pip install suave
 
 Install from source
------------------
+-------------------
 
 You should also be able to install from source. Once again you can do this in a clean conda environment:
 
@@ -62,16 +62,16 @@ You should also be able to install from source. Once again you can do this in a 
 
    $ conda create -n suaveenv
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl
-   $ conda install pip
+   $ conda install -c conda-forge gsl numpy scipy six pip
+   $ pip install colossus
    $ git clone https://github.com/kstoreyf/suave/
    $ cd suave
    $ make
    $ make install
-   $ python -m pip install . (--user)
+   $ pip install . (--user)
 
 Author & Maintainers
-=====================
+====================
 
 The suave package was implemented by `Kate Storey-Fisher <https://github.com/kstoreyf>`_.
 It is built within Corrfunc, which was designed by Manodeep Sinha and is currently maintained by
@@ -120,7 +120,7 @@ bibtex entry:
    }
 
 
-Finally, if you benefit from the enhanced vectorised kernels in ``Corrfunc`` (not currently used in ``suave`` but likely used if you're also using out-of-the-box ``Corrfunc``, then please also cite this paper:
+Finally, if you benefit from the enhanced vectorised kernels in ``Corrfunc`` (not currently used in ``suave`` but likely used if you're also using out-of-the-box ``Corrfunc``), then please also cite this paper:
 
 ::
 
