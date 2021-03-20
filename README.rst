@@ -36,21 +36,19 @@ Suave has most of the same pre-reqs as Corrfunc, as well as a couple more:
 - ``gsl >= 2.4``. Use either ``conda install -c conda-forge gsl`` (MAC/linux) or ``(sudo) port install gsl`` (MAC) to install ``gsl`` if necessary.
 - ``python >= 2.7`` or ``python>=3.4`` for compiling the C extensions.
 - ``numpy >= 1.7`` for compiling the C extensions.
-- ``scipy >= 1.6`` for the spline basis functions for suave (lower versions may work but untested) 
-- ``colossus >= 1.2`` for the BAO basis functions for suave (lower versions may work but untested)  
+- ``scipy >= 1.6`` for the spline basis functions for ``suave`` (lower versions may work but untested) 
+- ``colossus >= 1.2`` for the BAO basis functions for ``suave`` (lower versions may work but untested)  
 - ``six >= 1.15`` (colossus dependency, lower versions may work but untested)
 
 Install with pip
 ----------------
 
-You can install suave via pip. We recommend doing this into a clean conda environment. You can do this and install the dependencies with the following set of commands:
+You can install ``suave`` via pip. We recommend doing this into a clean conda environment. You can do this and install the dependencies with the following set of commands:
 
 ::
 
-   $ conda create -n suaveenv
+   $ conda create -c conda-forge -n suaveenv python gsl
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl numpy scipy six pip
-   $ pip install colossus
    $ pip install suave
 
 Install from source
@@ -60,10 +58,8 @@ You should also be able to install from source. Once again you can do this in a 
 
 ::
 
-   $ conda create -n suaveenv
+   $ conda create -c conda-forge -n suaveenv python gsl
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl numpy scipy six pip
-   $ pip install colossus
    $ git clone https://github.com/kstoreyf/suave/
    $ cd suave
    $ make
@@ -73,7 +69,7 @@ You should also be able to install from source. Once again you can do this in a 
 Author & Maintainers
 ====================
 
-The suave package was implemented by `Kate Storey-Fisher <https://github.com/kstoreyf>`_.
+The ``suave`` package was implemented by `Kate Storey-Fisher <https://github.com/kstoreyf>`_.
 It is built within Corrfunc, which was designed by Manodeep Sinha and is currently maintained by
 `Lehman Garrison <https://github.com/lgarrison>`_ and `Manodeep Sinha <https://github.com/manodeep>`_.
 
