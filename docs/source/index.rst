@@ -13,7 +13,7 @@ This implementation of the suave estimator is built within and on top of the Cor
 
 
 The basics
-============
+==========
 
 .. toctree::
    :maxdepth: 1
@@ -42,7 +42,7 @@ API Reference
     
 
 The nitty-gritty
-===================
+================
 
 .. toctree::
    :maxdepth: 1
