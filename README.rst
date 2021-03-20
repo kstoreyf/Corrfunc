@@ -165,8 +165,8 @@ This work was supported by a NASA FINESST grant under award 80NSSC20K1545.
 .. |MIT licensed| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://raw.githubusercontent.com/manodeep/Corrfunc/master/LICENSE
    :alt: MIT License
-.. |RTD| image:: https://readthedocs.org/projects/suave/badge/?version=master
-   :target: http://suave.readthedocs.io/en/master/?badge=master
+.. |RTD| image:: https://readthedocs.org/projects/suave/badge/?version=latest
+   :target: https://suave.readthedocs.io/en/latest
    :alt: Documentation Status
 
 .. |Continuous-Function Estimator Paper| image:: https://img.shields.io/badge/arXiv-2011.01836-%23B31B1B
