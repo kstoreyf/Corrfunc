@@ -18,14 +18,12 @@ Suave has most of the same pre-reqs as Corrfunc, as well as a couple more:
 Install with pip
 ----------------
 
-You can install suave via pip. We recommend doing this into a clean conda environment. You can do this and install the dependencies with the following set of commands:
+You can install suave via pip. We recommend doing this into a clean conda environment. You can do this and install the necessary dependencies with the following set of commands:
 
 .. code::
 
-   $ conda create -n suaveenv
+   $ conda create -c conda-forge -n suaveenv python gsl
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl numpy scipy six pip
-   $ pip install colossus
    $ pip install suave
 
 Install from source
@@ -35,10 +33,8 @@ You should also be able to install from source. Once again you can do this in a 
 
 .. code::
 
-   $ conda create -n suaveenv
+   $ conda create -c conda-forge -n suaveenv python gsl
    $ conda activate suaveenv
-   $ conda install -c conda-forge gsl numpy scipy six pip
-   $ pip install colossus
    $ git clone https://github.com/kstoreyf/suave/
    $ cd suave
    $ make
