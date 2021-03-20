@@ -34,7 +34,7 @@ OPT += -DUSE_OMP
 DISTNAME:=suave
 MAJOR:=0
 MINOR:=0
-PATCHLEVEL:=5
+PATCHLEVEL:=6
 VERSION:=$(MAJOR).$(MINOR).$(PATCHLEVEL)
 ABI_COMPAT_VERSION:=$(MAJOR).0
 # Whenever conda needs to be checked again
