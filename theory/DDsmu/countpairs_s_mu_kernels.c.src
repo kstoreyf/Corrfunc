@@ -655,6 +655,7 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                 }
             }
 
+            // TODO NEXT: think through whether u is avx vector or regular, what to produce in proj_func, and how to deal with pairweight
             /* Projection */ 
             //herenow
             printf("AVX_NVEC = %d\n", AVX_NVEC);
