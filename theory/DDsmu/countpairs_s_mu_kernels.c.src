@@ -639,6 +639,20 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             const AVX_FLOATS m_binproduct = AVX_ADD_FLOATS(AVX_MULTIPLY_FLOATS(m_sbin,m_nmu_bins_p1),m_mubin);
             union_finalbin.m_ibin = AVX_TRUNCATE_FLOAT_TO_INT(m_binproduct);
 
+            // TODO NEXT: think through whether u is avx vector or regular, what to produce in proj_func, and how to deal with pairweight
+            /* Projection */ 
+            //herenow
+            union float8 union_mproj;
+            printf("AVX_NVEC = %d\n", AVX_NVEC);
+            /* Where the projection magic happens */
+            proj_func_t_avx_DOUBLE proj_func = NULL;
+            if(need_proj){
+            proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
+            DOUBLE u[ncomponents];
+            //printf("s: %f\n", AVX_SQRT_FLOAT(s2));
+            // projdata is already a pointer, pair is not
+            proj_func(projdata, u, AVX_SQRT_FLOAT(s2), s2, &pair);
+
             //update the histograms
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma unroll(AVX_NVEC)
@@ -653,47 +667,37 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     const DOUBLE weight = union_mweight.weights[jj];
                     weightavg[ibin] += weight;
                 }
-            }
-
-            // TODO NEXT: think through whether u is avx vector or regular, what to produce in proj_func, and how to deal with pairweight
-            /* Projection */ 
-            //herenow
-            printf("AVX_NVEC = %d\n", AVX_NVEC);
-            /* Where the projection magic happens */
-            proj_func_t_avx_DOUBLE proj_func = NULL;
-            if(need_proj){
-            proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
-            DOUBLE u[ncomponents];
-            //printf("s: %f\n", AVX_SQRT_FLOAT(s2));
-            // projdata is already a pointer, pair is not
-            proj_func(projdata, u, AVX_SQRT_FLOAT(s2), s2, &pair);
             
-            if (need_tensor) { 
-                for(int p1=0;p1<ncomponents;p1++){
-                    if (need_weightavg){
-                        // pair weight is just the pair product weight based on the 0 index of weights
-                        projpairs[p1] += u[p1]*pairweight;
-                    }
-                    else{
-                        projpairs[p1] += u[p1];
-                    }
-                    for(int p2=0;p2<ncomponents;p2++){
+                if (need_tensor) { 
+                    for(int p1=0;p1<ncomponents;p1++){
                         if (need_weightavg){
-                            projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2]*pairweight;
+                            // pair weight is just the pair product weight based on the 0 index of weights
+                            const DOUBLE pairweight = union_mweight.weights[jj];
+                            projpairs[p1] += u[p1]*pairweight;
                         }
                         else{
-                            projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2];
+                            projpairs[p1] += u[p1];
+                        }
+                        for(int p2=0;p2<ncomponents;p2++){
+                            if (need_weightavg){
+                                const DOUBLE pairweight = union_mweight.weights[jj];
+                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2]*pairweight;
+                            }
+                            else{
+                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2];
+                            }
                         }
                     }
                 }
-            }
-            else {
-                for(int p1=0;p1<ncomponents;p1++){
-                    if (need_weightavg){
-                        projpairs[p1] += u[p1]*pairweight;
-                    }
-                    else{
-                        projpairs[p1] += u[p1];
+                else {
+                    for(int p1=0;p1<ncomponents;p1++){
+                        if (need_weightavg){
+                            const DOUBLE pairweight = union_mweight.weights[jj];
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
                     }
                 }
             }
@@ -748,6 +752,48 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     break;
                 }
             }
+
+            /* Projection */ 
+            /* Where the projection magic happens */
+            proj_func_t_DOUBLE proj_func = NULL;
+            if(need_proj){
+                proj_func = get_proj_func_by_method_DOUBLE(proj_method);
+                DOUBLE u[ncomponents];
+                // projdata is already a pointer, pair is not
+                proj_func(projdata, u, s, s2, &pair);
+                //outer product to get tensor value
+                if (need_tensor) { 
+                    for(int p1=0;p1<ncomponents;p1++){
+                        if (need_weightavg){
+                            // pair weight is just the pair product weight based on the 0 index of weights
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
+                        for(int p2=0;p2<ncomponents;p2++){
+                            if (need_weightavg){
+                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2]*pairweight;
+                            }
+                            else{
+                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2];
+                            }
+                        }
+                    }
+                }
+                else {
+                    for(int p1=0;p1<ncomponents;p1++){
+                        if (need_weightavg){
+                            projpairs[p1] += u[p1]*pairweight;
+                        }
+                        else{
+                            projpairs[p1] += u[p1];
+                        }
+                    }
+                }
+            }
+            /* End Projection */
+            
         }//remainder loop over second set of particles
     }//loop over first set of particles
 
