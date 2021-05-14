@@ -19,10 +19,10 @@ def main():
                             }}
 
     proj = proj_dict[proj_type]
-    frac = 0.001
+    frac = 0.0001
     seed = 42
     allx, ally, allz = read_catalog()
-    N = np.int(frac * len(allx))
+    N = int(frac * len(allx))
     print("N:", N)
     np.random.seed(seed)
     x = np.random.choice(allx, N, replace=False)
@@ -32,41 +32,64 @@ def main():
     fmt='%10.10f'
 
     ### Brute force test
-    s = time.time()
-    print('brute force')
-    v_dd_correct, T_dd_correct = dd_bruteforce(data, proj['proj_func'], proj['ncomponents'], *proj['args'], **proj['kwargs'])
-    e = time.time()
-    print(v_dd_correct)
-    print(T_dd_correct)
-    print("brute force time:", e-s, 's')
+    # s = time.time()
+    # print('brute force')
+    # v_dd_correct, T_dd_correct = dd_bruteforce(data, proj['proj_func'], proj['ncomponents'], *proj['args'], **proj['kwargs'])
+    # e = time.time()
+    # print(v_dd_correct)
+    # print(T_dd_correct)
+    # print("brute force time:", e-s, 's')
 
-    s = time.time()
-    print('numpy trick')
-    v_dd_correct, T_dd_correct = dd_bruteforce_numpy(data, proj['proj_func'], proj['ncomponents'], *proj['args'], **proj['kwargs'])
-    e = time.time()
-    print(v_dd_correct)
-    print(T_dd_correct)
-    print("numpy trick brute force time:", e-s, 's')
+    # Brute force w numpy trick
+    # s = time.time()
+    # print('numpy trick')
+    # v_dd_correct, T_dd_correct = dd_bruteforce_numpy(data, proj['proj_func'], proj['ncomponents'], *proj['args'], **proj['kwargs'])
+    # e = time.time()
+    # print(v_dd_correct)
+    # print(T_dd_correct)
+    # print("numpy trick brute force time:", e-s, 's')
 
-    #np.save(f'../output/correct_full_{proj_type}.npy', [v_dd_correct, T_dd_correct, proj_type, proj])
-    #np.savetxt(f'../output/correct_vdd_{proj_type}.npy', v_dd_correct, fmt=fmt)
-    #np.savetxt(f'../output/correct_Tdd_{proj_type}.npy', T_dd_correct, fmt=fmt)
-    #print(v_dd_correct)
-    #print(T_dd_correct)
+    # np.save(f'../output/correct_full_{proj_type}.npy', [v_dd_correct, T_dd_correct, proj_type, proj])
+    # np.savetxt(f'../output/correct_vdd_{proj_type}.npy', v_dd_correct, fmt=fmt)
+    # np.savetxt(f'../output/correct_Tdd_{proj_type}.npy', T_dd_correct, fmt=fmt)
+    # print(v_dd_correct)
+    # print(T_dd_correct)
 
-    ### Corrfunc/suave test
+    ### Corrfunc/suave AVX test
+    
+    print('suave AVX')
     nthreads = 1
     mumax = 1.0
     nmubins = 1
-    _, v_dd, T_dd = DDsmu(1, nthreads, r_edges, mumax, nmubins, x, y, z,
-                proj_type=proj_type, ncomponents=proj['ncomponents'], projfn=proj['proj_fn'], periodic=False)
+    s = time.time()
+    _, v_dd, T_dd = DDsmu(1, nthreads, r_edges, mumax, nmubins, x, y, z, 
+                proj_type=proj_type, ncomponents=proj['ncomponents'], projfn=proj['proj_fn'], periodic=False,
+                isa='avx')
     T_dd = T_dd.reshape((ncomponents, ncomponents)) #make code output it like this?! or maybe i didn't because it makes it easier to pass directly to compute_amps, etc
+    e = time.time()
     print(v_dd)
     print(T_dd)
+    print("suave AVX time time:", e-s, 's')
 
-    #np.save(f'../output/suave_full_{proj_type}.npy', [v_dd, T_dd, proj_type, proj])
-    #np.savetxt(f'../output/suave_vdd_{proj_type}.npy', v_dd, fmt=fmt)
-    #np.savetxt(f'../output/suave_Tdd_{proj_type}.npy', T_dd, fmt=fmt)
+    ### Corrfunc/suave test
+    
+    print('suave regular')
+    nthreads = 1
+    mumax = 1.0
+    nmubins = 1
+    s = time.time()
+    _, v_dd, T_dd = DDsmu(1, nthreads, r_edges, mumax, nmubins, x, y, z,
+                proj_type=proj_type, ncomponents=proj['ncomponents'], projfn=proj['proj_fn'], periodic=False,
+                isa='fallback')
+    T_dd = T_dd.reshape((ncomponents, ncomponents)) #make code output it like this?! or maybe i didn't because it makes it easier to pass directly to compute_amps, etc
+    e = time.time()
+    print(v_dd)
+    print(T_dd)
+    print("suave regular time:", e-s, 's')
+
+    np.save(f'../output/suave_full_{proj_type}.npy', [v_dd, T_dd, proj_type, proj])
+    np.savetxt(f'../output/suave_vdd_{proj_type}.npy', v_dd, fmt=fmt)
+    np.savetxt(f'../output/suave_Tdd_{proj_type}.npy', T_dd, fmt=fmt)
 
 
 def dd_bruteforce(data, proj_func, ncomponents, *args, **kwargs):
