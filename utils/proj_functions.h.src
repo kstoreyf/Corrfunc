@@ -43,6 +43,8 @@ typedef struct
 
 typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE, DOUBLE, const pair_struct_DOUBLE*);
 
+typedef void (*proj_func_t_avx_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, AVX_FLOATS, AVX_FLOATS, const pair_struct_DOUBLE*);
+
 //////////////////////////////////
 // Projection functions
 //////////////////////////////////
@@ -59,11 +61,17 @@ void general_r_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, D
 
 void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair);
 
+// AVX
+
+void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, AVX_FLOATS s, AVX_FLOATS sqr_s, const pair_struct_DOUBLE *pair);
+
 //////////////////////////////////
 // Utility functions
 //////////////////////////////////
 
 extern proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method);
+
+extern proj_func_t_avx_DOUBLE get_proj_func_by_method_avx_DOUBLE(const proj_method_t method);
 
 int compute_amplitudes_DOUBLE(int ncomponents, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *trr, DOUBLE *amps);

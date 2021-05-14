@@ -59,6 +59,48 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUB
 }
 
 
+void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, AVX_FLOATS s, AVX_FLOATS sqr_s, const pair_struct_DOUBLE *pair){
+    (void) s;//to suppress the unused variable warning
+    (void) pair;
+
+    union int4 union_finalbin;
+    AVX_FLOATS m_supp_sqr[nsbin];
+    AVX_FLOATS m_kbin[nsbin];
+    for(int i=0;i<projdata->nsbins-1;i++) {
+        m_supp_sqr[i] = AVX_SET_FLOAT(projdata->supp_sqr[i]);
+        m_kbin[i] = AVX_SET_FLOAT((DOUBLE) i);
+    }
+    
+    AVX_FLOATS m_sbin = AVX_SETZERO_FLOAT();
+    //AVX_FLOATS m_all_ones  = AVX_CAST_INT_TO_FLOAT(AVX_SET_INT(-1));
+    for(int kbin=projdata->nsbins-1;kbin>=1;kbin--) {
+        const AVX_FLOATS m_mask_low = AVX_COMPARE_FLOATS(sqr_s,m_supp_sqr[kbin-1],_CMP_GE_OQ);
+        const AVX_FLOATS m_bin_mask = AVX_BITWISE_AND(m_mask_low,m_mask_left);
+        m_sbin = AVX_BLEND_FLOATS_WITH_MASK(m_sbin,m_kbin[kbin], m_bin_mask);
+        m_mask_left = AVX_COMPARE_FLOATS(s2, m_supp_sqr[kbin-1],_CMP_LT_OQ);
+        //m_mask_left = AVX_XOR_FLOATS(m_mask_low, m_all_ones);//XOR with 0xFFFF... gives the bins that are smaller than m_supp_sqr[kbin] (and is faster than cmp_p(s/d) in theory)
+        const int test = AVX_TEST_COMPARISON(m_mask_left);
+        if(test==0) {
+            break;
+        }
+    }
+    union_finalbin.m_ibin = SSE_TRUNCATE_FLOAT_TO_INT(m_sbin);
+
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma unroll(AVX_NVEC)
+#endif
+    for(int jj=0;jj<AVX_NVEC;jj++) {
+        int ibin = union_finalbin.ibin[jj];
+        u[ibin] = 1.0;
+    }
+    // to test
+    // for(int p=projdata->nsbins-1; p>=0; p--){
+    //     u[p] = 1.0;
+    // }
+    //u[0] = 1.0;
+}
+
+
 void piecewise_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUBLE sqr_s, const pair_struct_DOUBLE *pair){
     (void) sqr_s;//to suppress the unused variable warning
     (void) pair;
@@ -195,6 +237,7 @@ void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s,
  */
 proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
     switch(method){
+    
         case TOPHAT:
             return &tophat_DOUBLE;
         case PIECEWISE:
@@ -213,6 +256,18 @@ proj_func_t_DOUBLE get_proj_func_by_method_DOUBLE(const proj_method_t method){
     }
 }
 
+/* AVX version: Gives a pointer to the projection function for the given projection method
+ * and instruction set.
+ */
+proj_func_t_avx_DOUBLE get_proj_func_by_method_avx_DOUBLE(const proj_method_t method){
+    switch(method){
+        case TOPHAT:
+            return &tophat_avx_DOUBLE;
+        default:
+        case NONEPROJ:
+            return NULL;
+    }
+}
 
 int compute_amplitudes_DOUBLE(int ncomponents, int nd1, int nd2, int nr1, int nr2,
             DOUBLE *dd, DOUBLE *dr, DOUBLE *rd, DOUBLE *rr, DOUBLE *trr, DOUBLE *amps){

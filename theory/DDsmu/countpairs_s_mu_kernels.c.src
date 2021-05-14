@@ -349,12 +349,41 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
         return EXIT_FAILURE;
     }
 
+    //printf("In avx kernel\n");
+
     /* Projection */
     //unused parameters (only implemented in fallback for now)
-    (void) supp;
-    (void) src_projpairs;
-    (void) src_projpairs_tensor;
-    (void) projdata;
+    // (void) supp;
+    // (void) src_projpairs;
+    // (void) src_projpairs_tensor;
+    // (void) projdata;
+
+    const int64_t ncomponents = projdata->ncomponents;
+    proj_method_t proj_method = projdata->proj_method;
+    const int32_t need_proj = src_projpairs != NULL;
+    const int32_t need_tensor = src_projpairs_tensor != NULL;
+    DOUBLE projpairs[ncomponents], projpairs_tensor[ncomponents*ncomponents];
+
+    if(need_proj) {
+        //nsbin is number of edges, want number of bins
+        int nsbins = nsbin-1;
+        projdata->nsbins = nsbins;
+        projdata->supp = supp;
+        projdata->supp_sqr = supp_sqr;    
+    }
+    if (need_proj && need_tensor){
+        for(int i=0;i<ncomponents;i++) {
+            projpairs[i] = ZERO;
+            for(int j=0;j<ncomponents;j++) {
+                projpairs_tensor[i*ncomponents+j] = ZERO;
+            }
+        }
+    }
+    if (need_proj && !need_tensor){
+        for(int i=0;i<ncomponents;i++) {
+            projpairs[i] = ZERO;
+        }
+    }
     /* End Projection */
 
     const int32_t need_savg = src_savg != NULL;
@@ -625,6 +654,51 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     weightavg[ibin] += weight;
                 }
             }
+
+            /* Projection */ 
+            //herenow
+            printf("AVX_NVEC = %d\n", AVX_NVEC);
+            /* Where the projection magic happens */
+            proj_func_t_avx_DOUBLE proj_func = NULL;
+            if(need_proj){
+            proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
+            DOUBLE u[ncomponents];
+            //printf("s: %f\n", AVX_SQRT_FLOAT(s2));
+            // projdata is already a pointer, pair is not
+            proj_func(projdata, u, AVX_SQRT_FLOAT(s2), s2, &pair);
+            
+            if (need_tensor) { 
+                for(int p1=0;p1<ncomponents;p1++){
+                    if (need_weightavg){
+                        // pair weight is just the pair product weight based on the 0 index of weights
+                        projpairs[p1] += u[p1]*pairweight;
+                    }
+                    else{
+                        projpairs[p1] += u[p1];
+                    }
+                    for(int p2=0;p2<ncomponents;p2++){
+                        if (need_weightavg){
+                            projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2]*pairweight;
+                        }
+                        else{
+                            projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2];
+                        }
+                    }
+                }
+            }
+            else {
+                for(int p1=0;p1<ncomponents;p1++){
+                    if (need_weightavg){
+                        projpairs[p1] += u[p1]*pairweight;
+                    }
+                    else{
+                        projpairs[p1] += u[p1];
+                    }
+                }
+            }
+            
+            }
+
         }
 
 
@@ -685,7 +759,21 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             src_weightavg[i] += weightavg[i];
         }
     }
-
+    /* Projection */ 
+    if(need_proj && need_tensor) {
+        for(int i=0;i<ncomponents;i++) {
+            src_projpairs[i] += projpairs[i];
+            for(int j=0;j<ncomponents;j++) {
+                src_projpairs_tensor[i*ncomponents+j] += projpairs_tensor[i*ncomponents+j];
+            }
+        }
+    }
+    if(need_proj && !need_tensor) {
+        for(int i=0;i<ncomponents;i++) {
+            src_projpairs[i] += projpairs[i];
+        }
+    }
+    /* End Projection */
     return EXIT_SUCCESS;
 }
 #endif //__AVX__
@@ -1099,7 +1187,6 @@ static inline int countpairs_s_mu_fallback_DOUBLE(const int64_t N0, DOUBLE *x0, 
 
     DOUBLE projpairs[ncomponents], projpairs_tensor[ncomponents*ncomponents];
 
-    //TODO: only do this if need_proj?
     if(need_proj) {
         //nsbin is number of edges, want number of bins
         int nsbins = nsbin-1;
