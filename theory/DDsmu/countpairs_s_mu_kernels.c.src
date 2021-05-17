@@ -639,7 +639,6 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             const AVX_FLOATS m_binproduct = AVX_ADD_FLOATS(AVX_MULTIPLY_FLOATS(m_sbin,m_nmu_bins_p1),m_mubin);
             union_finalbin.m_ibin = AVX_TRUNCATE_FLOAT_TO_INT(m_binproduct);
 
-            // TODO NEXT: think through whether u is avx vector or regular, what to produce in proj_func, and how to deal with pairweight
             /* Projection */ 
             //herenow
             union float8 union_mproj;
@@ -649,16 +648,37 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             if(need_proj){
             proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
             DOUBLE u[ncomponents];
+            DOUBLE T[ncomponents*ncomponents];
             //printf("s: %f\n", AVX_SQRT_FLOAT(s2));
             // projdata is already a pointer, pair is not
-            proj_func(projdata, u, AVX_SQRT_FLOAT(s2), s2, &pair);
+            printf("kernel: ");
+            avx_print(s2);
+            avx_print(m_binproduct);
+            proj_func(projdata, u, T, AVX_SQRT_FLOAT(s2), s2, &pair);
+            printf("u[0] = %f\n", u[0]);
+
+            if (need_tensor) { 
+                for(int p1=0;p1<ncomponents;p1++){
+                    projpairs[p1] += u[p1];
+                    for(int p2=0;p2<ncomponents;p2++){
+                        projpairs_tensor[p1*ncomponents+p2] += T[p1*ncomponents+p2];
+                    }
+                }
+            }
+            else {
+                for(int p1=0;p1<ncomponents;p1++){
+                    projpairs[p1] += u[p1];
+                }
+            }
 
             //update the histograms
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma unroll(AVX_NVEC)
 #endif
+            printf("unpack\n");
             for(int jj=0;jj<AVX_NVEC;jj++) {
                 int ibin = union_finalbin.ibin[jj];
+                printf("ibin (jj=%d): %d\n", jj, ibin);
                 npairs[ibin]++;
                 if(need_savg) {
                     savg[ibin] += union_mDperp.Dperp[jj];
@@ -667,40 +687,9 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     const DOUBLE weight = union_mweight.weights[jj];
                     weightavg[ibin] += weight;
                 }
-            
-                if (need_tensor) { 
-                    for(int p1=0;p1<ncomponents;p1++){
-                        if (need_weightavg){
-                            // pair weight is just the pair product weight based on the 0 index of weights
-                            const DOUBLE pairweight = union_mweight.weights[jj];
-                            projpairs[p1] += u[p1]*pairweight;
-                        }
-                        else{
-                            projpairs[p1] += u[p1];
-                        }
-                        for(int p2=0;p2<ncomponents;p2++){
-                            if (need_weightavg){
-                                const DOUBLE pairweight = union_mweight.weights[jj];
-                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2]*pairweight;
-                            }
-                            else{
-                                projpairs_tensor[p1*ncomponents+p2] += u[p1]*u[p2];
-                            }
-                        }
-                    }
-                }
-                else {
-                    for(int p1=0;p1<ncomponents;p1++){
-                        if (need_weightavg){
-                            const DOUBLE pairweight = union_mweight.weights[jj];
-                            projpairs[p1] += u[p1]*pairweight;
-                        }
-                        else{
-                            projpairs[p1] += u[p1];
-                        }
-                    }
-                }
             }
+        
+            
             
             }
 

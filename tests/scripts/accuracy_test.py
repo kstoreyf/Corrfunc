@@ -9,7 +9,7 @@ def main():
 
     savetag = ''
     proj_type = 'tophat'
-    ncomponents = 9
+    ncomponents = 3
     r_edges = np.linspace(10., 100., ncomponents+1)
     proj_dict = {'tophat': {'ncomponents': ncomponents,
                             'proj_func': tophat_orig,

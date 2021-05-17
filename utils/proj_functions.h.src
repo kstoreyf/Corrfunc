@@ -43,7 +43,7 @@ typedef struct
 
 typedef void (*proj_func_t_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE, DOUBLE, const pair_struct_DOUBLE*);
 
-typedef void (*proj_func_t_avx_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, AVX_FLOATS, AVX_FLOATS, const pair_struct_DOUBLE*);
+typedef void (*proj_func_t_avx_DOUBLE)(const proj_struct_DOUBLE*, DOUBLE*, DOUBLE*, AVX_FLOATS, AVX_FLOATS, const pair_struct_DOUBLE*);
 
 //////////////////////////////////
 // Projection functions
@@ -63,7 +63,7 @@ void gradient_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DO
 
 // AVX
 
-void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, AVX_FLOATS s, AVX_FLOATS sqr_s, const pair_struct_DOUBLE *pair);
+void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE *T, AVX_FLOATS s, AVX_FLOATS sqr_s, const pair_struct_DOUBLE *pair);
 
 //////////////////////////////////
 // Utility functions

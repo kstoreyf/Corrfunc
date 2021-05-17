@@ -201,7 +201,8 @@ static inline void avx_print(const AVX_FLOATS v)
     union U256 u = { v };
 
     for (int i = 0; i < AVX_NVEC; ++i)
-        printf("%f", u.a[i]);
+        printf("%f ", u.a[i]);
+    printf("\n");
 }
 
 #ifndef  __INTEL_COMPILER
