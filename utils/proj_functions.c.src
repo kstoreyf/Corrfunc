@@ -77,32 +77,45 @@ void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, AVX_FLOATS
         m_kbin[i] = AVX_SET_FLOAT((DOUBLE) i);
     }
     
-    AVX_FLOATS m_sbin = AVX_SETZERO_FLOAT();
-    AVX_FLOATS m_mask_left;
-    //AVX_FLOATS m_all_ones  = AVX_CAST_INT_TO_FLOAT(AVX_SET_INT(-1));
-    for(int kbin=projdata->nsbins;kbin>=1;kbin--) {
-        // where s2 greater than or equal bin bottoms
-        const AVX_FLOATS m_mask_low = AVX_COMPARE_FLOATS(sqr_s,m_supp_sqr[kbin-1],_CMP_GE_OQ);
-        // where mask is 0: first, where 1: second
-        m_sbin = AVX_BLEND_FLOATS_WITH_MASK(m_sbin,m_kbin[kbin], m_mask_low);
-        // where s2 less than bin tops
-        m_mask_left = AVX_COMPARE_FLOATS(sqr_s, m_supp_sqr[kbin-1],_CMP_LT_OQ);
-        //m_mask_left = AVX_XOR_FLOATS(m_mask_low, m_all_ones);//XOR with 0xFFFF... gives the bins that are smaller than m_supp_sqr[kbin] (and is faster than cmp_p(s/d) in theory)
-        const int test = AVX_TEST_COMPARISON(m_mask_left);
-        if(test==0) {
-            break;
-        }
-    }
+    // AVX_FLOATS m_sbin = AVX_SETZERO_FLOAT();
+    // AVX_FLOATS m_mask_left;
+    // //AVX_FLOATS m_all_ones  = AVX_CAST_INT_TO_FLOAT(AVX_SET_INT(-1));
+    // for(int kbin=projdata->nsbins;kbin>=1;kbin--) {
+    //     // where s2 greater than or equal bin bottoms
+    //     const AVX_FLOATS m_mask_low = AVX_COMPARE_FLOATS(sqr_s,m_supp_sqr[kbin-1],_CMP_GE_OQ);
+    //     // where mask is 0: first, where 1: second
+    //     m_sbin = AVX_BLEND_FLOATS_WITH_MASK(m_sbin,m_kbin[kbin], m_mask_low);
+    //     // where s2 less than bin tops
+    //     m_mask_left = AVX_COMPARE_FLOATS(sqr_s, m_supp_sqr[kbin-1],_CMP_LT_OQ);
+    //     //m_mask_left = AVX_XOR_FLOATS(m_mask_low, m_all_ones);//XOR with 0xFFFF... gives the bins that are smaller than m_supp_sqr[kbin] (and is faster than cmp_p(s/d) in theory)
+    //     const int test = AVX_TEST_COMPARISON(m_mask_left);
+    //     if(test==0) {
+    //         break;
+    //     }
+    // }
     
-    union_finalbin.m_ibin = AVX_TRUNCATE_FLOAT_TO_INT(m_sbin);
 
-#if defined(__ICC) || defined(__INTEL_COMPILER)
-#pragma unroll(AVX_NVEC)
-#endif
-    for(int jj=0;jj<AVX_NVEC;jj++) {
-        int ibin = union_finalbin.ibin[jj];
-        u[ibin] += 1.0;
-    }
+    int ncomponents = projdata->ncomponents;
+    for (int k=0;k<projdata->nsbins;k++){
+        // where s2 greater than or equal bin bottoms
+        printf("hi\n");
+        avx_print(sqr_s);
+        printf("bye\n");
+        const AVX_FLOATS m_mask_low = AVX_COMPARE_FLOATS(sqr_s,m_supp_sqr[k],_CMP_GE_OQ);
+        const AVX_FLOATS m_mask_hi = AVX_COMPARE_FLOATS(sqr_s, m_supp_sqr[k+1],_CMP_LT_OQ);
+        const AVX_FLOATS m_mask_inbin = AVX_BITWISE_AND(m_mask_low, m_mask_hi);
+        // this m_mask_inbin is now effectively u4[k]!
+        u[k] = avx_hsum_float(m_mask_inbin);
+    } 
+
+//     union_finalbin.m_ibin = AVX_TRUNCATE_FLOAT_TO_INT(m_sbin);
+// #if defined(__ICC) || defined(__INTEL_COMPILER)
+// #pragma unroll(AVX_NVEC)
+// #endif
+//     for(int jj=0;jj<AVX_NVEC;jj++) {
+//         int ibin = union_finalbin.ibin[jj];
+//         u[ibin] += 1.0;
+//     }
 }
 
 

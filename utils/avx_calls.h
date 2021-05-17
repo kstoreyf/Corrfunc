@@ -39,6 +39,7 @@ extern "C" {
 #define AVX_NVEC                         8    
 #define AVX_INTS                         __m256i
 #define AVX_FLOATS                       __m256
+#define AVX_FLOATS_128                   __m128
 
 #define AVX_SETZERO_FLOAT()              _mm256_setzero_ps()
     
@@ -93,10 +94,18 @@ extern "C" {
     //Casting (does not actual convert between types)
 #define AVX_CAST_FLOAT_TO_INT(X)          _mm256_castps_si256(X)
 #define AVX_CAST_INT_TO_FLOAT(X)          _mm256_castsi256_ps(X)
+#define AVX_CAST_256_TO_128(X)            _mm256_castps256_ps128(X)
 
     //Streaming store
 #define AVX_STREAMING_STORE_FLOATS(X,Y)   _mm256_stream_ps(X,Y)
 #define AVX_STREAMING_STORE_INTS(X,Y)     _mm256_stream_si256(X,Y)
+
+//128-bit operations
+#define AVX_ADD_FLOATS_128(X,Y)           _mm_add_ps(X,Y)
+#define AVX_ADD_FLOATS_LOW_128(X,Y)       _mm_add_ss(X,Y)
+#define AVX_EXTRACT_128(X,Y)              _mm256_extractf128_ps(X,Y)
+#define AVX_UNPACK_HI(X,Y)                _mm_unpackhi_ps(X,Y)
+#define AVX_COPY_LOWER(X)                 _mm_cvtss_f32(X)
 
 #else //DOUBLE PRECISION CALCULATIONS
   
@@ -104,6 +113,7 @@ extern "C" {
 #define AVX_NVEC                         4    
 #define AVX_INTS                         __m128i
 #define AVX_FLOATS                       __m256d
+#define AVX_FLOATS_128                   __m128d
 
 #define AVX_SETZERO_FLOAT()              _mm256_setzero_pd()    
 
@@ -154,12 +164,45 @@ extern "C" {
     //Casting (does not actual convert between types)
 #define AVX_CAST_FLOAT_TO_INT(X)          _mm256_castpd_si256(X)
 #define AVX_CAST_INT_TO_FLOAT(X)          _mm256_castsi256_pd(X)
+#define AVX_CAST_256_TO_128(X)            _mm256_castpd256_pd128(X)
 
     //Streaming store
 #define AVX_STREAMING_STORE_FLOATS(X,Y)   _mm256_stream_pd(X,Y)
 #define AVX_STREAMING_STORE_INTS(X,Y)     _mm_stream_si128(X,Y)
 
+//128-bit operations
+#define AVX_ADD_FLOATS_128(X,Y)           _mm_add_pd(X,Y)
+#define AVX_ADD_FLOATS_LOW_128(X,Y)       _mm_add_sd(X,Y)
+#define AVX_EXTRACT_128(X,Y)              _mm256_extractf128_pd(X,Y)
+#define AVX_UNPACK_HI(X,Y)                _mm_unpackhi_pd(X,Y)
+#define AVX_COPY_LOWER(X)               _mm_cvtsd_f64(X)
+
 #endif //DOUBLE_PREC
+
+// via https://stackoverflow.com/questions/49941645/get-sum-of-values-stored-in-m256d-with-sse-avx
+static inline DOUBLE avx_hsum_float(AVX_FLOATS v) {
+    AVX_FLOATS_128 vlow  = AVX_CAST_256_TO_128(v);
+    AVX_FLOATS_128 vhigh = AVX_EXTRACT_128(v, 1); // high 128
+            vlow  = AVX_ADD_FLOATS_128(vlow, vhigh);     // reduce down to 128
+
+    AVX_FLOATS_128 high64 = AVX_UNPACK_HI(vlow, vlow);
+    return AVX_COPY_LOWER(AVX_ADD_FLOATS_LOW_128(vlow, high64));  // reduce to scalar
+}
+
+//PRINT
+
+
+static inline void avx_print(const AVX_FLOATS v)
+{
+    union U256 {
+        AVX_FLOATS v;
+        DOUBLE a[AVX_NVEC];
+    };
+    union U256 u = { v };
+
+    for (int i = 0; i < AVX_NVEC; ++i)
+        printf("%f", u.a[i]);
+}
 
 #ifndef  __INTEL_COMPILER
 #include "fast_acos.h"
@@ -270,7 +313,6 @@ static inline AVX_FLOATS inv_cosine_avx(const AVX_FLOATS X, const int order)
         } /* end of FAST_DIVIDE */                                      \
     }
 #endif /* end of DOUBLE_PREC for defining check_and_fast_divide macro */
-
 
 #ifdef __cplusplus
 }
