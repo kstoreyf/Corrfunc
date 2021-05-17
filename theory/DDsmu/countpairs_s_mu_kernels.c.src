@@ -640,22 +640,17 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             union_finalbin.m_ibin = AVX_TRUNCATE_FLOAT_TO_INT(m_binproduct);
 
             /* Projection */ 
-            //herenow
             union float8 union_mproj;
-            printf("AVX_NVEC = %d\n", AVX_NVEC);
+            //printf("AVX_NVEC = %d\n", AVX_NVEC);
             /* Where the projection magic happens */
             proj_func_t_avx_DOUBLE proj_func = NULL;
             if(need_proj){
             proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
             DOUBLE u[ncomponents];
             DOUBLE T[ncomponents*ncomponents];
-            //printf("s: %f\n", AVX_SQRT_FLOAT(s2));
             // projdata is already a pointer, pair is not
-            printf("kernel: ");
-            avx_print(s2);
-            avx_print(m_binproduct);
+            //TODO: include pair weights!!
             proj_func(projdata, u, T, AVX_SQRT_FLOAT(s2), s2, &pair);
-            printf("u[0] = %f\n", u[0]);
 
             if (need_tensor) { 
                 for(int p1=0;p1<ncomponents;p1++){
@@ -675,10 +670,8 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma unroll(AVX_NVEC)
 #endif
-            printf("unpack\n");
             for(int jj=0;jj<AVX_NVEC;jj++) {
                 int ibin = union_finalbin.ibin[jj];
-                printf("ibin (jj=%d): %d\n", jj, ibin);
                 npairs[ibin]++;
                 if(need_savg) {
                     savg[ibin] += union_mDperp.Dperp[jj];
@@ -688,13 +681,8 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     weightavg[ibin] += weight;
                 }
             }
-        
-            
-            
             }
-
         }
-
 
         //remainder loop
         for(;j<N1;j++){
