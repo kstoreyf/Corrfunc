@@ -26,6 +26,8 @@ from contextlib import contextmanager
 import multiprocessing
 max_threads = multiprocessing.cpu_count()
 
+print(Corrfunc.__file__)
+print(Corrfunc.__version__)
 
 @contextmanager
 def stderr_redirected(to=os.devnull):
@@ -79,7 +81,9 @@ def benchmark_theory_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.
                                                0.6, 0.7, 0.8, 0.9, 1.0],
                                  nrepeats=3,
                                  keys=None,
-                                 isa=None):
+                                 isa=None,
+                                 proj_dict=None,
+                                 nbins=20):
 
     from Corrfunc.theory import DD, DDrppi, wp, xi, DDsmu
     allkeys = ['DD', 'DDrppi',
@@ -110,7 +114,6 @@ def benchmark_theory_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.
 
     rmin = 0.1
     rmax = 84.0
-    nbins = 20
     bins = np.logspace(np.log10(rmin),
                        np.log10(rmax),
                        nbins)
@@ -120,11 +123,10 @@ def benchmark_theory_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.
 
     autocorr = 1
     boxsize = 420.0
-    nthreads = max_threads
+    #nthreads = max_threads
+    nthreads = 1
+    print(max_threads)
 
-    proj_dict = {'None': {'ncomponents': None, 'projfn': None},
-                'tophat': {'ncomponents': nbins, 'projfn': None}
-                }
     proj_types = np.array(list(proj_dict.keys()))
 
     dtype = np.dtype([('repeat', np.int),
@@ -165,8 +167,8 @@ def benchmark_theory_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.
                         runtimes['repeat'][index] = repeat
                         with stderr_redirected(to=stderr_filename):
                             t0 = time.time()
-                            if proj_type!='None' and run_isa!='fallback':
-                                continue
+                            #if proj_type!='None' and run_isa!='fallback':
+                            #    continue
                             if proj_type=='None':
                                 _, _, _, api_time = DDsmu(autocorr, nthreads, bins, mumax, nmubins, x, y, z,
                                             verbose=True, c_api_timer=True,
@@ -493,11 +495,16 @@ def benchmark_mocks_threads_all(numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1, 0.2
 if len(sys.argv) == 1:
     print("Running theory benchmarks")
     savetag = '_max0.1'
-    numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1]
+    #numpart_frac=[0.001, 0.005, 0.01, 0.05, 0.1]
+    numpart_frac=np.logspace(np.log10(0.0001), np.log10(0.06), 6)
     keys=['DDsmu']
-    isa=['fallback']
-    keys, isa, runtimes, proj_types = benchmark_theory_threads_all(numpart_frac=numpart_frac, keys=keys, isa=isa, nrepeats=3)
-    np.savez(f'theory_scaling_numpart{savetag}.npz', keys=keys, isa=isa,
+    isa=['fallback', 'avx']
+    nbins = 20
+    proj_dict = {#'None': {'ncomponents': None, 'projfn': None},
+                 'tophat': {'ncomponents': nbins, 'projfn': None}
+                }
+    keys, isa, runtimes, proj_types = benchmark_theory_threads_all(numpart_frac=numpart_frac, keys=keys, isa=isa, nrepeats=3, proj_dict=proj_dict, nbins=9)
+    np.savez(f'../output/theory_scaling_numpart{savetag}.npz', keys=keys, isa=isa,
              runtimes=runtimes, proj_types=proj_types)
     print("Theory: runtimes = {0}".format(runtimes))
 
@@ -701,7 +708,8 @@ else:
             
     #axes[0].get_xaxis().set_major_locator(plt.MaxNLocator(integer=True))
     
-    fig_fn = '{}{}.pdf'\
+    fig_fn = '../plots/{}{}.pdf'\
         .format('.'.join(path.basename(timings_file).split('.')[:-1]), '_simd_speedup' if plt_speedup else '')
+    print("Saving to", fig_fn)
     fig.tight_layout()
     fig.savefig(fig_fn)
