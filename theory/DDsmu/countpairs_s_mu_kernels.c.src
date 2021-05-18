@@ -641,6 +641,7 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
 
             /* Projection */ 
             //herenow
+            //printf("AVX kernel\n");
             //printf("AVX_NVEC = %d\n", AVX_NVEC);
             /* Where the projection magic happens */
             proj_func_t_avx_DOUBLE proj_func = NULL;
@@ -654,7 +655,10 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                 //TODO: include pair weights!!
                 proj_func(projdata, u, T, AVX_SQRT_FLOAT(s2), s2, &pair);
 
-                if (need_tensor) { 
+                if (need_tensor) {
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma unroll(ncomponents)
+#endif
                     for(int p1=0;p1<ncomponents;p1++){
                         projpairs[p1] += u[p1];
                         for(int p2=0;p2<ncomponents;p2++){
@@ -663,6 +667,9 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     }
                 }
                 else {
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma unroll(ncomponents)
+#endif
                     for(int p1=0;p1<ncomponents;p1++){
                         projpairs[p1] += u[p1];
                     }

@@ -95,15 +95,25 @@ void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE *T,
             break;
         }
     } 
+    // for tophat, we know that the off-diagonals will be zero
     DOUBLE Tval;
     for (int k1=0;k1<projdata->ncomponents;k1++){
         u[k1] = avx_hsum_float(u_arr[k1]);
-        for (int k2=k1;k2<projdata->ncomponents;k2++){
-            Tval = avx_hsum_float(AVX_MULTIPLY_FLOATS(u_arr[k1], u_arr[k2]));
-            T[k1*ncomponents+k2] = Tval;
-            T[k2*ncomponents+k1] = Tval;
+        T[k1*ncomponents+k1] = avx_hsum_float(AVX_SQUARE_FLOAT(u_arr[k1]));
+        for (int k2=k1+1;k2<projdata->ncomponents;k2++){
+            T[k1*ncomponents+k2] = 0.0;
+            T[k2*ncomponents+k1] = 0.0;
         }
     }
+    // DOUBLE Tval;
+    // for (int k1=0;k1<projdata->ncomponents;k1++){
+    //     u[k1] = avx_hsum_float(u_arr[k1]);
+    //     for (int k2=k1;k2<projdata->ncomponents;k2++){
+    //         Tval = avx_hsum_float(AVX_MULTIPLY_FLOATS(u_arr[k1], u_arr[k2]));
+    //         T[k1*ncomponents+k2] = Tval;
+    //         T[k2*ncomponents+k1] = Tval;
+    //     }
+    // }
 }
 
 
