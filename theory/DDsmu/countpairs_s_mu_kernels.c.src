@@ -645,26 +645,27 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             /* Where the projection magic happens */
             proj_func_t_avx_DOUBLE proj_func = NULL;
             if(need_proj){
-            proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
-            DOUBLE u[ncomponents];
-            DOUBLE T[ncomponents*ncomponents];
+                proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
+                DOUBLE u[ncomponents];
+                DOUBLE T[ncomponents*ncomponents];
 
-            projdata->need_weightavg = need_weightavg;
-            // projdata is already a pointer, pair is not
-            //TODO: include pair weights!!
-            proj_func(projdata, u, T, AVX_SQRT_FLOAT(s2), s2, &pair);
+                projdata->need_weightavg = need_weightavg;
+                // projdata is already a pointer, pair is not
+                //TODO: include pair weights!!
+                proj_func(projdata, u, T, AVX_SQRT_FLOAT(s2), s2, &pair);
 
-            if (need_tensor) { 
-                for(int p1=0;p1<ncomponents;p1++){
-                    projpairs[p1] += u[p1];
-                    for(int p2=0;p2<ncomponents;p2++){
-                        projpairs_tensor[p1*ncomponents+p2] += T[p1*ncomponents+p2];
+                if (need_tensor) { 
+                    for(int p1=0;p1<ncomponents;p1++){
+                        projpairs[p1] += u[p1];
+                        for(int p2=0;p2<ncomponents;p2++){
+                            projpairs_tensor[p1*ncomponents+p2] += T[p1*ncomponents+p2];
+                        }
                     }
                 }
-            }
-            else {
-                for(int p1=0;p1<ncomponents;p1++){
-                    projpairs[p1] += u[p1];
+                else {
+                    for(int p1=0;p1<ncomponents;p1++){
+                        projpairs[p1] += u[p1];
+                    }
                 }
             }
 
@@ -682,7 +683,6 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
                     const DOUBLE weight = union_mweight.weights[jj];
                     weightavg[ibin] += weight;
                 }
-            }
             }
         }
 

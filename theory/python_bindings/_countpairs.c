@@ -36,6 +36,9 @@
 //for trr_analytic only, for now
 //#include "projection.h"
 
+//for checking if avx kernel implemented
+#include "projection.h"
+
 struct module_state {
     PyObject *error;
 };
@@ -2416,14 +2419,12 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
         Py_RETURN_NONE; 
     }
 
-    // Projection only supported in fallback kernel for now!
-    // if (proj_method!=NONEPROJ && options.instruction_set!=FALLBACK){
-    //     //THIS LINE BREAKS EVERYTHING IDK WHY i cannot figure out how to print a message here. giving up for now.
-    //     //fprintf(stdout, "Applying projection requires fallback method, switching instruction set\n");
-    //     options.instruction_set = FALLBACK;
-    // }
+    // If AVX version of kernel not implemented, use fallback kernel
+    if (! is_kernel_avx(proj_method)){
+        options.instruction_set = FALLBACK;
+    }
+
     add_extra_options(&extra, proj_method, ncomponents, projfn);
-    //TODO: perform more validation about inputs to given projection function
     /* End Projection */
 
     /* Interpret the input objects as numpy arrays. */
@@ -2519,7 +2520,6 @@ static PyObject *countpairs_countpairs_s_mu(PyObject *self, PyObject *args, PyOb
     if(status != EXIT_SUCCESS) {
         Py_RETURN_NONE;
     }
-
 
     /* Build the output list */
     PyObject *ret = PyList_New(0);//create an empty list

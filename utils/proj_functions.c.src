@@ -61,24 +61,18 @@ void tophat_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE s, DOUB
 
 void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE *T, AVX_FLOATS s, AVX_FLOATS sqr_s, const pair_struct_DOUBLE *pair){
     (void) s;//to suppress the unused variable warning
-    (void) pair;
 
-    int ncomponents = projdata->ncomponents;
     int need_weightavg = projdata->need_weightavg;
+    const int ncomponents = projdata->ncomponents;
     AVX_FLOATS u_arr[ncomponents];
-
-    for(int p=projdata->nsbins-1; p>=0; p--){
-        u[p] = ZERO;
-    }
-
-    //nsbin is number of edges, nsbins is number bins
-    const int nsbin = projdata->nsbins + 1;
-    AVX_FLOATS m_supp_sqr[nsbin];
-    for(int i=0;i<nsbin;i++) {
+    // +1 because supp_sqr is edges, not bins
+    AVX_FLOATS m_supp_sqr[ncomponents+1];
+    for(int i=0;i<ncomponents+1;i++) {
         m_supp_sqr[i] = AVX_SET_FLOAT(projdata->supp_sqr[i]);
     }
     
-    for (int k=0;k<projdata->nsbins;k++){
+    AVX_FLOATS m_mask_left;
+    for (int k=projdata->ncomponents-1;k>=0;k--){
         // where s2 greater than or equal bin bottoms
         const AVX_FLOATS m_mask_low = AVX_COMPARE_FLOATS(sqr_s,m_supp_sqr[k],_CMP_GE_OQ);
         // where s2 less than bin tops
@@ -89,12 +83,22 @@ void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE *T,
         if (need_weightavg) {
             u_arr[k] *= pair->weights0[0].a;
         }
+
+        // check if we have more left
+        m_mask_left = AVX_COMPARE_FLOATS(sqr_s, m_supp_sqr[k],_CMP_LT_OQ);
+        const int test = AVX_TEST_COMPARISON(m_mask_left);
+        if(test==0) {
+            // if done, fill rest with zeros
+            for (int kleft=k-1;kleft>=0;kleft--){
+                u_arr[kleft] = AVX_SETZERO_FLOAT();
+            }
+            break;
+        }
     } 
-    DOUBLE hsum, Tval;
-    for (int k1=0;k1<projdata->nsbins;k1++){
-        hsum = avx_hsum_float(u_arr[k1]);
-        u[k1] = hsum;
-        for (int k2=k1;k2<projdata->nsbins;k2++){
+    DOUBLE Tval;
+    for (int k1=0;k1<projdata->ncomponents;k1++){
+        u[k1] = avx_hsum_float(u_arr[k1]);
+        for (int k2=k1;k2<projdata->ncomponents;k2++){
             Tval = avx_hsum_float(AVX_MULTIPLY_FLOATS(u_arr[k1], u_arr[k2]));
             T[k1*ncomponents+k2] = Tval;
             T[k2*ncomponents+k1] = Tval;

@@ -437,6 +437,17 @@ static inline int get_proj_method_by_name(const char *name, proj_method_t *metho
    return EXIT_FAILURE;
 }
     
+static inline int is_kernel_avx(proj_method_t method){
+    const int n_avx = 1;
+    proj_method_t kernels_avx[] = {TOPHAT};
+    for (int i=0; i<n_avx; i++){
+        if (method==kernels_avx[i]){
+            return 1;
+        }
+    }
+    return 0;
+}
+
 struct extra_options
 {
     // Two possible weight_structs (at most we will have two loaded sets of particles)
