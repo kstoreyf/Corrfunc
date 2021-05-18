@@ -27,6 +27,7 @@ typedef struct
     int64_t nsbins;
     int64_t nres;
     int64_t nbases;
+    int8_t need_weightavg;
     const DOUBLE *supp;
     const DOUBLE *supp_sqr;
     DOUBLE *projbases;

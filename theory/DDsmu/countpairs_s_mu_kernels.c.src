@@ -640,7 +640,7 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             union_finalbin.m_ibin = AVX_TRUNCATE_FLOAT_TO_INT(m_binproduct);
 
             /* Projection */ 
-            union float8 union_mproj;
+            //herenow
             //printf("AVX_NVEC = %d\n", AVX_NVEC);
             /* Where the projection magic happens */
             proj_func_t_avx_DOUBLE proj_func = NULL;
@@ -648,6 +648,8 @@ static inline int countpairs_s_mu_avx_intrinsics_DOUBLE(const int64_t N0, DOUBLE
             proj_func = get_proj_func_by_method_avx_DOUBLE(proj_method);
             DOUBLE u[ncomponents];
             DOUBLE T[ncomponents*ncomponents];
+
+            projdata->need_weightavg = need_weightavg;
             // projdata is already a pointer, pair is not
             //TODO: include pair weights!!
             proj_func(projdata, u, T, AVX_SQRT_FLOAT(s2), s2, &pair);

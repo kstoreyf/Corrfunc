@@ -64,6 +64,7 @@ void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE *T,
     (void) pair;
 
     int ncomponents = projdata->ncomponents;
+    int need_weightavg = projdata->need_weightavg;
     AVX_FLOATS u_arr[ncomponents];
 
     for(int p=projdata->nsbins-1; p>=0; p--){
@@ -85,6 +86,9 @@ void tophat_avx_DOUBLE(const proj_struct_DOUBLE *projdata, DOUBLE *u, DOUBLE *T,
         AVX_FLOATS m_mask_inbin = AVX_BITWISE_AND(m_mask_low, m_mask_hi);
         m_mask_inbin = AVX_BITWISE_AND(m_mask_inbin, AVX_SET_FLOAT(1));
         u_arr[k] = m_mask_inbin;
+        if (need_weightavg) {
+            u_arr[k] *= pair->weights0[0].a;
+        }
     } 
     DOUBLE hsum, Tval;
     for (int k1=0;k1<projdata->nsbins;k1++){
